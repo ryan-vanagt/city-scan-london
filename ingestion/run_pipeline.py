@@ -19,12 +19,12 @@ load_dotenv(PROJECT_ROOT / ".env")
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
 
-from ingestion.sources import openaq  # noqa: E402
+from ingestion.sources import openaq, tfl  # noqa: E402
 from pipeline import bronze  # noqa: E402
 
 SOURCES = {
     "openaq": openaq,
-    # "tfl": tfl,
+    "tfl": tfl,
     # "guardian": guardian,
     # "reddit": reddit,
     # "met_police": met_police,

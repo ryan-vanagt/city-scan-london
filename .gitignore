@@ -6,6 +6,9 @@
 CLAUDE.md
 *.pdf
 
+# Personal learning notes
+learning/
+
 # Data — ignore file contents, keep directory structure via .gitkeep
 data/**
 !data/bronze/
