@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+python-dotenv
+duckdb
+chromadb
+langchain
+langgraph
+langchain-anthropic
+anthropic

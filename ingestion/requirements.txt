@@ -1,0 +1,9 @@
+requests
+praw
+apscheduler
+python-dotenv
+duckdb
+chromadb
+transformers
+torch
+numpy

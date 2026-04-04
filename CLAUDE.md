@@ -1,17 +1,19 @@
 # CLAUDE.md — CityScan London
 
-This file provides context for AI coding assistants (Cursor, Claude Code) working on this project.
+This file provides context for AI coding assistants (Claude Code) working on this project. Update it as each component is built to reflect what was actually implemented.
 
 ---
 
 ## What this project is
 
-CityScan models London as a human body using live data. Four public data sources map to four biological systems and produce a real-time health score per London borough, queryable via a natural language agent interface. It is a UCL MSc Data Engineering assignment (MSIN0166) and a portfolio project.
+CityScan models London as a human body using live data. Four public data sources map to four biological systems and produce a real-time health score per London borough, queryable via a natural language agent interface and summarised in a daily LLM-generated bulletin.
 
 - 🫁 **Lungs** → OpenAQ (air quality)
 - 🩸 **Arteries** → TfL API (transport disruption)
 - 🧠 **Brain** → Reddit + Guardian API (public sentiment)
 - 🛡️ **Immune system** → Met Police API (crime)
+
+Dual purpose: UCL MSc Data Engineering assignment (MSIN0166) + public portfolio project.
 
 Full product spec in `PRD.md`.
 
@@ -26,10 +28,11 @@ Full product spec in `PRD.md`.
 | Structured storage | DuckDB |
 | Vector storage | ChromaDB |
 | Agent framework | LangChain + LangGraph |
-| LLM | Anthropic claude-haiku-4-5 via `anthropic` SDK |
+| LLM | `claude-haiku-4-5` via `anthropic` SDK |
 | Sentiment model | `cardiffnlp/twitter-roberta-base-sentiment` (local, CPU) |
+| MCP server | `mcp` Python SDK |
 | API | FastAPI + Uvicorn |
-| Frontend | Next.js (React) |
+| Frontend | Next.js (React) — portfolio-facing, chat UI for Doctor agent |
 | Containerisation | Docker + Docker Compose |
 | Package management | pip + `requirements.txt` per service |
 
@@ -42,10 +45,20 @@ Bronze (raw JSON) → Silver (DuckDB, normalised) → Gold (DuckDB, scored + Chr
 ```
 
 - **Bronze:** raw timestamped API responses, one folder per source under `/data/bronze/`
-- **Silver:** all sources normalised to `(borough_code, borough_name, timestamp, metric_name, raw_value, normalised_score, source)` in DuckDB
-- **Gold:** one row per borough per cycle `(borough_code, borough_name, timestamp, air_score, transit_score, sentiment_score, crime_score, composite_score)` in DuckDB; same rows embedded as text in ChromaDB for RAG
+- **Silver:** all sources normalised to `(borough_code, borough_name, timestamp, metric_name, raw_value, normalised_score, source, ingested_at, pipeline_stage)` in DuckDB
+- **Gold:** one row per borough per cycle `(borough_code, borough_name, timestamp, air_score, transit_score, sentiment_score, crime_score, composite_score, ingested_at, pipeline_stage)` in DuckDB; same rows embedded as text in ChromaDB for RAG
 - Borough codes follow ONS GLA boundary codes — lookup in `/pipeline/schemas.py`
 - Scores are always 0–100, where 100 = healthiest
+
+### Pipeline execution model
+
+The `ingestion` service owns the full pipeline. There is no separate pipeline Docker container. APScheduler runs the complete chain on each tick:
+
+```
+fetch() → bronze.save() → silver.transform() → gold.aggregate() → chromadb.embed()
+```
+
+The `pipeline/` directory contains transformation logic as importable functions called by the scheduler. A manual one-shot trigger exists for development at `ingestion/run_pipeline.py`.
 
 ---
 
@@ -55,14 +68,65 @@ Bronze (raw JSON) → Silver (DuckDB, normalised) → Gold (DuckDB, scored + Chr
 - LangGraph ReAct agent
 - Answers natural language queries using ChromaDB RAG + DuckDB tool calls
 - Tools: `get_borough_health`, `get_london_score`, `get_trend`, `compare_boroughs`
-- LLM: claude-haiku-4-5
+- LLM: `claude-haiku-4-5`
 - Only Gold-layer aggregated data reaches the LLM — no raw post text, no PII
+- **Output schema:**
+  ```json
+  {
+    "answer": "streaming text...",
+    "sources": [
+      {"type": "duckdb", "tool": "get_borough_health", "data": {...}},
+      {"type": "guardian", "headline": "...", "url": "..."}
+    ]
+  }
+  ```
+- `answer` is streamed token-by-token via SSE; `sources` is flushed as a final SSE event
+- Every tool output is logged to `agent_logs` in DuckDB for audit
 
 ### Bulletin Agent (`/agents/bulletin.py`)
 - LangChain prompt chain (not a ReAct loop)
 - Triggered by APScheduler (daily) and `POST /bulletin/generate`
-- Chain: fetch scores → query trends → fetch Guardian headlines → synthesise → store as markdown
+- Chain: fetch scores from DuckDB → query trends from DuckDB → fetch Guardian headlines → synthesise → store as markdown
+- Does **not** call the Doctor agent — uses direct DuckDB queries for reliability
 - Output saved to `/data/bulletins/YYYY-MM-DD.md`
+- Every run logged to `bulletin_logs` in DuckDB
+
+---
+
+## Agent Evaluation & Observability
+
+### agent_logs (DuckDB)
+Captures every Doctor agent interaction. Schema:
+```sql
+id TEXT, timestamp TEXT, query TEXT,
+tools_called TEXT,   -- JSON array
+tool_inputs TEXT,    -- JSON
+tool_outputs TEXT,   -- JSON (raw DuckDB results — audit against final_response)
+sources_cited TEXT,  -- JSON (what was returned to user)
+final_response TEXT,
+latency_ms INTEGER,
+model_used TEXT
+```
+
+### bulletin_logs (DuckDB)
+```sql
+id TEXT, timestamp TEXT, trigger TEXT,
+scores_used TEXT,      -- JSON snapshot of Gold scores at generation time
+headlines_used TEXT,   -- JSON array
+output_path TEXT,
+latency_ms INTEGER
+```
+
+---
+
+## MCP Server (`/mcp_server/server.py`)
+
+Exposes the four Doctor agent tools as an MCP (Model Context Protocol) server so any MCP-compatible client (Claude Desktop, other agents) can query CityScan directly.
+
+- SDK: `mcp` Python package
+- Port: 8002
+- Tools: `get_borough_health`, `get_london_score`, `get_trend`, `compare_boroughs`
+- Same tool functions as used by the Doctor agent — no duplication
 
 ---
 
@@ -88,6 +152,7 @@ REDDIT_CLIENT_ID=
 REDDIT_CLIENT_SECRET=
 REDDIT_USER_AGENT=cityscan/1.0
 TFL_APP_KEY=
+SCORE_WEIGHTS=0.25,0.25,0.25,0.25
 ```
 
 Load with `python-dotenv` in every service entry point.
@@ -100,19 +165,20 @@ Load with `python-dotenv` in every service entry point.
 # Run everything
 docker compose up
 
-# Run ingestion only (dev)
-cd ingestion && python scheduler.py
+# Run one full pipeline cycle manually (dev)
+python ingestion/run_pipeline.py
 
 # Run API only (dev)
 cd api && uvicorn main:app --reload --port 8000
 
+# Run MCP server only (dev)
+cd mcp_server && python server.py
+
 # Run frontend only (dev)
 cd frontend && npm run dev
 
-# Trigger pipeline manually (dev)
-python pipeline/bronze.py
-python pipeline/silver.py
-python pipeline/gold.py
+# Run ingestion scheduler only (dev)
+cd ingestion && python scheduler.py
 ```
 
 ---
@@ -157,12 +223,14 @@ GET  /london/score              — overall London health score
 GET  /boroughs                  — all boroughs with scores
 GET  /borough/{name}            — single borough breakdown
 GET  /borough/{name}/trend      — 7-day trend
-POST /agent/query               — Doctor agent (body: {question: string})
+POST /agent/query               — Doctor agent, SSE stream (text/event-stream)
+                                  body: {question: string}
+                                  events: token stream → final [SOURCES] event
 GET  /bulletin/latest           — latest bulletin markdown
 POST /bulletin/generate         — trigger bulletin generation
 ```
 
-All responses are JSON. Scores always 0–100.
+All non-streaming responses are JSON. Scores always 0–100.
 
 ---
 
@@ -171,6 +239,7 @@ All responses are JSON. Scores always 0–100.
 | Service | Dockerfile | Port |
 |---|---|---|
 | `api` | `docker/Dockerfile.api` | 8000 |
+| `mcp_server` | `docker/Dockerfile.mcp` | 8002 |
 | `frontend` | `docker/Dockerfile.frontend` | 3000 |
 | `ingestion` | `docker/Dockerfile.ingestion` | — |
 | `chromadb` | official chromadb image | 8001 |
@@ -189,6 +258,7 @@ Services share a Docker volume for `/data/` and `/embeddings/`.
 - Use `logging` module, not `print`
 - Borough code is always the ONS 9-character code (e.g. `E09000001`) — never use borough name as a key
 - Timestamps always UTC, stored as ISO 8601 strings
+- DuckDB connections are module-level — never create a new connection inside a loop
 
 ---
 
@@ -201,13 +271,15 @@ Services share a Docker volume for `/data/` and `/embeddings/`.
 - Do not hardcode borough names as dictionary keys — use ONS codes
 - Do not create new DuckDB connections inside loops — reuse a module-level connection
 - Do not run the sentiment model inside the API request cycle — it runs in the ingestion service only
+- Do not call the Doctor agent from inside the Bulletin agent — use direct DuckDB queries
 
 ---
 
 ## Out of scope (do not build)
 
 - User authentication or accounts
-- Cloud deployment (local Docker only for now)
+- Cloud deployment (local Docker only)
 - Forecasting / predictive layer (leave room for it architecturally but don't build it)
-- Real-time websocket streaming
+- Real-time WebSocket bidirectional streaming (SSE one-way is in scope)
+- GraphRAG (noted as future enhancement — do not build now)
 - Any database other than DuckDB + ChromaDB

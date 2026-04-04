@@ -1,0 +1,62 @@
+# Environment
+.env
+*.env
+
+# Private docs
+CLAUDE.md
+*.pdf
+
+# Data — ignore file contents, keep directory structure via .gitkeep
+data/**
+!data/bronze/
+!data/bronze/.gitkeep
+!data/silver/
+!data/silver/.gitkeep
+!data/gold/
+!data/gold/.gitkeep
+!data/bulletins/
+!data/bulletins/.gitkeep
+embeddings/**
+!embeddings/.gitkeep
+*.duckdb
+*.db
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+venv/
+.venv/
+env/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+.npm
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# Docker
+.docker/
