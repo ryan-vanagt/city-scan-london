@@ -9,7 +9,7 @@ Four public data sources map to four biological systems, producing a real-time h
 | 🫁 Lungs | OpenAQ | Air quality (PM2.5, NO2, O3) |
 | 🩸 Arteries | TfL API | Tube line status & severity scores |
 | 🧠 Brain | Reddit + Guardian + BBC News | Public sentiment (NLP) |
-| 🛡️ Immune system | Met Police API | Crime by borough |
+| 🛡️ Immune system | Met Police API + NHS England A&E | Crime by borough + A&E pressure |
 
 ## Stack
 
