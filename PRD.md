@@ -18,7 +18,7 @@ CityScan is a live urban health diagnostic platform that models London as a huma
 |---|---|---|---|
 | 🫁 Lungs | OpenAQ API | PM2.5, NO2, O3 per borough | Hourly |
 | 🩸 Arteries | TfL Unified API | Line disruptions, crowding index | Hourly |
-| 🧠 Brain | Reddit (r/london, r/ukpolitics) + Guardian API | NLP sentiment score from posts & headlines | Every 3 hours |
+| 🧠 Brain | Reddit (r/london) + Guardian API + BBC News RSS | NLP sentiment score from posts & headlines | Every 3 hours |
 | 🛡️ Immune System | Met Police API | Crime rate by category per borough | Monthly (static enrichment) |
 
 Each signal is normalised to a 0–100 score (100 = healthy). The composite borough health score is a weighted average of all four signals. The overall London score aggregates all boroughs.
@@ -31,7 +31,7 @@ Each signal is normalised to a 0–100 score (100 = healthy). The composite boro
 
 **Bronze layer** — raw ingestion
 - Raw API responses stored as timestamped JSON files
-- One directory per source: `/data/bronze/openaq/`, `/data/bronze/tfl/`, `/data/bronze/reddit/`, `/data/bronze/guardian/`, `/data/bronze/met_police/`
+- One directory per source: `/data/bronze/openaq/`, `/data/bronze/tfl/`, `/data/bronze/reddit/`, `/data/bronze/guardian/`, `/data/bronze/bbc/`, `/data/bronze/met_police/`
 - Nothing is transformed at this stage
 - Ingestion runs on a schedule via APScheduler inside the `ingestion` service
 
@@ -39,7 +39,7 @@ Each signal is normalised to a 0–100 score (100 = healthy). The composite boro
 - All sources normalised to a common schema in DuckDB:
   `(borough_code, borough_name, timestamp, metric_name, raw_value, normalised_score, source, ingested_at, pipeline_stage)`
 - Borough codes follow ONS Greater London Authority boundary codes (static lookup file)
-- Reddit and Guardian raw text is processed locally by a sentiment model before entering Silver — raw post content never leaves the machine
+- Reddit, Guardian, and BBC text is processed locally by a sentiment model before entering Silver — raw post content never leaves the machine
 - Sentiment model: `cardiffnlp/twitter-roberta-base-sentiment` (runs on CPU)
 
 **Gold layer** — aggregated health scores
@@ -239,8 +239,6 @@ Single command to run everything: `docker compose up`
 ANTHROPIC_API_KEY=
 OPENAQ_API_KEY=
 GUARDIAN_API_KEY=
-REDDIT_CLIENT_ID=
-REDDIT_CLIENT_SECRET=
 REDDIT_USER_AGENT=cityscan/1.0
 TFL_APP_KEY=
 SCORE_WEIGHTS=0.25,0.25,0.25,0.25
@@ -285,7 +283,8 @@ city-scan-london/
 │       ├── tfl.py
 │       ├── met_police.py
 │       ├── reddit.py
-│       └── guardian.py
+│       ├── guardian.py
+│       └── bbc.py
 ├── pipeline/
 │   ├── bronze.py                ← save raw JSON to /data/bronze/
 │   ├── silver.py                ← normalise to DuckDB silver schema

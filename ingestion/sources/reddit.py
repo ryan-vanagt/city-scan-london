@@ -21,10 +21,12 @@ REDDIT_BASE = "https://www.reddit.com"
 
 
 def fetch() -> dict:
-    """Fetch top 50 hot posts from r/london and r/londonuk.
+    """Fetch top 50 hot text posts from r/london.
 
     Uses Reddit's public JSON API — no API key required.
-    Stores only post metadata and titles; never selftext.
+    Filters to self/text posts only (is_self=True) — image and link posts
+    are skipped as they have no text signal for sentiment scoring.
+    Never stores selftext (post body).
 
     Returns:
         Dict with 'results' (list of post metadata dicts) and 'fetched_at'.
@@ -59,8 +61,11 @@ def fetch() -> dict:
             raise
 
         posts = response.json().get("data", {}).get("children", [])
+        text_posts = 0
         for post in posts:
             d = post.get("data", {})
+            if not d.get("is_self"):
+                continue  # skip image/link posts — no text to score sentiment on
             all_posts.append({
                 "id": d.get("id"),
                 "subreddit": subreddit,
@@ -71,9 +76,11 @@ def fetch() -> dict:
                 "upvote_ratio": d.get("upvote_ratio"),
                 "num_comments": d.get("num_comments"),
                 "created_utc": d.get("created_utc"),
+                "is_self": True,
             })
+            text_posts += 1
 
-        logger.info("Reddit fetch: r/%s — %d posts", subreddit, len(posts))
+        logger.info("Reddit fetch: r/%s — %d text posts (of %d total)", subreddit, text_posts, len(posts))
 
     logger.info(
         "Reddit fetch: total %d posts across %d subreddits",

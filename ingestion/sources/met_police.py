@@ -12,6 +12,7 @@ deduplication here — that happens in the silver layer.
 """
 
 import logging
+import time
 from datetime import datetime, timezone
 
 import requests
@@ -72,7 +73,9 @@ def fetch() -> dict:
 
     all_crimes: list[dict] = []
 
-    for lat, lng in SAMPLE_CENTROIDS:
+    for i, (lat, lng) in enumerate(SAMPLE_CENTROIDS):
+        if i > 0:
+            time.sleep(1)  # Met Police API rate limit
         try:
             response = requests.get(
                 f"{MET_POLICE_BASE}/crimes-street/all-crime",
