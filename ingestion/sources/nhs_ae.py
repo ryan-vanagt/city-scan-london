@@ -26,19 +26,25 @@ NHS_STATS_BASE = (
 )
 
 
-def _nhs_stats_page() -> str:
-    """Return the NHS England A&E statistics page URL for the current financial year.
+def _candidate_stats_pages() -> list[str]:
+    """Return candidate NHS England A&E statistics page URLs, most recent first.
 
-    The NHS financial year runs April–March, so the year suffix changes each April.
+    Tries the current financial year first, then the previous one.  This handles
+    the transition window at the start of April when NHS England hasn't yet
+    published the new year's page (typically a few weeks late).
+
+    The NHS financial year runs April–March, so the year suffix increments each April.
     Example: April 2026–March 2027 → 'ae-attendances-and-emergency-admissions-2026-27/'.
     """
     now = datetime.now(timezone.utc)
     year_start = now.year if now.month >= 4 else now.year - 1
-    year_end_short = str(year_start + 1)[-2:]
-    return (
-        f"{NHS_STATS_BASE}"
-        f"ae-attendances-and-emergency-admissions-{year_start}-{year_end_short}/"
-    )
+    candidates = []
+    for ys in (year_start, year_start - 1):
+        ye_short = str(ys + 1)[-2:]
+        candidates.append(
+            f"{NHS_STATS_BASE}ae-attendances-and-emergency-admissions-{ys}-{ye_short}/"
+        )
+    return candidates
 
 # London NHS trust name fragments for filtering the national CSV
 LONDON_TRUST_FRAGMENTS = [
@@ -71,12 +77,15 @@ def _latest_csv_url() -> str | None:
     Returns:
         URL string of the most recent CSV file, or None on failure.
     """
-    url = _nhs_stats_page()
-    try:
-        response = requests.get(url, timeout=30)
-        response.raise_for_status()
-    except requests.RequestException as exc:
-        logger.error("NHS A&E: failed to fetch statistics page: %s", exc)
+    for url in _candidate_stats_pages():
+        try:
+            response = requests.get(url, timeout=30)
+            response.raise_for_status()
+            break
+        except requests.RequestException as exc:
+            logger.warning("NHS A&E: statistics page unavailable (%s): %s", url, exc)
+    else:
+        logger.error("NHS A&E: no statistics page responded successfully")
         return None
 
     soup = BeautifulSoup(response.text, "lxml")
