@@ -5,7 +5,7 @@ Scrapes the NHS England statistics page using BeautifulSoup to discover the
 latest monthly CSV download link (URL changes each month), then downloads
 and parses the CSV for London NHS trusts.
 
-Data is published monthly (~1 week lag). Contributes to the immune system
+Data is published monthly (~2 months lag). Contributes to the immune system
 score alongside crime data. No API key required — fully public data.
 Raw responses are saved to /data/bronze/nhs_ae/ as timestamped JSON.
 """

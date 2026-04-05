@@ -19,11 +19,11 @@ CityScan is a live urban health diagnostic platform that models London as a huma
 | 🫁 Lungs | OpenAQ API | PM2.5, NO2, O3 per borough | Hourly | ~1 hour |
 | 🩸 Arteries | TfL Unified API | Tube line status & severity scores | Hourly | Real-time |
 | 🧠 Brain | Reddit (r/london) + Guardian API + BBC News RSS | NLP sentiment score from posts & headlines | Every 3 hours | ~3 hours |
-| 🛡️ Immune System | Met Police API + NHS England A&E stats | Crime rate per borough + A&E pressure index | Weekly (crime: monthly) | Crime: ~2 months · A&E: ~1 week |
+| 🛡️ Immune System | Met Police API + NHS England A&E stats | Crime rate per borough + A&E pressure index | Monthly | Crime: ~2 months · A&E: ~2 months |
 
 Each signal is normalised to a 0–100 score (100 = healthy). The composite borough health score is a weighted average of all four signals. The overall London score aggregates all boroughs.
 
-> **Note on immune system data lag:** Unlike lungs and arteries which reflect near-real-time conditions, the immune system score carries inherent institutional lag. Crime statistics are published ~2 months after the reference period; NHS A&E figures are published weekly. This mirrors the biological reality — immune responses are slower to manifest and measure than vital signs. The frontend surfaces the `as_of_date` for immune scores so users are never misled about freshness.
+> **Note on immune system data lag:** Unlike lungs and arteries which reflect near-real-time conditions, the immune system score carries inherent institutional lag. Crime statistics are published ~2 months after the reference period; NHS A&E figures are published monthly, also with a ~2 month lag. This mirrors the biological reality — immune responses are slower to manifest and measure than vital signs. The frontend surfaces the `as_of_date` for immune scores so users are never misled about freshness.
 
 ---
 
