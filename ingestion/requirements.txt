@@ -1,5 +1,4 @@
 requests
-praw
 apscheduler
 python-dotenv
 duckdb
