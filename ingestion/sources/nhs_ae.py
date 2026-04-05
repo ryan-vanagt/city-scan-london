@@ -20,10 +20,25 @@ from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
 
-NHS_STATS_PAGE = (
+NHS_STATS_BASE = (
     "https://www.england.nhs.uk/statistics/statistical-work-areas/"
-    "ae-waiting-times-and-activity/ae-attendances-and-emergency-admissions-2025-26/"
+    "ae-waiting-times-and-activity/"
 )
+
+
+def _nhs_stats_page() -> str:
+    """Return the NHS England A&E statistics page URL for the current financial year.
+
+    The NHS financial year runs April–March, so the year suffix changes each April.
+    Example: April 2026–March 2027 → 'ae-attendances-and-emergency-admissions-2026-27/'.
+    """
+    now = datetime.now(timezone.utc)
+    year_start = now.year if now.month >= 4 else now.year - 1
+    year_end_short = str(year_start + 1)[-2:]
+    return (
+        f"{NHS_STATS_BASE}"
+        f"ae-attendances-and-emergency-admissions-{year_start}-{year_end_short}/"
+    )
 
 # London NHS trust name fragments for filtering the national CSV
 LONDON_TRUST_FRAGMENTS = [
@@ -56,8 +71,9 @@ def _latest_csv_url() -> str | None:
     Returns:
         URL string of the most recent CSV file, or None on failure.
     """
+    url = _nhs_stats_page()
     try:
-        response = requests.get(NHS_STATS_PAGE, timeout=30)
+        response = requests.get(url, timeout=30)
         response.raise_for_status()
     except requests.RequestException as exc:
         logger.error("NHS A&E: failed to fetch statistics page: %s", exc)

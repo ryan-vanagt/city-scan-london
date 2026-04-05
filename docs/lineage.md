@@ -6,16 +6,20 @@
 flowchart TD
     OQ[OpenAQ API] -->|hourly| B_OQ[bronze/openaq/]
     TFL[TfL API] -->|hourly| B_TFL[bronze/tfl/]
-    RD[Reddit PRAW] -->|3h| B_RD[bronze/reddit/]
+    RD[Reddit public JSON API] -->|3h| B_RD[bronze/reddit/]
     GD[Guardian API] -->|3h| B_GD[bronze/guardian/]
+    BBC[BBC News RSS] -->|3h| B_BBC[bronze/bbc/]
     MP[Met Police API] -->|monthly| B_MP[bronze/met_police/]
+    NHS[NHS England A&E CSV] -->|monthly| B_NHS[bronze/nhs_ae/]
 
     B_OQ --> S[Silver layer\nDuckDB: silver_metrics]
     B_TFL --> S
     B_RD -->|sentiment scored locally| SENT[sentiment/scorer.py]
     SENT --> S
     B_GD -->|sentiment scored locally| SENT
+    B_BBC -->|sentiment scored locally| SENT
     B_MP --> S
+    B_NHS --> S
 
     S --> G[Gold layer\nDuckDB: gold_scores]
     G --> CH[ChromaDB\nembeddings]
@@ -34,7 +38,7 @@ Every Silver and Gold record carries:
 
 | Field | Description |
 |---|---|
-| `source` | Origin API (`openaq`, `tfl`, `reddit`, `guardian`, `met_police`) |
+| `source` | Origin API (`openaq`, `tfl`, `reddit`, `guardian`, `bbc`, `met_police`, `nhs_ae`) |
 | `ingested_at` | UTC timestamp of when the raw data was fetched |
 | `pipeline_stage` | `bronze`, `silver`, or `gold` |
 
