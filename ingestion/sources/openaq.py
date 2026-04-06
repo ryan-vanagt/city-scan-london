@@ -101,47 +101,66 @@ def _fetch_latest_readings(
 
     readings: dict[int, list[dict]] = {}
     errors = 0
+    rate_limited = 0
 
     for i, station in enumerate(relevant_stations):
         location_id = station["id"]
         if i > 0 and i % 50 == 0:
             logger.info("OpenAQ: fetched readings for %d/%d stations", i, len(relevant_stations))
 
-        try:
-            response = requests.get(
-                f"{OPENAQ_BASE_URL}/locations/{location_id}/sensors",
-                headers=headers,
-                timeout=15,
-            )
-            response.raise_for_status()
-            sensors = response.json().get("results", [])
-
-            station_readings = []
-            for sensor in sensors:
-                param_name = sensor.get("parameter", {}).get("name", "")
-                if param_name not in TARGET_PARAMETERS:
+        # Retry loop for rate-limited requests (HTTP 429)
+        for attempt in range(3):
+            try:
+                response = requests.get(
+                    f"{OPENAQ_BASE_URL}/locations/{location_id}/sensors",
+                    headers=headers,
+                    timeout=15,
+                )
+                if response.status_code == 429:
+                    reset = int(response.headers.get("x-ratelimit-reset", 60))
+                    rate_limited += 1
+                    logger.warning(
+                        "OpenAQ: rate-limited (429), waiting %ds (attempt %d/3)",
+                        reset, attempt + 1,
+                    )
+                    time.sleep(reset)
                     continue
-                latest = sensor.get("latest") or {}
-                station_readings.append({
-                    "sensor_id": sensor["id"],
-                    "parameter": param_name,
-                    "value": latest.get("value"),
-                    "datetime_utc": (latest.get("datetime") or {}).get("utc"),
-                    "units": sensor.get("parameter", {}).get("units", ""),
-                })
 
-            readings[location_id] = station_readings
+                response.raise_for_status()
+                sensors = response.json().get("results", [])
 
-        except requests.RequestException:
-            errors += 1
+                station_readings = []
+                for sensor in sensors:
+                    param_name = sensor.get("parameter", {}).get("name", "")
+                    if param_name not in TARGET_PARAMETERS:
+                        continue
+                    latest = sensor.get("latest") or {}
+                    station_readings.append({
+                        "sensor_id": sensor["id"],
+                        "parameter": param_name,
+                        "value": latest.get("value"),
+                        "datetime_utc": (latest.get("datetime") or {}).get("utc"),
+                        "units": sensor.get("parameter", {}).get("units", ""),
+                    })
 
-        # Rate limiting: ~10 requests/second for free tier
-        time.sleep(0.1)
+                readings[location_id] = station_readings
+                break  # success, exit retry loop
+
+            except requests.RequestException as e:
+                if attempt == 2:
+                    logger.debug("OpenAQ: failed after 3 attempts for location %d: %s", location_id, e)
+                    errors += 1
+                else:
+                    time.sleep(2 ** attempt)
+
+        # OpenAQ free tier: 60 req/min. Sleep 1s = 60 req/min exactly.
+        time.sleep(1.0)
 
     logger.info(
-        "OpenAQ: fetched readings for %d stations (%d errors)",
+        "OpenAQ: fetched readings for %d stations (%d errors, %d rate-limited retries)",
         len(readings),
         errors,
+        rate_limited,
     )
     return readings
 

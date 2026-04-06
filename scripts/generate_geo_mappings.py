@@ -281,15 +281,21 @@ def fetch_nhs_trust_to_boroughs(
         except requests.RequestException as e:
             logger.warning("NHS ODS fetch failed for %s: %s", org_code, e)
 
-        # Then enumerate site codes
+        # Then enumerate site codes ({org_code}00–{org_code}99, plus 3-digit
+        # suffixes for large trusts that exceed 100 sites)
         site_count = 0
-        for suffix in range(100):
-            site_code = f"{org_code}{suffix:02d}"
+        consecutive_misses = 0
+        for suffix in range(200):
+            site_code = f"{org_code}{suffix:02d}" if suffix < 100 else f"{org_code}{suffix}"
             time.sleep(0.1)
             try:
                 resp = requests.get(f"{NHS_ODS_API}/{site_code}", timeout=10)
                 if resp.status_code != 200:
+                    consecutive_misses += 1
+                    if consecutive_misses >= 20:
+                        break  # stop enumerating — no more sites
                     continue
+                consecutive_misses = 0  # reset on any hit
                 site_data = resp.json().get("Organisation", {})
                 if site_data.get("Status") != "Active":
                     continue
@@ -303,6 +309,9 @@ def fetch_nhs_trust_to_boroughs(
                     postcodes_to_resolve.setdefault(site_pc, []).append(org_code)
                     site_count += 1
             except requests.RequestException:
+                consecutive_misses += 1
+                if consecutive_misses >= 20:
+                    break
                 continue
 
         logger.info("NHS ODS: %s → %d active sites with postcodes", org_code, site_count)
