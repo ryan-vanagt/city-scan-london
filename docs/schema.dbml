@@ -1,0 +1,56 @@
+// CityScan London — DuckDB schema
+// Paste into https://dbdiagram.io to visualise
+//
+// Architecture: Bronze (JSON files) → Silver (normalised metrics) → Gold (aggregated scores)
+// All scores are 0–100, where 100 = healthiest.
+
+Table silver_metrics {
+  borough_code     varchar [not null, note: 'ONS 9-char code (E09000001–E09000033) or "LONDON" for city-wide metrics']
+  borough_name     varchar [not null]
+  timestamp        timestamp [not null, note: 'UTC, ISO 8601']
+  metric_name      varchar [not null, note: 'pm25 | no2 | tube_status | sentiment | crime_count | ae_performance']
+  raw_value        double [note: 'Original value before normalisation (nullable for some sources)']
+  normalised_score double [not null, note: '0–100 score, 100 = healthiest']
+  source           varchar [not null, note: 'openaq | tfl | reddit | guardian | bbc | met_police | nhs_ae']
+  ingested_at      timestamp [not null, note: 'UTC pipeline run time']
+  pipeline_stage   varchar [default: 'silver']
+}
+
+Table gold_scores {
+  borough_code     varchar [not null, note: 'ONS 9-char code or "LONDON" for city-wide aggregate']
+  borough_name     varchar [not null]
+  timestamp        timestamp [not null, note: 'UTC, ISO 8601']
+  air_score        double [note: '0–100, from OpenAQ PM2.5 + NO2']
+  transit_score    double [note: '0–100, from TfL tube line status']
+  sentiment_score  double [note: '0–100, from Reddit + Guardian + BBC sentiment']
+  immune_score     double [note: '0–100, from Met Police crime + NHS A&E performance']
+  composite_score  double [not null, note: 'Weighted average of four system scores']
+  ingested_at      timestamp [not null, note: 'UTC pipeline run time']
+  pipeline_stage   varchar [default: 'gold']
+}
+
+Table agent_logs {
+  id               varchar [note: 'UUID']
+  timestamp        varchar [note: 'ISO 8601 UTC']
+  query            varchar [note: 'User question']
+  tools_called     varchar [note: 'JSON array of tool names']
+  tool_inputs      varchar [note: 'JSON — parameters passed to each tool']
+  tool_outputs     varchar [note: 'JSON — raw data returned by each tool']
+  sources_cited    varchar [note: 'JSON — sources included in response']
+  final_response   varchar [note: 'Full LLM answer text']
+  latency_ms       integer [note: 'Total wall time in ms']
+  model_used       varchar [note: 'e.g. claude-haiku-4-5']
+}
+
+Table bulletin_logs {
+  id               varchar [note: 'UUID']
+  timestamp        varchar [note: 'ISO 8601 UTC']
+  trigger          varchar [note: '"scheduled" or "manual"']
+  scores_used      varchar [note: 'JSON snapshot of Gold scores at generation time']
+  headlines_used   varchar [note: 'JSON array of headlines used']
+  output_path      varchar [note: 'Path to saved .md file']
+  latency_ms       integer [note: 'Total wall time in ms']
+}
+
+// Relationships: Silver feeds Gold (aggregation, not a FK join)
+// silver_metrics ->> gold_scores via borough_code + timestamp grouping

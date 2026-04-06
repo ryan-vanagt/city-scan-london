@@ -15,10 +15,16 @@ Four public data sources map to four biological systems, producing a real-time h
 
 Python · DuckDB · ChromaDB · LangChain + LangGraph · FastAPI · Next.js · Docker
 
-## Run
+## Setup
 
 ```bash
 cp .env.example .env   # add your API keys
+python scripts/generate_geo_mappings.py   # fetch borough/TfL/NHS geographic data
+```
+
+## Run
+
+```bash
 docker compose up
 ```
 

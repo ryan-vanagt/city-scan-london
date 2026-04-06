@@ -14,12 +14,14 @@ CityScan is a live urban health diagnostic platform that models London as a huma
 
 ## The Biological Metaphor
 
-| Organ | Data Source | Signal | Update Cadence | Data Lag |
-|---|---|---|---|---|
-| 🫁 Lungs | OpenAQ API | PM2.5, NO2, O3 per borough | Hourly | ~1 hour |
-| 🩸 Arteries | TfL Unified API | Tube line status & severity scores | Hourly | Real-time |
-| 🧠 Brain | Reddit (r/london) + Guardian API + BBC News RSS | NLP sentiment score from posts & headlines | Every 3 hours | ~3 hours |
-| 🛡️ Immune System | Met Police API + NHS England A&E stats | Crime rate per borough + A&E pressure index | Monthly | Crime: ~2 months · A&E: ~2 months |
+
+| Organ             | Data Source                                     | Signal                                      | Update Cadence | Data Lag                          |
+| ----------------- | ----------------------------------------------- | ------------------------------------------- | -------------- | --------------------------------- |
+| 🫁 Lungs          | OpenAQ API                                      | PM2.5, NO2, O3 per borough                  | Hourly         | ~1 hour                           |
+| 🩸 Arteries       | TfL Unified API                                 | Tube line status & severity scores          | Hourly         | Real-time                         |
+| 🧠 Brain          | Reddit (r/london) + Guardian API + BBC News RSS | NLP sentiment score from posts & headlines  | Every 3 hours  | ~3 hours                          |
+| 🛡️ Immune System | Met Police API + NHS England A&E stats          | Crime rate per borough + A&E pressure index | Monthly        | Crime: ~2 months · A&E: ~2 months |
+
 
 Each signal is normalised to a 0–100 score (100 = healthy). The composite borough health score is a weighted average of all four signals. The overall London score aggregates all boroughs.
 
@@ -32,23 +34,26 @@ Each signal is normalised to a 0–100 score (100 = healthy). The composite boro
 ### Data Tier — Bronze / Silver / Gold
 
 **Bronze layer** — raw ingestion
+
 - Raw API responses stored as timestamped JSON files
 - One directory per source: `/data/bronze/openaq/`, `/data/bronze/tfl/`, `/data/bronze/reddit/`, `/data/bronze/guardian/`, `/data/bronze/bbc/`, `/data/bronze/met_police/`
 - Nothing is transformed at this stage
 - Ingestion runs on a schedule via APScheduler inside the `ingestion` service
 
 **Silver layer** — cleaned & normalised
+
 - All sources normalised to a common schema in DuckDB:
-  `(borough_code, borough_name, timestamp, metric_name, raw_value, normalised_score, source, ingested_at, pipeline_stage)`
+`(borough_code, borough_name, timestamp, metric_name, raw_value, normalised_score, source, ingested_at, pipeline_stage)`
 - Borough codes follow ONS Greater London Authority boundary codes (static lookup file)
 - Reddit, Guardian, and BBC text is processed locally by a sentiment model before entering Silver — raw post content never leaves the machine
 - Sentiment model: `cardiffnlp/twitter-roberta-base-sentiment` (runs on CPU)
 
 **Gold layer** — aggregated health scores
+
 - One row per borough per ingestion cycle:
-  `(borough_code, borough_name, timestamp, air_score, transit_score, sentiment_score, crime_score, composite_score, ingested_at, pipeline_stage)`
+`(borough_code, borough_name, timestamp, air_score, transit_score, sentiment_score, immune_score, composite_score, ingested_at, pipeline_stage)`
 - Stored in DuckDB (structured) and embedded into ChromaDB (vector, for RAG)
-- Composite score = weighted average: air (25%), transit (25%), sentiment (25%), crime (25%)
+- Composite score = weighted average: air (25%), transit (25%), sentiment (25%), immune (25%)
 - Weights are configurable via environment variable `SCORE_WEIGHTS`
 
 ### Pipeline execution model
@@ -66,11 +71,13 @@ python ingestion/run_pipeline.py   # runs full chain once and exits
 ```
 
 ### Storage
+
 - **DuckDB** — primary structured store for Silver, Gold, agent logs, and bulletin logs
 - **ChromaDB** — vector store for Gold-layer embeddings, enabling semantic RAG queries
 - **Local filesystem** — Bronze JSON files, organised by source and date
 
 ### Data Lineage
+
 - Each record carries `source`, `ingested_at`, and `pipeline_stage` fields through all three layers
 - `docs/lineage.md` contains a Mermaid diagram showing the full data flow from source → Bronze → Silver → Gold → Agent
 - Transformations documented in code comments alongside the diagram
@@ -80,6 +87,7 @@ python ingestion/run_pipeline.py   # runs full chain once and exits
 ## Agent Architecture
 
 ### Agent 1 — The Doctor (RAG Agent)
+
 - **Purpose:** Answers natural language queries about London's health using historical Gold-layer data
 - **Framework:** LangChain + LangGraph
 - **Memory:** ChromaDB vector store (semantic retrieval over embedded health score descriptions)
@@ -96,6 +104,7 @@ python ingestion/run_pipeline.py   # runs full chain once and exits
 - **Hallucination mitigation:** Every factual claim in the answer is grounded in a retrieved tool output. The `sources` field makes this verifiable. Tool outputs are stored in `agent_logs` for audit.
 
 ### Agent 2 — The Bulletin Agent
+
 - **Purpose:** Generates a structured daily city health digest
 - **Framework:** LangChain prompt chaining
 - **Trigger:** Scheduled (daily via APScheduler) AND on-demand via `POST /bulletin/generate`
@@ -107,6 +116,7 @@ python ingestion/run_pipeline.py   # runs full chain once and exits
 - **Output:** Markdown bulletin stored in `/data/bulletins/YYYY-MM-DD.md` and served via API
 
 ### LLM
+
 - **Model:** `claude-haiku-4-5` via Anthropic API
 - **Used for:** Doctor agent reasoning, Bulletin synthesis
 - **Not used for:** Sentiment scoring (handled locally)
@@ -171,25 +181,30 @@ Base URL: `http://localhost:8000`
 
 ### Endpoints
 
-| Method | Path | Description |
-|---|---|---|
-| `GET` | `/health` | Service health check |
-| `GET` | `/london/score` | Current overall London health score |
-| `GET` | `/boroughs` | List all boroughs with current scores |
-| `GET` | `/borough/{name}` | Full health breakdown for a borough |
-| `GET` | `/borough/{name}/trend` | 7-day trend for a borough |
-| `POST` | `/agent/query` | Doctor agent — returns SSE stream (`text/event-stream`) |
-| `GET` | `/bulletin/latest` | Latest generated bulletin |
-| `POST` | `/bulletin/generate` | Trigger on-demand bulletin generation |
+
+| Method | Path                    | Description                                             |
+| ------ | ----------------------- | ------------------------------------------------------- |
+| `GET`  | `/health`               | Service health check                                    |
+| `GET`  | `/london/score`         | Current overall London health score                     |
+| `GET`  | `/boroughs`             | List all boroughs with current scores                   |
+| `GET`  | `/borough/{name}`       | Full health breakdown for a borough                     |
+| `GET`  | `/borough/{name}/trend` | 7-day trend for a borough                               |
+| `POST` | `/agent/query`          | Doctor agent — returns SSE stream (`text/event-stream`) |
+| `GET`  | `/bulletin/latest`      | Latest generated bulletin                               |
+| `POST` | `/bulletin/generate`    | Trigger on-demand bulletin generation                   |
+
 
 ### Response format
+
 All non-streaming endpoints return JSON. Health scores are always 0–100.
 
 `POST /agent/query` returns `Content-Type: text/event-stream`. Events:
+
 - `data: <token>` — streamed answer tokens
 - `data: [SOURCES] <json>` — final event with grounded sources list
 
 ### MCP-style tool definitions
+
 FastAPI routes are decorated with machine-readable descriptions consistent with MCP patterns.
 
 ---
@@ -198,24 +213,29 @@ FastAPI routes are decorated with machine-readable descriptions consistent with 
 
 ### Pages
 
-**`/` — Dashboard**
+`**/` — Dashboard**
+
 - London map with borough-level colour coding (green → red based on composite score)
 - Overall London health score with organ breakdown panel
 - Last updated timestamp
 
-**`/borough/[name]` — Borough Detail**
+`**/borough/[name]` — Borough Detail**
+
 - Per-organ score breakdown with sparkline trends
 - Recent Guardian headlines cited as sources (headline + link only)
 
-**`/ask` — Ask The Doctor**
+`**/ask` — Ask The Doctor**
+
 - Natural language input → streams Doctor agent SSE response token by token
 - Expandable "Sources" panel showing grounded data points used in the answer
 
-**`/bulletin` — Daily Bulletin**
+`**/bulletin` — Daily Bulletin**
+
 - Latest bulletin rendered as formatted report
 - "Generate new bulletin" button (triggers `POST /bulletin/generate`)
 
 ### Design principles
+
 - Borough health score displayed as a body organ diagram (SVG) alongside the map
 - Colour scale: 80–100 = green, 50–79 = amber, 0–49 = red
 - Mobile responsive
@@ -226,17 +246,20 @@ FastAPI routes are decorated with machine-readable descriptions consistent with 
 
 ### Docker Compose services
 
-| Service | Description | Port |
-|---|---|---|
-| `ingestion` | APScheduler process — fetches all sources AND runs Bronze→Silver→Gold pipeline | — |
-| `api` | FastAPI backend | 8000 |
-| `mcp_server` | MCP server exposing Doctor agent tools | 8002 |
-| `frontend` | Next.js app | 3000 |
-| `chromadb` | ChromaDB vector store server | 8001 |
+
+| Service      | Description                                                                    | Port |
+| ------------ | ------------------------------------------------------------------------------ | ---- |
+| `ingestion`  | APScheduler process — fetches all sources AND runs Bronze→Silver→Gold pipeline | —    |
+| `api`        | FastAPI backend                                                                | 8000 |
+| `mcp_server` | MCP server exposing Doctor agent tools                                         | 8002 |
+| `frontend`   | Next.js app                                                                    | 3000 |
+| `chromadb`   | ChromaDB vector store server                                                   | 8001 |
+
 
 Single command to run everything: `docker compose up`
 
 ### Environment variables (`.env`, never committed)
+
 ```
 ANTHROPIC_API_KEY=
 OPENAQ_API_KEY=
@@ -247,6 +270,7 @@ SCORE_WEIGHTS=0.25,0.25,0.25,0.25
 ```
 
 ### Git
+
 - `.env` and `/data/` in `.gitignore`
 - `.env.example` committed with placeholder values
 - Commits follow conventional commits format: `feat:`, `fix:`, `data:`, `agent:`, `docs:`
@@ -276,7 +300,10 @@ city-scan-london/
 ├── .env.example
 ├── .gitignore
 ├── docs/
-│   └── lineage.md               ← Mermaid diagram + transformation notes
+│   ├── lineage.md               ← Mermaid diagram + transformation notes
+│   └── schema.dbml              ← DuckDB schema for dbdiagram.io
+├── scripts/
+│   └── generate_geo_mappings.py ← Fetches borough/TfL/NHS geo data from public APIs
 ├── ingestion/
 │   ├── scheduler.py             ← APScheduler: fetch + full pipeline chain
 │   ├── run_pipeline.py          ← one-shot manual trigger (dev only)
@@ -286,12 +313,14 @@ city-scan-london/
 │       ├── met_police.py
 │       ├── reddit.py
 │       ├── guardian.py
-│       └── bbc.py
+│       ├── bbc.py
+│       └── nhs_ae.py
 ├── pipeline/
 │   ├── bronze.py                ← save raw JSON to /data/bronze/
 │   ├── silver.py                ← normalise to DuckDB silver schema
 │   ├── gold.py                  ← aggregate scores to DuckDB gold schema
-│   └── schemas.py               ← ONS borough lookup + schema definitions
+│   ├── schemas.py               ← loads lookups.json + DuckDB DDL
+│   └── lookups.json             ← auto-generated geo mappings (committed)
 ├── sentiment/
 │   └── scorer.py
 ├── agents/
@@ -324,3 +353,4 @@ city-scan-london/
     ├── Dockerfile.mcp
     └── Dockerfile.frontend
 ```
+
