@@ -66,3 +66,6 @@ logs/
 
 # Claude Code
 .claude/
+
+# Local sandbox (tests, queries, scratch scripts)
+sandbox/

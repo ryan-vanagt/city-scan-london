@@ -289,6 +289,17 @@ SCORE_WEIGHTS=0.25,0.25,0.25,0.25
 
 ---
 
+## Future Enhancements (post-submission)
+
+Ideas validated during development but deferred to keep scope manageable:
+
+- **TfL reason text for RAG** — the TfL API returns a `reason` field (e.g. "points failure at Queen's Park") alongside severity. Currently unused for scoring (severity integer is sufficient), but the Doctor Agent could retrieve it to explain *why* a line is disrupted when answering queries. Store in bronze, surface via agent tool.
+- **Per-capita crime normalisation** — current crime scoring uses min-max (relative ranking across boroughs). Adding ONS population data would enable per-capita normalisation, making scores fairer for high-population boroughs. Population data is available from the same ONS API used for borough centroids.
+- **Multi-modal transit scoring** — current transit data covers only tube. TfL's status API supports bus, Overground, Elizabeth line, and DLR in the same endpoint (`GET /line/mode/tube,overground,elizabeth-line,dlr/status`). Adding these modes would: (a) give transit scores to the 7 boroughs currently missing tube coverage, (b) let boroughs with alternatives (e.g. DLR + Jubilee in Greenwich) score based on their best available mode rather than worst tube line. This is a bronze-level fetch change — same API, wider mode filter.
+- **Borough-level sentiment via NER** — current sentiment is city-wide (all 33 boroughs get the same score). Named Entity Recognition could extract borough names from Reddit/BBC/Guardian text and assign sentiment at borough level. Out of scope due to NER complexity and sparse borough mentions in most articles.
+
+---
+
 ## File Structure
 
 ```

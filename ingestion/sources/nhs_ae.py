@@ -165,15 +165,12 @@ def fetch() -> dict:
         if total == 0:
             continue  # trust has no Type 1 A&E this period
 
-        pct_within_4hrs = round((total - over_4hrs) / total * 100, 1)
-
         results.append({
             "org_name": org_name,
             "org_code": row.get("Org Code", "").strip(),
             "period": period,
             "total_type1_attendances": total,
             "over_4hrs_type1": over_4hrs,
-            "pct_within_4hrs": pct_within_4hrs,
         })
 
     if not results:

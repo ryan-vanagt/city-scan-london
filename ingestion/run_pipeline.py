@@ -43,14 +43,19 @@ DB_PATH = str(PROJECT_ROOT / "data" / "cityscan.duckdb")
 if __name__ == "__main__":
     # --- Bronze ---
     for name, module in SOURCES.items():
-        data = module.fetch()
-        path = bronze.save(name, data)
-        bronze.cleanup(name)
-        logger.info("Saved %s bronze data to %s", name, path)
+        try:
+            data = module.fetch()
+            path = bronze.save(name, data)
+            bronze.cleanup(name)
+            logger.info("Saved %s bronze data to %s", name, path)
+        except Exception as exc:
+            logger.error("Bronze fetch failed for %s: %s — skipping", name, exc)
+            continue
 
     # --- Silver ---
     con = duckdb.connect(DB_PATH)
     init_db(con)
-    rows = silver.transform(con)
-    logger.info("Silver layer complete: %d rows inserted", rows)
+    rows = silver.transform_all()
+    inserted = silver.load(con, rows)
+    logger.info("Silver layer complete: %d rows transformed, %d inserted", len(rows), inserted)
     con.close()
