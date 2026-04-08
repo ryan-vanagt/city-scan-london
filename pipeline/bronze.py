@@ -13,15 +13,15 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-BRONZE_BASE = Path("data/bronze")
+BRONZE_BASE = Path(__file__).resolve().parent.parent / "data" / "bronze"
 
 
-def save(source: str, data: dict) -> str:
+def save(source: str, data: dict | list) -> str:
     """Write raw API response to a timestamped JSON file in the bronze layer.
 
     Args:
         source: Source name (e.g. "openaq", "tfl"). Determines subdirectory.
-        data: Raw API response dict to persist.
+        data: Raw API response (dict or list) to persist.
 
     Returns:
         Path to the written file as a string.
@@ -32,8 +32,12 @@ def save(source: str, data: dict) -> str:
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     file_path = directory / f"{timestamp}.json"
 
-    with open(file_path, "w", encoding="utf-8") as f:
-        json.dump(data, f)
+    try:
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(data, f)
+    except (OSError, TypeError) as exc:
+        logger.error("Bronze save failed for %s: %s", file_path, exc)
+        raise
 
     logger.info("Bronze save: %s", file_path)
     return str(file_path)

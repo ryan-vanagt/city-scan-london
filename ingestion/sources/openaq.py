@@ -148,7 +148,7 @@ def _fetch_latest_readings(
 
             except requests.RequestException as e:
                 if attempt == 2:
-                    logger.debug("OpenAQ: failed after 3 attempts for location %d: %s", location_id, e)
+                    logger.warning("OpenAQ: failed after 3 attempts for location %d: %s", location_id, e)
                     errors += 1
                 else:
                     time.sleep(2 ** attempt)

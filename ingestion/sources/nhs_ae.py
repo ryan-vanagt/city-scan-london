@@ -88,7 +88,7 @@ def _latest_csv_url() -> str | None:
         logger.error("NHS A&E: no statistics page responded successfully")
         return None
 
-    soup = BeautifulSoup(response.text, "lxml")
+    soup = BeautifulSoup(response.text, "html.parser")
     for link in soup.find_all("a", href=True):
         href = link["href"]
         if href.endswith(".csv"):
@@ -133,6 +133,17 @@ def fetch() -> dict:
     results = []
     period = None
 
+    # Verify expected columns exist in the CSV header
+    fieldnames = reader.fieldnames or []
+    expected_cols = {"Org name", "A&E attendances Type 1", "Attendances over 4hrs Type 1"}
+    missing_cols = expected_cols - set(fieldnames)
+    if missing_cols:
+        logger.error(
+            "NHS A&E: CSV missing expected columns: %s (found: %s)",
+            missing_cols,
+            fieldnames[:10],
+        )
+
     for row in reader:
         org_name = row.get("Org name", "").strip()
 
@@ -164,6 +175,9 @@ def fetch() -> dict:
             "over_4hrs_type1": over_4hrs,
             "pct_within_4hrs": pct_within_4hrs,
         })
+
+    if not results:
+        logger.error("NHS A&E: no London trust rows found — column names may have changed")
 
     logger.info(
         "NHS A&E: retrieved %d London trust rows for %s",

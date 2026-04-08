@@ -5,10 +5,10 @@ Fetches street-level crime data from the UK Police Data API.
 Data is published monthly (~2 months behind real-time) — the latest available
 month is discovered dynamically from the API rather than hardcoded.
 
-5 sample borough centroids are used as placeholders until schemas.py is built
-with all 33 ONS borough centroids. Raw responses are saved to
-/data/bronze/met_police/ as timestamped JSON. No transformation or
-deduplication here — that happens in the silver layer.
+Queries all 33 ONS borough centroids from pipeline/schemas.py. Each crime
+record is tagged with the requesting borough_code so the silver layer can
+attribute crimes to boroughs without re-running coord_to_borough(). Raw
+responses are saved to /data/bronze/met_police/ as timestamped JSON.
 """
 
 import logging
@@ -17,18 +17,11 @@ from datetime import datetime, timezone
 
 import requests
 
+from pipeline.schemas import BOROUGHS
+
 logger = logging.getLogger(__name__)
 
 MET_POLICE_BASE = "https://data.police.uk/api"
-
-# Placeholder centroids — replaced with all 33 ONS borough centroids once schemas.py is built
-SAMPLE_CENTROIDS = [
-    (51.5074, -0.1278),  # Westminster (central)
-    (51.5155, -0.0922),  # Tower Hamlets (east)
-    (51.4613, -0.1156),  # Lambeth (south)
-    (51.5465, -0.1058),  # Islington (north)
-    (51.4994, -0.2247),  # Hammersmith (west)
-]
 
 
 def _latest_available_month() -> str | None:
@@ -52,30 +45,32 @@ def _latest_available_month() -> str | None:
 
 
 def fetch() -> dict:
-    """Fetch street-level crime data for sample London borough centroids.
+    """Fetch street-level crime data for all 33 London borough centroids.
 
     Discovers the latest available month dynamically, then queries each
-    centroid. Returns all crime records combined into a single raw dict.
+    borough centroid. Individual centroid failures are logged and skipped
+    so that partial data is still returned.
 
     Returns:
-        Dict with 'results' (list of crime objects), 'date', and 'fetched_at'.
+        Dict with 'results' (list of crime objects, each tagged with
+        'borough_code'), 'date', and 'fetched_at'.
 
     Raises:
         RuntimeError: If the latest available month cannot be determined.
-        requests.HTTPError: If any centroid API call returns a non-2xx status.
-        requests.RequestException: On network or timeout errors.
     """
     date_str = _latest_available_month()
     if not date_str:
         raise RuntimeError("Met Police: could not determine latest available month")
 
-    logger.info("Met Police: fetching data for %s", date_str)
+    logger.info("Met Police: fetching data for %s across %d boroughs", date_str, len(BOROUGHS))
 
     all_crimes: list[dict] = []
+    failed_boroughs: list[str] = []
 
-    for i, (lat, lng) in enumerate(SAMPLE_CENTROIDS):
+    for i, (borough_code, info) in enumerate(BOROUGHS.items()):
         if i > 0:
             time.sleep(1)  # Met Police API rate limit
+        lat, lng = info["lat"], info["lng"]
         try:
             response = requests.get(
                 f"{MET_POLICE_BASE}/crimes-street/all-crime",
@@ -84,19 +79,35 @@ def fetch() -> dict:
             )
             response.raise_for_status()
             crimes = response.json()
+            # Tag each crime with the requesting borough code
+            for crime in crimes:
+                crime["borough_code"] = borough_code
             all_crimes.extend(crimes)
-            logger.info("Met Police: %d crimes at (%.4f, %.4f)", len(crimes), lat, lng)
-        except requests.HTTPError as e:
-            logger.error("Met Police HTTP error at (%.4f, %.4f): %s", lat, lng, e)
-            raise
+            logger.info(
+                "Met Police: %d crimes for %s (%s)",
+                len(crimes), borough_code, info["name"],
+            )
         except requests.RequestException as e:
-            logger.error("Met Police request failed at (%.4f, %.4f): %s", lat, lng, e)
-            raise
+            logger.warning(
+                "Met Police: failed for %s (%s): %s — skipping",
+                borough_code, info["name"], e,
+            )
+            failed_boroughs.append(borough_code)
+
+    if failed_boroughs:
+        logger.warning(
+            "Met Police: %d/%d boroughs failed: %s",
+            len(failed_boroughs), len(BOROUGHS), failed_boroughs,
+        )
+
+    if not all_crimes:
+        logger.error("Met Police: no crime data retrieved from any borough")
 
     logger.info(
-        "Met Police fetch: retrieved %d crimes across %d centroids",
+        "Met Police fetch: retrieved %d crimes across %d/%d boroughs",
         len(all_crimes),
-        len(SAMPLE_CENTROIDS),
+        len(BOROUGHS) - len(failed_boroughs),
+        len(BOROUGHS),
     )
 
     return {

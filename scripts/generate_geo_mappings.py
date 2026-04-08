@@ -69,12 +69,18 @@ def fetch_ons_boroughs() -> dict[str, dict]:
         "f": "json",
     }
 
-    try:
-        resp = requests.get(ONS_API_URL, params=params, timeout=30)
-        resp.raise_for_status()
-    except requests.RequestException as e:
-        logger.error("ONS API request failed: %s", e)
-        raise
+    resp = None
+    for attempt in range(3):
+        try:
+            resp = requests.get(ONS_API_URL, params=params, timeout=30)
+            resp.raise_for_status()
+            break
+        except requests.RequestException as e:
+            if attempt == 2:
+                logger.error("ONS API request failed after 3 attempts: %s", e)
+                raise
+            logger.warning("ONS API attempt %d failed: %s — retrying", attempt + 1, e)
+            time.sleep(2 ** attempt)
 
     data = resp.json()
     features = data.get("features", [])
@@ -116,13 +122,58 @@ TUBE_LINES = [
 ]
 
 
+def _reverse_geocode_bulk(
+    coords: list[tuple[float, float]],
+    boroughs: dict[str, dict],
+) -> list[str | None]:
+    """Reverse-geocode coordinates to borough codes via postcodes.io.
+
+    Uses the bulk endpoint (100 per request) for efficiency. Falls back to
+    nearest-centroid if the API fails.
+
+    Args:
+        coords: List of (lat, lng) tuples.
+        boroughs: Borough lookup for name→code resolution.
+
+    Returns:
+        List of ONS borough codes (or None), same order as input.
+    """
+    name_to_code = {info["name"].lower(): code for code, info in boroughs.items()}
+    results: list[str | None] = [None] * len(coords)
+
+    for batch_start in range(0, len(coords), 100):
+        batch = coords[batch_start : batch_start + 100]
+        geolocations = [
+            {"latitude": lat, "longitude": lng} for lat, lng in batch
+        ]
+        try:
+            resp = requests.post(
+                POSTCODES_IO_URL,
+                json={"geolocations": geolocations},
+                timeout=30,
+            )
+            resp.raise_for_status()
+            for j, item in enumerate(resp.json().get("result", [])):
+                if item.get("result") and len(item["result"]) > 0:
+                    district = item["result"][0].get("admin_district", "")
+                    code = name_to_code.get(district.lower())
+                    results[batch_start + j] = code
+        except requests.RequestException as exc:
+            logger.warning("postcodes.io bulk geocode failed: %s — falling back to centroids", exc)
+            for j, (lat, lng) in enumerate(batch):
+                results[batch_start + j] = _nearest_borough(lat, lng, boroughs)
+
+    return results
+
+
 def fetch_tfl_line_to_boroughs(
     boroughs: dict[str, dict],
 ) -> dict[str, list[str]]:
     """Derive tube-line-to-borough mapping from TfL station coordinates.
 
     Queries TfL's Line/{id}/StopPoints endpoint for each of the 11 tube lines,
-    then maps each station's coordinates to the nearest borough centroid.
+    then reverse-geocodes each station via postcodes.io to determine its actual
+    borough (using ONS boundary polygons, not centroid distance).
 
     Args:
         boroughs: Borough lookup from fetch_ons_boroughs().
@@ -141,25 +192,31 @@ def fetch_tfl_line_to_boroughs(
 
     for line_id in TUBE_LINES:
         url = TFL_LINE_STOPS_URL.format(line_id=line_id)
-        try:
-            resp = requests.get(url, params=tfl_params, timeout=30)
-            resp.raise_for_status()
-        except requests.RequestException as e:
-            logger.error("TfL Line/%s/StopPoints failed: %s", line_id, e)
-            raise
+        resp = None
+        for attempt in range(3):
+            try:
+                resp = requests.get(url, params=tfl_params, timeout=30)
+                resp.raise_for_status()
+                break
+            except requests.RequestException as e:
+                if attempt == 2:
+                    logger.warning("TfL Line/%s/StopPoints failed after 3 attempts: %s — skipping", line_id, e)
+                else:
+                    time.sleep(2 ** attempt)
+        if resp is None or not resp.ok:
+            continue
 
         stations = resp.json()
-        borough_set: set[str] = set()
-
+        station_coords = []
         for station in stations:
             lat = station.get("lat")
             lon = station.get("lon")
-            if lat is None or lon is None:
-                continue
+            if lat is not None and lon is not None:
+                station_coords.append((lat, lon))
 
-            borough_code = _nearest_borough(lat, lon, boroughs)
-            if borough_code is not None:
-                borough_set.add(borough_code)
+        # Bulk reverse geocode via postcodes.io
+        borough_codes = _reverse_geocode_bulk(station_coords, boroughs)
+        borough_set = {code for code in borough_codes if code is not None}
 
         line_boroughs[line_id] = borough_set
         logger.info(
@@ -183,7 +240,7 @@ def fetch_tfl_line_to_boroughs(
 # 3. NHS trust → borough mapping
 # ---------------------------------------------------------------------------
 
-# The 17 London NHS trust org codes from our NHS A&E ingestion source.
+# The 18 London NHS trust org codes from our NHS A&E ingestion source.
 # These are the trust name fragments used in nhs_ae.py to filter the CSV.
 LONDON_TRUST_FRAGMENTS = [
     "BARKING",
@@ -220,11 +277,10 @@ def fetch_nhs_trust_to_boroughs(
 
     For each London trust:
     1. Search ODS by name fragment to discover the org_code
-    2. Enumerate site codes ({org_code}00 to {org_code}99) — NHS convention
-       is that child site codes start with the parent trust code
+    2. Fetch HQ postcode, then enumerate site codes ({org_code}00–99)
     3. Collect unique postcodes from all active sites
-    4. Bulk geocode postcodes via postcodes.io
-    5. Map each site coordinate to the nearest borough
+    4. Bulk lookup postcodes via postcodes.io — returns admin_district directly
+       (no intermediate geocoding or centroid matching needed)
 
     Args:
         boroughs: Borough lookup from fetch_ons_boroughs().
@@ -233,6 +289,7 @@ def fetch_nhs_trust_to_boroughs(
         Dict keyed by NHS org_code with a sorted list of ONS borough codes.
     """
     logger.info("Fetching NHS trust site locations...")
+    name_to_code = {info["name"].lower(): code for code, info in boroughs.items()}
 
     # Step 1: Search for each trust by name to get org codes
     trust_codes: list[str] = []
@@ -281,18 +338,17 @@ def fetch_nhs_trust_to_boroughs(
         except requests.RequestException as e:
             logger.warning("NHS ODS fetch failed for %s: %s", org_code, e)
 
-        # Then enumerate site codes ({org_code}00–{org_code}99, plus 3-digit
-        # suffixes for large trusts that exceed 100 sites)
+        # Enumerate site codes {org_code}00–{org_code}99
         site_count = 0
         consecutive_misses = 0
-        for suffix in range(200):
-            site_code = f"{org_code}{suffix:02d}" if suffix < 100 else f"{org_code}{suffix}"
-            time.sleep(0.1)
+        for suffix in range(100):
+            site_code = f"{org_code}{suffix:02d}"
+            time.sleep(0.05)
             try:
                 resp = requests.get(f"{NHS_ODS_API}/{site_code}", timeout=10)
                 if resp.status_code != 200:
                     consecutive_misses += 1
-                    if consecutive_misses >= 20:
+                    if consecutive_misses >= 15:
                         break  # stop enumerating — no more sites
                     continue
                 consecutive_misses = 0  # reset on any hit
@@ -310,7 +366,7 @@ def fetch_nhs_trust_to_boroughs(
                     site_count += 1
             except requests.RequestException:
                 consecutive_misses += 1
-                if consecutive_misses >= 20:
+                if consecutive_misses >= 10:
                     break
                 continue
 
@@ -318,9 +374,10 @@ def fetch_nhs_trust_to_boroughs(
 
     logger.info("NHS: collected %d unique postcodes to geocode", len(postcodes_to_resolve))
 
-    # Step 3: Bulk geocode postcodes via postcodes.io (max 100 per request)
+    # Step 3: Bulk lookup postcodes via postcodes.io
+    # Returns admin_district directly — no coordinate geocoding needed
     all_postcodes = list(postcodes_to_resolve.keys())
-    geocoded: dict[str, tuple[float, float]] = {}
+    trust_boroughs: dict[str, set[str]] = {}
 
     for i in range(0, len(all_postcodes), 100):
         batch = all_postcodes[i : i + 100]
@@ -334,23 +391,14 @@ def fetch_nhs_trust_to_boroughs(
             for item in resp.json().get("result", []):
                 if item.get("result"):
                     pc = item["query"]
-                    geocoded[pc] = (
-                        item["result"]["latitude"],
-                        item["result"]["longitude"],
-                    )
+                    district = item["result"].get("admin_district", "")
+                    borough_code = name_to_code.get(district.lower())
+                    if borough_code is None:
+                        continue
+                    for trust_code in postcodes_to_resolve[pc]:
+                        trust_boroughs.setdefault(trust_code, set()).add(borough_code)
         except requests.RequestException as e:
-            logger.warning("postcodes.io batch geocode failed: %s", e)
-
-    logger.info("NHS: geocoded %d/%d postcodes", len(geocoded), len(all_postcodes))
-
-    # Step 4: Map each geocoded site to nearest borough
-    trust_boroughs: dict[str, set[str]] = {}
-    for postcode, (lat, lng) in geocoded.items():
-        borough_code = _nearest_borough(lat, lng, boroughs)
-        if borough_code is None:
-            continue
-        for trust_code in postcodes_to_resolve[postcode]:
-            trust_boroughs.setdefault(trust_code, set()).add(borough_code)
+            logger.warning("postcodes.io batch postcode lookup failed: %s", e)
 
     result = {
         trust: sorted(codes) for trust, codes in sorted(trust_boroughs.items())
@@ -367,7 +415,7 @@ def fetch_nhs_trust_to_boroughs(
 # Shared helpers
 # ---------------------------------------------------------------------------
 
-_MAX_DISTANCE_DEG = 0.06  # ~5 km at London latitude
+_MAX_DISTANCE_DEG = 0.06  # ~6-7 km at London latitude
 
 
 def _nearest_borough(
@@ -407,7 +455,7 @@ def main() -> None:
         "_metadata": {
             "description": "Auto-generated by scripts/generate_geo_mappings.py",
             "sources": {
-                "boroughs": "ONS Open Geography Portal (LAD boundaries 2024)",
+                "boroughs": "ONS Open Geography Portal (LAD boundaries May 2025)",
                 "tfl_lines": "TfL Unified API (StopPoint/Mode/tube)",
                 "nhs_trusts": "NHS ODS API + postcodes.io geocoding",
             },
@@ -424,12 +472,12 @@ def main() -> None:
     logger.info("Wrote lookups to %s", OUTPUT_PATH)
 
     # Summary
-    print(f"\n{'='*60}")
-    print(f"Boroughs:       {len(boroughs)}")
-    print(f"Tube lines:     {len(tfl_lines)}")
-    print(f"NHS trusts:     {len(nhs_trusts)}")
-    print(f"Output:         {OUTPUT_PATH}")
-    print(f"{'='*60}")
+    logger.info("=" * 60)
+    logger.info("Boroughs:       %d", len(boroughs))
+    logger.info("Tube lines:     %d", len(tfl_lines))
+    logger.info("NHS trusts:     %d", len(nhs_trusts))
+    logger.info("Output:         %s", OUTPUT_PATH)
+    logger.info("=" * 60)
 
     # Warn about boroughs with no NHS trust coverage
     covered_boroughs = set()
@@ -438,10 +486,10 @@ def main() -> None:
     uncovered = set(boroughs.keys()) - covered_boroughs
     if uncovered:
         names = [boroughs[c]["name"] for c in sorted(uncovered)]
-        print(f"\nNHS trust coverage gaps ({len(uncovered)} boroughs):")
+        logger.warning("NHS trust coverage gaps (%d boroughs):", len(uncovered))
         for name in names:
-            print(f"  - {name}")
-        print("These boroughs will use London-wide average NHS score in gold layer.")
+            logger.warning("  - %s", name)
+        logger.warning("These boroughs will use London-wide average NHS score in gold layer.")
 
     # Warn about boroughs with no tube coverage
     tube_boroughs = set()
@@ -450,10 +498,10 @@ def main() -> None:
     no_tube = set(boroughs.keys()) - tube_boroughs
     if no_tube:
         names = [boroughs[c]["name"] for c in sorted(no_tube)]
-        print(f"\nNo tube stations ({len(no_tube)} boroughs):")
+        logger.warning("No tube stations (%d boroughs):", len(no_tube))
         for name in names:
-            print(f"  - {name}")
-        print("These boroughs will use London-wide average transit score in gold layer.")
+            logger.warning("  - %s", name)
+        logger.warning("These boroughs will use London-wide average transit score in gold layer.")
 
 
 if __name__ == "__main__":

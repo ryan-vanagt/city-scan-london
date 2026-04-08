@@ -17,7 +17,7 @@ CityScan is a live urban health diagnostic platform that models London as a huma
 
 | Organ             | Data Source                                     | Signal                                      | Update Cadence | Data Lag                          |
 | ----------------- | ----------------------------------------------- | ------------------------------------------- | -------------- | --------------------------------- |
-| 🫁 Lungs          | OpenAQ API                                      | PM2.5, NO2, O3 per borough                  | Hourly         | ~1 hour                           |
+| 🫁 Lungs          | OpenAQ API                                      | PM2.5, NO2 per borough                       | Hourly         | ~1 hour                           |
 | 🩸 Arteries       | TfL Unified API                                 | Tube line status & severity scores          | Hourly         | Real-time                         |
 | 🧠 Brain          | Reddit (r/london) + Guardian API + BBC News RSS | NLP sentiment score from posts & headlines  | Every 3 hours  | ~3 hours                          |
 | 🛡️ Immune System | Met Police API + NHS England A&E stats          | Crime rate per borough + A&E pressure index | Monthly        | Crime: ~2 months · A&E: ~2 months |
@@ -132,16 +132,16 @@ Every Doctor agent interaction is recorded:
 
 ```sql
 CREATE TABLE agent_logs (
-    id             TEXT PRIMARY KEY,   -- UUID
-    timestamp      TEXT,               -- ISO 8601 UTC
-    query          TEXT,               -- user's question
-    tools_called   TEXT,               -- JSON array: ["get_borough_health", "get_trend"]
-    tool_inputs    TEXT,               -- JSON: parameters passed to each tool
-    tool_outputs   TEXT,               -- JSON: raw data returned by each tool
-    sources_cited  TEXT,               -- JSON: sources included in the response
-    final_response TEXT,               -- full LLM answer
+    id             VARCHAR NOT NULL,   -- UUID
+    timestamp      VARCHAR NOT NULL,   -- ISO 8601 UTC
+    query          VARCHAR,            -- user's question
+    tools_called   VARCHAR,            -- JSON array: ["get_borough_health", "get_trend"]
+    tool_inputs    VARCHAR,            -- JSON: parameters passed to each tool
+    tool_outputs   VARCHAR,            -- JSON: raw data returned by each tool
+    sources_cited  VARCHAR,            -- JSON: sources included in the response
+    final_response VARCHAR,            -- full LLM answer
     latency_ms     INTEGER,            -- total wall time
-    model_used     TEXT                -- e.g. "claude-haiku-4-5"
+    model_used     VARCHAR             -- e.g. "claude-haiku-4-5"
 );
 ```
 
@@ -149,13 +149,13 @@ CREATE TABLE agent_logs (
 
 ```sql
 CREATE TABLE bulletin_logs (
-    id           TEXT PRIMARY KEY,
-    timestamp    TEXT,
-    trigger      TEXT,               -- "scheduled" or "manual"
-    scores_used  TEXT,               -- JSON snapshot of Gold scores at generation time
-    headlines_used TEXT,             -- JSON array of Guardian headlines used
-    output_path  TEXT,               -- path to the saved .md file
-    latency_ms   INTEGER
+    id             VARCHAR NOT NULL,
+    timestamp      VARCHAR NOT NULL,
+    trigger        VARCHAR,            -- "scheduled" or "manual"
+    scores_used    VARCHAR,            -- JSON snapshot of Gold scores at generation time
+    headlines_used VARCHAR,            -- JSON array of Guardian headlines used
+    output_path    VARCHAR,            -- path to the saved .md file
+    latency_ms     INTEGER
 );
 ```
 

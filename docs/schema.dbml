@@ -5,33 +5,33 @@
 // All scores are 0–100, where 100 = healthiest.
 
 Table silver_metrics {
-  borough_code     varchar [not null, note: 'ONS 9-char code (E09000001–E09000033) or "LONDON" for city-wide metrics']
+  borough_code     varchar [not null, note: 'ONS 9-char code (E09000001–E09000033)']
   borough_name     varchar [not null]
-  timestamp        timestamp [not null, note: 'UTC, ISO 8601']
-  metric_name      varchar [not null, note: 'pm25 | no2 | tube_status | sentiment | crime_count | ae_performance']
+  timestamp        timestamptz [not null, note: 'UTC']
+  metric_name      varchar [not null, note: 'air_quality | transit | sentiment | crime | nhs_ae']
   raw_value        double [note: 'Original value before normalisation (nullable for some sources)']
-  normalised_score double [not null, note: '0–100 score, 100 = healthiest']
+  normalised_score double [not null, note: '0–100 score, 100 = healthiest, CHECK 0–100']
   source           varchar [not null, note: 'openaq | tfl | reddit | guardian | bbc | met_police | nhs_ae']
-  ingested_at      timestamp [not null, note: 'UTC pipeline run time']
+  ingested_at      timestamptz [not null, note: 'UTC pipeline run time']
   pipeline_stage   varchar [default: 'silver']
 }
 
 Table gold_scores {
-  borough_code     varchar [not null, note: 'ONS 9-char code or "LONDON" for city-wide aggregate']
+  borough_code     varchar [not null, note: 'ONS 9-char code']
   borough_name     varchar [not null]
-  timestamp        timestamp [not null, note: 'UTC, ISO 8601']
-  air_score        double [note: '0–100, from OpenAQ PM2.5 + NO2']
-  transit_score    double [note: '0–100, from TfL tube line status']
-  sentiment_score  double [note: '0–100, from Reddit + Guardian + BBC sentiment']
-  immune_score     double [note: '0–100, from Met Police crime + NHS A&E performance']
-  composite_score  double [not null, note: 'Weighted average of four system scores']
-  ingested_at      timestamp [not null, note: 'UTC pipeline run time']
+  timestamp        timestamptz [not null, note: 'UTC']
+  air_score        double [note: '0–100, from OpenAQ PM2.5 + NO2, CHECK 0–100']
+  transit_score    double [note: '0–100, from TfL tube line status, CHECK 0–100']
+  sentiment_score  double [note: '0–100, from Reddit + Guardian + BBC sentiment, CHECK 0–100']
+  immune_score     double [note: '0–100, from Met Police crime + NHS A&E performance, CHECK 0–100']
+  composite_score  double [not null, note: 'Weighted average of four system scores, CHECK 0–100']
+  ingested_at      timestamptz [not null, note: 'UTC pipeline run time']
   pipeline_stage   varchar [default: 'gold']
 }
 
 Table agent_logs {
-  id               varchar [note: 'UUID']
-  timestamp        varchar [note: 'ISO 8601 UTC']
+  id               varchar [not null, note: 'UUID']
+  timestamp        varchar [not null, note: 'ISO 8601 UTC']
   query            varchar [note: 'User question']
   tools_called     varchar [note: 'JSON array of tool names']
   tool_inputs      varchar [note: 'JSON — parameters passed to each tool']
@@ -43,8 +43,8 @@ Table agent_logs {
 }
 
 Table bulletin_logs {
-  id               varchar [note: 'UUID']
-  timestamp        varchar [note: 'ISO 8601 UTC']
+  id               varchar [not null, note: 'UUID']
+  timestamp        varchar [not null, note: 'ISO 8601 UTC']
   trigger          varchar [note: '"scheduled" or "manual"']
   scores_used      varchar [note: 'JSON snapshot of Gold scores at generation time']
   headlines_used   varchar [note: 'JSON array of headlines used']

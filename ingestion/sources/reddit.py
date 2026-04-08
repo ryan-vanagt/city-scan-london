@@ -1,10 +1,10 @@
 """
 Reddit data source collector.
 
-Fetches the top 50 hot posts from r/london and r/londonuk using Reddit's
-public JSON API — no credentials required. Only post metadata and titles
-are stored; selftext (post body) is never written to disk.
-Sentiment scoring of titles happens in the silver layer.
+Fetches the top 50 hot posts from r/london using Reddit's public JSON API —
+no credentials required. Only post metadata and titles are stored; selftext
+(post body) is never written to disk. Sentiment scoring of titles happens
+in the silver layer.
 """
 
 import logging

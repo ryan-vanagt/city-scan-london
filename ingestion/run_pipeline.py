@@ -19,8 +19,13 @@ load_dotenv(PROJECT_ROOT / ".env")
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
 
+import duckdb  # noqa: E402
+
 from ingestion.sources import openaq, tfl, met_police, guardian, reddit, bbc, nhs_ae  # noqa: E402
-from pipeline import bronze  # noqa: E402
+from pipeline import bronze, silver  # noqa: E402
+from pipeline.schemas import init_db  # noqa: E402
+
+logger = logging.getLogger(__name__)
 
 SOURCES = {
     "openaq": openaq,
@@ -32,10 +37,20 @@ SOURCES = {
     "nhs_ae": nhs_ae,
 }
 
+DB_PATH = str(PROJECT_ROOT / "data" / "cityscan.duckdb")
+
 
 if __name__ == "__main__":
+    # --- Bronze ---
     for name, module in SOURCES.items():
         data = module.fetch()
         path = bronze.save(name, data)
         bronze.cleanup(name)
-        print(f"Saved {name} bronze data to {path}")
+        logger.info("Saved %s bronze data to %s", name, path)
+
+    # --- Silver ---
+    con = duckdb.connect(DB_PATH)
+    init_db(con)
+    rows = silver.transform(con)
+    logger.info("Silver layer complete: %d rows inserted", rows)
+    con.close()

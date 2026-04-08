@@ -9,6 +9,7 @@ never the full article body. Raw responses are saved to
 
 import logging
 import os
+from datetime import datetime, timezone
 
 import requests
 
@@ -24,7 +25,7 @@ def fetch() -> dict:
     Only headline and trailText fields are requested — body is never fetched.
 
     Returns:
-        Raw API response dict with structure: {"response": {"status": "ok", "results": [...]}}
+        Dict with 'results' (list of article dicts) and 'fetched_at'.
 
     Raises:
         requests.HTTPError: If the API returns a non-2xx status code.
@@ -54,7 +55,10 @@ def fetch() -> dict:
         raise
 
     data = response.json()
-    result_count = len(data.get("response", {}).get("results", []))
-    logger.info("Guardian fetch: retrieved %d articles", result_count)
+    articles = data.get("response", {}).get("results", [])
+    logger.info("Guardian fetch: retrieved %d articles", len(articles))
 
-    return data
+    return {
+        "results": articles,
+        "fetched_at": datetime.now(timezone.utc).isoformat(),
+    }
