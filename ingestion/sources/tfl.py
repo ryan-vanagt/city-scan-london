@@ -45,6 +45,9 @@ def fetch() -> dict:
         raise
 
     data = response.json()
+    if not isinstance(data, list):
+        logger.error("TfL API: expected list, got %s", type(data).__name__)
+        raise ValueError(f"TfL API returned unexpected type: {type(data).__name__}")
     logger.info("TfL fetch: retrieved %d line statuses", len(data))
 
     return {

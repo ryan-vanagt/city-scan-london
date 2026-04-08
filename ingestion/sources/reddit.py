@@ -7,6 +7,7 @@ no credentials required. Only post metadata and titles are stored; selftext
 in the silver layer.
 """
 
+import json
 import logging
 import os
 import time
@@ -60,7 +61,11 @@ def fetch() -> dict:
             logger.error("Reddit request failed for r/%s: %s", subreddit, e)
             raise
 
-        posts = response.json().get("data", {}).get("children", [])
+        try:
+            posts = response.json().get("data", {}).get("children", [])
+        except json.JSONDecodeError as e:
+            logger.error("Reddit: invalid JSON response for r/%s: %s", subreddit, e)
+            raise
         text_posts = 0
         for post in posts:
             d = post.get("data", {})

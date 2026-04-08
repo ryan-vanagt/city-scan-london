@@ -7,6 +7,7 @@ never the full article body. Raw responses are saved to
 /data/bronze/guardian/ as timestamped JSON.
 """
 
+import json
 import logging
 import os
 from datetime import datetime, timezone
@@ -54,7 +55,11 @@ def fetch() -> dict:
         logger.error("Guardian API request failed: %s", e)
         raise
 
-    data = response.json()
+    try:
+        data = response.json()
+    except json.JSONDecodeError as e:
+        logger.error("Guardian API: invalid JSON response: %s", e)
+        raise
     articles = data.get("response", {}).get("results", [])
     logger.info("Guardian fetch: retrieved %d articles", len(articles))
 

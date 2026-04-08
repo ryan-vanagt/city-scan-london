@@ -11,6 +11,7 @@ attribute crimes to boroughs without re-running coord_to_borough(). Raw
 responses are saved to /data/bronze/met_police/ as timestamped JSON.
 """
 
+import json
 import logging
 import time
 from datetime import datetime, timezone
@@ -79,6 +80,13 @@ def fetch() -> dict:
             )
             response.raise_for_status()
             crimes = response.json()
+            if not isinstance(crimes, list):
+                logger.warning(
+                    "Met Police: unexpected response type for %s (%s): %s — skipping",
+                    borough_code, info["name"], type(crimes).__name__,
+                )
+                failed_boroughs.append(borough_code)
+                continue
             # Tag each crime with the requesting borough code
             for crime in crimes:
                 crime["borough_code"] = borough_code
@@ -87,7 +95,7 @@ def fetch() -> dict:
                 "Met Police: %d crimes for %s (%s)",
                 len(crimes), borough_code, info["name"],
             )
-        except requests.RequestException as e:
+        except (requests.RequestException, json.JSONDecodeError) as e:
             logger.warning(
                 "Met Police: failed for %s (%s): %s — skipping",
                 borough_code, info["name"], e,

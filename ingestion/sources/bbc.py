@@ -44,7 +44,11 @@ def fetch() -> dict:
         logger.error("BBC RSS request failed: %s", e)
         raise
 
-    root = ET.fromstring(response.content)
+    try:
+        root = ET.fromstring(response.content)
+    except ET.ParseError as e:
+        logger.error("BBC RSS: failed to parse XML response: %s", e)
+        raise
     channel = root.find("channel")
     if channel is None:
         logger.error("BBC RSS: unexpected XML structure — no <channel> element")

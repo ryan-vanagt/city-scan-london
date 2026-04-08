@@ -72,12 +72,16 @@ def _load_bronze(source: str) -> tuple[dict | list, str] | None:
     if isinstance(data, dict):
         timestamp = data.get("fetched_at")
     if not timestamp:
-        # Filename format: YYYYMMDD_HHMMSS.json
-        stem = path.stem  # e.g. "20260408_120000"
-        try:
-            dt = datetime.strptime(stem, "%Y%m%d_%H%M%S").replace(tzinfo=timezone.utc)
-            timestamp = dt.isoformat()
-        except ValueError:
+        # Filename format: YYYYMMDD_HHMMSS_ffffff.json or YYYYMMDD_HHMMSS.json
+        stem = path.stem
+        for fmt in ("%Y%m%d_%H%M%S_%f", "%Y%m%d_%H%M%S"):
+            try:
+                dt = datetime.strptime(stem, fmt).replace(tzinfo=timezone.utc)
+                timestamp = dt.isoformat()
+                break
+            except ValueError:
+                continue
+        else:
             timestamp = datetime.now(timezone.utc).isoformat()
     return data, timestamp
 
@@ -183,7 +187,9 @@ def _transform_tfl(data: dict, timestamp: str) -> list[tuple]:
     for bc, severities in borough_severities.items():
         min_sev = min(severities)
         raw_value = float(min_sev)
-        normalised = _clamp(min_sev * 10.0)
+        # TfL severity: 0 (worst) to 10 (Good Service); 11-13 are rare
+        # informational statuses — cap at 10 so they don't clamp to 100
+        normalised = _clamp(min(min_sev, 10) * 10.0)
         rows.append(_make_row(bc, timestamp, "transit", raw_value, normalised, "tfl"))
 
     logger.info("Silver TfL: %d borough rows", len(rows))
@@ -210,6 +216,14 @@ def _transform_met_police(data: dict, timestamp: str) -> list[tuple]:
 
     if not borough_counts:
         logger.warning("Silver Met Police: no crimes mapped to boroughs")
+        return []
+
+    if len(borough_counts) < 3:
+        logger.warning(
+            "Silver Met Police: only %d borough(s) with data — skipping cycle "
+            "(min-max normalisation unreliable with < 3 boroughs)",
+            len(borough_counts),
+        )
         return []
 
     # Min-max normalise, inverted: fewer crimes = higher score
@@ -245,11 +259,18 @@ def _transform_openaq(data: dict, timestamp: str) -> list[tuple]:
         logger.warning("Silver OpenAQ: no readings in bronze data")
         return []
 
-    # Filter stale readings
+    # Filter stale and invalid readings
     cutoff = datetime.now(timezone.utc) - timedelta(days=_MAX_READING_AGE_DAYS)
     fresh_readings = []
     stale_count = 0
+    negative_count = 0
     for reading in readings:
+        # Filter negative values (sensor calibration errors)
+        value = reading.get("value")
+        if value is not None and value < 0:
+            negative_count += 1
+            continue
+
         dt_str = reading.get("datetime_utc")
         if dt_str:
             try:
@@ -258,8 +279,12 @@ def _transform_openaq(data: dict, timestamp: str) -> list[tuple]:
                     stale_count += 1
                     continue
             except (ValueError, TypeError):
-                pass  # keep readings with unparseable dates
+                stale_count += 1
+                continue  # unparseable datetime treated as stale
         fresh_readings.append(reading)
+
+    if negative_count:
+        logger.info("Silver OpenAQ: filtered %d negative readings (sensor errors)", negative_count)
 
     if stale_count:
         logger.info(
@@ -450,12 +475,12 @@ def transform_all() -> list[tuple]:
     all_rows: list[tuple] = []
 
     for source_name, transformer in _SOURCES:
-        loaded = _load_bronze(source_name)
-        if loaded is None:
-            continue
-
-        data, timestamp = loaded
         try:
+            loaded = _load_bronze(source_name)
+            if loaded is None:
+                continue
+
+            data, timestamp = loaded
             rows = transformer(data, timestamp)
         except Exception as exc:
             logger.error("Silver transform failed for %s: %s", source_name, exc)

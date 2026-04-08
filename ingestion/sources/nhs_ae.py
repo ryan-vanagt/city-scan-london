@@ -65,6 +65,7 @@ LONDON_TRUST_FRAGMENTS = [
     "Kingston",
     "Barking, Havering",
     "Hillingdon",
+    "North Middlesex",
 ]
 
 

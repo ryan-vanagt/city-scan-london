@@ -157,6 +157,13 @@ def coord_to_borough_bulk(
             )
             resp.raise_for_status()
             api_results = resp.json().get("result", [])
+            if len(api_results) != len(batch):
+                logger.warning(
+                    "postcodes.io bulk: expected %d results, got %d — "
+                    "falling back to single lookups for this batch",
+                    len(batch), len(api_results),
+                )
+                raise ValueError("response length mismatch")
             for j, item in enumerate(api_results):
                 idx, lat, lng = batch[j]
                 cache_key = (round(lat, _COORD_PRECISION), round(lng, _COORD_PRECISION))
@@ -167,8 +174,10 @@ def coord_to_borough_bulk(
                     results[idx] = code
                 else:
                     _COORD_CACHE[cache_key] = None
-        except requests.RequestException as exc:
-            logger.warning("postcodes.io bulk lookup failed: %s", exc)
+        except (requests.RequestException, ValueError) as exc:
+            logger.warning("postcodes.io bulk lookup failed: %s — falling back to single lookups", exc)
+            for idx, lat, lng in batch:
+                results[idx] = coord_to_borough(lat, lng)
 
     return results
 

@@ -104,7 +104,9 @@ def _fetch_latest_readings(
     rate_limited = 0
 
     for i, station in enumerate(relevant_stations):
-        location_id = station["id"]
+        location_id = station.get("id")
+        if location_id is None:
+            continue
         if i > 0 and i % 50 == 0:
             logger.info("OpenAQ: fetched readings for %d/%d stations", i, len(relevant_stations))
 
@@ -117,7 +119,10 @@ def _fetch_latest_readings(
                     timeout=15,
                 )
                 if response.status_code == 429:
-                    reset = int(response.headers.get("x-ratelimit-reset", 60))
+                    try:
+                        reset = int(response.headers.get("x-ratelimit-reset", 60))
+                    except (ValueError, TypeError):
+                        reset = 60
                     rate_limited += 1
                     logger.warning(
                         "OpenAQ: rate-limited (429), waiting %ds (attempt %d/3)",
@@ -134,9 +139,12 @@ def _fetch_latest_readings(
                     param_name = sensor.get("parameter", {}).get("name", "")
                     if param_name not in TARGET_PARAMETERS:
                         continue
+                    sensor_id = sensor.get("id")
+                    if sensor_id is None:
+                        continue
                     latest = sensor.get("latest") or {}
                     station_readings.append({
-                        "sensor_id": sensor["id"],
+                        "sensor_id": sensor_id,
                         "parameter": param_name,
                         "value": latest.get("value"),
                         "datetime_utc": (latest.get("datetime") or {}).get("utc"),
@@ -188,14 +196,17 @@ def fetch() -> dict:
     # Build station list with coordinates and sensor metadata (no readings)
     station_list = []
     for station in stations:
+        station_id = station.get("id")
+        if station_id is None:
+            continue
         station_list.append({
-            "id": station["id"],
+            "id": station_id,
             "name": station.get("name", ""),
             "locality": station.get("locality"),
             "coordinates": station.get("coordinates"),
             "sensors": [
                 {
-                    "id": s["id"],
+                    "id": s.get("id"),
                     "parameter": s.get("parameter", {}).get("name", ""),
                     "units": s.get("parameter", {}).get("units", ""),
                 }
