@@ -22,7 +22,7 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(messag
 import duckdb  # noqa: E402
 
 from ingestion.sources import openaq, tfl, met_police, guardian, reddit, bbc, nhs_ae  # noqa: E402
-from pipeline import bronze, silver  # noqa: E402
+from pipeline import bronze, gold, silver  # noqa: E402
 from pipeline.schemas import init_db  # noqa: E402
 
 logger = logging.getLogger(__name__)
@@ -58,4 +58,9 @@ if __name__ == "__main__":
     rows = silver.transform_all()
     inserted = silver.load(con, rows)
     logger.info("Silver layer complete: %d rows transformed, %d inserted", len(rows), inserted)
+
+    # --- Gold ---
+    gold_rows = gold.aggregate(con)
+    logger.info("Gold layer complete: %d rows inserted", gold_rows)
+
     con.close()
