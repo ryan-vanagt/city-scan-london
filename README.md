@@ -60,4 +60,4 @@ docker compose up
 
 Bronze (raw JSON) → Silver (DuckDB, normalised) → Gold (DuckDB, scored + ChromaDB, embedded)
 
-See `PRD.md` for full spec, `docs/lineage.md` for data lineage, and `learning/` for deep-dive explainers.
+See `PRD.md` for full spec and `docs/lineage.md` for data lineage.
