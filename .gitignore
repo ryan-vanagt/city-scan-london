@@ -69,3 +69,4 @@ logs/
 
 # Local sandbox (tests, queries, scratch scripts)
 sandbox/
+.aider*
