@@ -14,6 +14,7 @@ from langchain_core.tools import tool
 
 from agents.tools.borough_query import get_borough_health, compare_boroughs
 from agents.tools.health_score import get_london_score
+from agents.tools.rag_query import search_scores
 from agents.tools.sql_query import run_sql
 from agents.tools.trend_analysis import get_trend
 
@@ -104,10 +105,27 @@ def run_sql_tool(query: str) -> dict:
     return run_sql(query)
 
 
+@tool
+def search_scores_tool(query: str, n_results: int = 5) -> dict:
+    """Search for borough health scores relevant to a natural language query.
+
+    Uses semantic similarity over historical borough health descriptions
+    stored in ChromaDB. Use this to find relevant context before answering
+    questions about trends, comparisons, or historical patterns.
+
+    Args:
+        query: What to search for, e.g. 'worst air quality boroughs'
+            or 'Camden health overview'.
+        n_results: Number of results to return (1-20, default 5).
+    """
+    return search_scores(query, n_results)
+
+
 ALL_TOOLS = [
     get_borough_health_tool,
     get_london_score_tool,
     get_trend_tool,
     compare_boroughs_tool,
     run_sql_tool,
+    search_scores_tool,
 ]

@@ -61,7 +61,7 @@ Each signal is normalised to a 0–100 score (100 = healthy). The composite boro
 The `ingestion` service owns the full pipeline. APScheduler runs the complete chain on each tick:
 
 ```
-fetch() → bronze.save() → silver.transform() → gold.aggregate() → chromadb.embed()
+fetch() → bronze.save() → silver.transform() → gold.aggregate() → embed.embed_gold_scores()
 ```
 
 There is no separate pipeline container. The `pipeline/` directory contains transformation logic as importable functions called by the scheduler. A manual one-shot trigger is available for development:
@@ -97,6 +97,7 @@ python ingestion/run_pipeline.py   # runs full chain once and exits
   - `get_trend(borough, metric, days)` — trend direction + delta over N days (curated)
   - `compare_boroughs(metric, top_n)` — ranks boroughs by a given signal (curated)
   - `run_sql(query)` — read-only SQL against `gold_scores` / `silver_metrics` for analytical questions the curated tools can't answer (flexible, guarded)
+  - `search_scores(query, n_results)` — semantic similarity search over ChromaDB gold_scores embeddings for RAG context retrieval
 - **Input:** Natural language question from frontend or API
 - **Output:** Structured JSON with two fields:
   - `answer` — natural language response (streamed via SSE)

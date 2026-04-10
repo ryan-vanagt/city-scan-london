@@ -53,4 +53,5 @@ Every Silver and Gold record carries:
 | Bronze | `pipeline/bronze.py` | Raw API response saved as timestamped JSON — no transformation |
 | Silver | `pipeline/silver.py` | Parsed, validated, normalised to 0–100 score, mapped to ONS borough code |
 | Gold | `pipeline/gold.py` | Per-borough weighted average across all four signals; embedded into ChromaDB |
-| Agent Tools | `agents/tools/` | 4 curated DuckDB queries + 1 guarded `run_sql` for flexible analytics |
+| Embed | `pipeline/embed.py` | Gold rows converted to text descriptions and upserted into ChromaDB for RAG |
+| Agent Tools | `agents/tools/` | 4 curated DuckDB queries + 1 guarded `run_sql` + 1 RAG `search_scores` |

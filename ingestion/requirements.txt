@@ -5,6 +5,7 @@ apscheduler
 python-dotenv
 duckdb
 chromadb
+sentence-transformers
 transformers
 torch
 numpy

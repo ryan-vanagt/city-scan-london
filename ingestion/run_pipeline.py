@@ -23,6 +23,7 @@ import duckdb  # noqa: E402
 
 from ingestion.sources import openaq, tfl, met_police, guardian, reddit, bbc, nhs_ae  # noqa: E402
 from pipeline import bronze, gold, silver  # noqa: E402
+from pipeline.embed import embed_gold_scores  # noqa: E402
 from pipeline.schemas import init_db  # noqa: E402
 
 logger = logging.getLogger(__name__)
@@ -62,5 +63,9 @@ if __name__ == "__main__":
     # --- Gold ---
     gold_rows = gold.aggregate(con)
     logger.info("Gold layer complete: %d rows inserted", gold_rows)
+
+    # --- Embed ---
+    embedded = embed_gold_scores(con)
+    logger.info("Embed layer complete: %d documents upserted", embedded)
 
     con.close()
