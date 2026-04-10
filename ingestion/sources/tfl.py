@@ -12,6 +12,8 @@ from datetime import datetime, timezone
 
 import requests
 
+from ingestion.retry import retry_request
+
 logger = logging.getLogger(__name__)
 
 TFL_BASE_URL = "https://api.tfl.gov.uk/line/mode/tube/status"
@@ -35,7 +37,7 @@ def fetch() -> dict:
         logger.warning("TFL_APP_KEY not set — requests may be rate-limited")
 
     try:
-        response = requests.get(TFL_BASE_URL, params=params, timeout=30)
+        response = retry_request(requests.get, TFL_BASE_URL, params=params, timeout=30)
         response.raise_for_status()
     except requests.HTTPError as e:
         logger.error("TfL API HTTP error: %s", e)

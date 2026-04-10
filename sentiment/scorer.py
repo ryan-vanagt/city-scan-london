@@ -58,14 +58,30 @@ def score_texts(texts: list[str]) -> list[float]:
 
     _load_model()
 
-    results = _pipeline(texts)
+    try:
+        results = _pipeline(texts)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning(
+            "Sentiment model inference failed for batch of %d texts: %s — "
+            "returning neutral (0.0) for all",
+            len(texts), exc,
+        )
+        return [0.0] * len(texts)
+
     scores: list[float] = []
 
-    for result in results:
-        # result is a list of dicts: [{"label": "LABEL_0", "score": 0.8}, ...]
-        probs = {item["label"]: item["score"] for item in result}
-        prob_positive = probs.get("LABEL_2", 0.0)
-        prob_negative = probs.get("LABEL_0", 0.0)
-        scores.append(prob_positive - prob_negative)
+    for i, result in enumerate(results):
+        try:
+            # result is a list of dicts: [{"label": "LABEL_0", "score": 0.8}, ...]
+            probs = {item["label"]: item["score"] for item in result}
+            prob_positive = probs.get("LABEL_2", 0.0)
+            prob_negative = probs.get("LABEL_0", 0.0)
+            scores.append(prob_positive - prob_negative)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(
+                "Sentiment scoring failed for text %d/%d: %s — using neutral (0.0)",
+                i + 1, len(texts), exc,
+            )
+            scores.append(0.0)
 
     return scores

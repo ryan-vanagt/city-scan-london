@@ -7,6 +7,7 @@ falls back to a local PersistentClient for development without Docker.
 
 import logging
 import os
+import threading
 from pathlib import Path
 
 import chromadb
@@ -18,10 +19,14 @@ _PERSIST_DIR = str(PROJECT_ROOT / "embeddings")
 COLLECTION_NAME = "gold_scores"
 
 _client: chromadb.ClientAPI | None = None
+_client_lock = threading.Lock()
 
 
 def get_client() -> chromadb.ClientAPI:
     """Return the shared ChromaDB client, creating lazily.
+
+    Thread-safe: uses a lock to prevent concurrent initialisation. Subsequent
+    calls after the first are lock-free (double-checked pattern).
 
     Uses HttpClient when CHROMADB_HOST is set (Docker / remote),
     otherwise PersistentClient writing to the local embeddings/ directory.
@@ -30,15 +35,20 @@ def get_client() -> chromadb.ClientAPI:
     if _client is not None:
         return _client
 
-    host = os.environ.get("CHROMADB_HOST", "")
-    port = int(os.environ.get("CHROMADB_PORT", "8001"))
+    with _client_lock:
+        # Re-check inside the lock in case another thread initialised while we waited
+        if _client is not None:
+            return _client
 
-    if host:
-        _client = chromadb.HttpClient(host=host, port=port)
-        logger.info("ChromaDB: connected to http://%s:%d", host, port)
-    else:
-        _client = chromadb.PersistentClient(path=_PERSIST_DIR)
-        logger.info("ChromaDB: using PersistentClient at %s", _PERSIST_DIR)
+        host = os.environ.get("CHROMADB_HOST", "")
+        port = int(os.environ.get("CHROMADB_PORT", "8001"))
+
+        if host:
+            _client = chromadb.HttpClient(host=host, port=port)
+            logger.info("ChromaDB: connected to http://%s:%d", host, port)
+        else:
+            _client = chromadb.PersistentClient(path=_PERSIST_DIR)
+            logger.info("ChromaDB: using PersistentClient at %s", _PERSIST_DIR)
 
     return _client
 

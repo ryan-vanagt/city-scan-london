@@ -24,7 +24,7 @@ flowchart TD
     S --> G[Gold layer\nDuckDB: gold_scores]
     G --> CH[ChromaDB\nembeddings]
 
-    G --> TOOLS[Agent Tools\n4 curated + run_sql]
+    G --> TOOLS[Agent Tools\n4 curated + run_sql\n+ search_scores]
     G --> API[FastAPI]
     CH --> TOOLS
 

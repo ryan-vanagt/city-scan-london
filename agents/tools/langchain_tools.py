@@ -106,7 +106,11 @@ def run_sql_tool(query: str) -> dict:
 
 
 @tool
-def search_scores_tool(query: str, n_results: int = 5) -> dict:
+def search_scores_tool(
+    query: str,
+    n_results: int = 5,
+    borough_code: str | None = None,
+) -> dict:
     """Search for borough health scores relevant to a natural language query.
 
     Uses semantic similarity over historical borough health descriptions
@@ -117,8 +121,9 @@ def search_scores_tool(query: str, n_results: int = 5) -> dict:
         query: What to search for, e.g. 'worst air quality boroughs'
             or 'Camden health overview'.
         n_results: Number of results to return (1-20, default 5).
+        borough_code: Optional ONS code to scope results to one borough.
     """
-    return search_scores(query, n_results)
+    return search_scores(query, n_results, borough_code)
 
 
 ALL_TOOLS = [

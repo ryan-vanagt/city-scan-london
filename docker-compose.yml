@@ -52,9 +52,8 @@ services:
     restart: unless-stopped
 
   chromadb:
-    image: chromadb/chroma:latest
-    ports:
-      - "8001:8000"
+    image: chromadb/chroma:0.6.3
+    # No host port exposure — other services reach chromadb via Docker network name
     volumes:
       - app_embeddings:/chroma/chroma
     restart: unless-stopped

@@ -90,23 +90,27 @@ def get_borough_health(
         "composite_score": None,
     }
 
-    resolved = _resolve_borough(borough, con)
-    if resolved is None:
+    try:
+        resolved = _resolve_borough(borough, con)
+        if resolved is None:
+            return _not_found
+
+        borough_code, borough_name = resolved
+
+        row = con.execute("""
+            SELECT borough_code, borough_name, timestamp,
+                   air_score, transit_score, sentiment_score,
+                   immune_score, composite_score
+            FROM (
+                SELECT *,
+                       ROW_NUMBER() OVER (PARTITION BY borough_code ORDER BY ingested_at DESC) AS rn
+                FROM gold_scores
+            )
+            WHERE rn = 1 AND borough_code = ?
+        """, [borough_code]).fetchone()
+    except duckdb.Error as exc:
+        logger.error("get_borough_health: query failed: %s", exc)
         return _not_found
-
-    borough_code, borough_name = resolved
-
-    row = con.execute("""
-        SELECT borough_code, borough_name, timestamp,
-               air_score, transit_score, sentiment_score,
-               immune_score, composite_score
-        FROM (
-            SELECT *,
-                   ROW_NUMBER() OVER (PARTITION BY borough_code ORDER BY ingested_at DESC) AS rn
-            FROM gold_scores
-        )
-        WHERE rn = 1 AND borough_code = ?
-    """, [borough_code]).fetchone()
 
     if row is None:
         return _not_found
@@ -159,17 +163,25 @@ def compare_boroughs(
     top_n = max(1, min(top_n, 33))
     direction = "ASC" if ascending else "DESC"
 
-    rows = con.execute(f"""
-        SELECT borough_code, borough_name, {metric}
-        FROM (
-            SELECT *,
-                   ROW_NUMBER() OVER (PARTITION BY borough_code ORDER BY ingested_at DESC) AS rn
-            FROM gold_scores
-        )
-        WHERE rn = 1
-        ORDER BY {metric} {direction} NULLS LAST
-        LIMIT ?
-    """, [top_n]).fetchall()
+    try:
+        rows = con.execute(f"""
+            SELECT borough_code, borough_name, {metric}
+            FROM (
+                SELECT *,
+                       ROW_NUMBER() OVER (PARTITION BY borough_code ORDER BY ingested_at DESC) AS rn
+                FROM gold_scores
+            )
+            WHERE rn = 1
+            ORDER BY {metric} {direction} NULLS LAST
+            LIMIT ?
+        """, [top_n]).fetchall()
+    except duckdb.Error as exc:
+        logger.error("compare_boroughs: query failed: %s", exc)
+        return {
+            "metric": metric,
+            "order": "worst_first" if ascending else "best_first",
+            "boroughs": [],
+        }
 
     return {
         "metric": metric,

@@ -9,7 +9,7 @@ GET /borough/{name}/trend  — 7-day trend for a single borough
 import logging
 from enum import Enum
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 
 import duckdb
 
@@ -96,7 +96,7 @@ def list_boroughs(
 
 @router.get("/borough/{name}")
 def get_borough(
-    name: str,
+    name: str = Path(max_length=50),
     con: duckdb.DuckDBPyConnection = Depends(get_connection),
 ) -> dict:
     """Full health score breakdown for a single borough.
@@ -105,7 +105,7 @@ def get_borough(
     """
     borough_code = _resolve_borough_code(name, con)
     if borough_code is None:
-        raise HTTPException(status_code=404, detail=f"Borough not found: {name}")
+        raise HTTPException(status_code=404, detail="Borough not found")
 
     row = con.execute("""
         SELECT borough_code, borough_name, timestamp,
@@ -120,14 +120,14 @@ def get_borough(
     """, [borough_code]).fetchone()
 
     if row is None:
-        raise HTTPException(status_code=404, detail=f"No scores found for borough: {name}")
+        raise HTTPException(status_code=404, detail="Borough not found")
 
     return _borough_row_to_dict(row)
 
 
 @router.get("/borough/{name}/trend")
 def get_borough_trend(
-    name: str,
+    name: str = Path(max_length=50),
     days: int = Query(default=7, ge=1, le=30),
     con: duckdb.DuckDBPyConnection = Depends(get_connection),
 ) -> dict:
@@ -138,7 +138,7 @@ def get_borough_trend(
     """
     borough_code = _resolve_borough_code(name, con)
     if borough_code is None:
-        raise HTTPException(status_code=404, detail=f"Borough not found: {name}")
+        raise HTTPException(status_code=404, detail="Borough not found")
 
     rows = con.execute(f"""
         SELECT timestamp, air_score, transit_score, sentiment_score,

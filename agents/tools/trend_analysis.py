@@ -63,19 +63,23 @@ def get_trend(
 
     days = max(1, min(days, 30))
 
-    resolved = _resolve_borough(borough, con)
-    if resolved is None:
+    try:
+        resolved = _resolve_borough(borough, con)
+        if resolved is None:
+            return _not_found
+
+        borough_code, borough_name = resolved
+
+        rows = con.execute(f"""
+            SELECT timestamp, {metric}
+            FROM gold_scores
+            WHERE borough_code = ?
+              AND timestamp >= NOW() - INTERVAL {int(days)} DAY
+            ORDER BY timestamp ASC
+        """, [borough_code]).fetchall()
+    except duckdb.Error as exc:
+        logger.error("get_trend: query failed: %s", exc)
         return _not_found
-
-    borough_code, borough_name = resolved
-
-    rows = con.execute(f"""
-        SELECT timestamp, {metric}
-        FROM gold_scores
-        WHERE borough_code = ?
-          AND timestamp >= NOW() - INTERVAL {int(days)} DAY
-        ORDER BY timestamp ASC
-    """, [borough_code]).fetchall()
 
     trend = [
         {"timestamp": str(r[0]), "score": r[1]}

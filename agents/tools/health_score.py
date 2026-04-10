@@ -39,27 +39,33 @@ def get_london_score(
     if con is None:
         con = get_connection()
 
-    rows = con.execute("""
-        SELECT borough_code, air_score, transit_score, sentiment_score,
-               immune_score, composite_score, timestamp
-        FROM (
-            SELECT *,
-                   ROW_NUMBER() OVER (PARTITION BY borough_code ORDER BY ingested_at DESC) AS rn
-            FROM gold_scores
-        )
-        WHERE rn = 1
-    """).fetchall()
+    _null_result = {
+        "composite_score": None,
+        "air_score": None,
+        "transit_score": None,
+        "sentiment_score": None,
+        "immune_score": None,
+        "borough_count": 0,
+        "timestamp": None,
+    }
+
+    try:
+        rows = con.execute("""
+            SELECT borough_code, air_score, transit_score, sentiment_score,
+                   immune_score, composite_score, timestamp
+            FROM (
+                SELECT *,
+                       ROW_NUMBER() OVER (PARTITION BY borough_code ORDER BY ingested_at DESC) AS rn
+                FROM gold_scores
+            )
+            WHERE rn = 1
+        """).fetchall()
+    except duckdb.Error as exc:
+        logger.error("get_london_score: query failed: %s", exc)
+        return _null_result
 
     if not rows:
-        return {
-            "composite_score": None,
-            "air_score": None,
-            "transit_score": None,
-            "sentiment_score": None,
-            "immune_score": None,
-            "borough_count": 0,
-            "timestamp": None,
-        }
+        return _null_result
 
     return {
         "composite_score": _avg([r[5] for r in rows]),

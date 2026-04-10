@@ -16,6 +16,8 @@ from datetime import datetime, timezone
 
 import requests
 
+from ingestion.retry import retry_request
+
 logger = logging.getLogger(__name__)
 
 BBC_RSS_URL = "https://feeds.bbci.co.uk/news/england/london/rss.xml"
@@ -35,7 +37,7 @@ def fetch() -> dict:
         requests.RequestException: On network or timeout errors.
     """
     try:
-        response = requests.get(BBC_RSS_URL, timeout=30)
+        response = retry_request(requests.get, BBC_RSS_URL, timeout=30)
         response.raise_for_status()
     except requests.HTTPError as e:
         logger.error("BBC RSS HTTP error: %s", e)

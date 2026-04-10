@@ -15,6 +15,8 @@ import time
 
 import requests
 
+from ingestion.retry import retry_request
+
 logger = logging.getLogger(__name__)
 
 OPENAQ_BASE_URL = "https://api.openaq.org/v3"
@@ -47,7 +49,8 @@ def _fetch_locations(headers: dict[str, str]) -> list[dict]:
     }
 
     try:
-        response = requests.get(
+        response = retry_request(
+            requests.get,
             f"{OPENAQ_BASE_URL}/locations",
             headers=headers,
             params=params,
@@ -123,12 +126,13 @@ def _fetch_latest_readings(
                         reset = int(response.headers.get("x-ratelimit-reset", 60))
                     except (ValueError, TypeError):
                         reset = 60
+                    sleep_secs = min(reset, 120)  # cap to 120s to avoid indefinite stalls
                     rate_limited += 1
                     logger.warning(
                         "OpenAQ: rate-limited (429), waiting %ds (attempt %d/3)",
-                        reset, attempt + 1,
+                        sleep_secs, attempt + 1,
                     )
-                    time.sleep(reset)
+                    time.sleep(sleep_secs)
                     continue
 
                 response.raise_for_status()

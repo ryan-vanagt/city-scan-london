@@ -18,6 +18,8 @@ from datetime import datetime, timezone
 import requests
 from bs4 import BeautifulSoup
 
+from ingestion.retry import retry_request
+
 logger = logging.getLogger(__name__)
 
 NHS_STATS_BASE = (
@@ -80,7 +82,7 @@ def _latest_csv_url() -> str | None:
     """
     for url in _candidate_stats_pages():
         try:
-            response = requests.get(url, timeout=30)
+            response = retry_request(requests.get, url, timeout=30)
             response.raise_for_status()
             break
         except requests.RequestException as exc:
@@ -92,10 +94,13 @@ def _latest_csv_url() -> str | None:
     soup = BeautifulSoup(response.text, "html.parser")
     for link in soup.find_all("a", href=True):
         href = link["href"]
+        # Filter to A&E attendance CSV files — the URL must contain 'AE' or 'attendances'
+        # to avoid accidentally picking up other CSV files on the page
         if href.endswith(".csv"):
-            # First CSV link on the page is always the most recent month
-            logger.info("NHS A&E: found CSV at %s", href)
-            return href
+            href_lower = href.lower()
+            if "ae" in href_lower or "attendances" in href_lower or "emergency" in href_lower:
+                logger.info("NHS A&E: found CSV at %s", href)
+                return href
 
     logger.error("NHS A&E: no CSV link found on statistics page")
     return None
@@ -121,7 +126,7 @@ def fetch() -> dict:
         raise RuntimeError("NHS A&E: could not find CSV download link")
 
     try:
-        response = requests.get(csv_url, timeout=60)
+        response = retry_request(requests.get, csv_url, timeout=60)
         response.raise_for_status()
     except requests.HTTPError as e:
         logger.error("NHS A&E: CSV download HTTP error: %s", e)
@@ -130,6 +135,8 @@ def fetch() -> dict:
         logger.error("NHS A&E: CSV download failed: %s", e)
         raise
 
+    # Set encoding explicitly to handle UTF-8 BOM that NHS England CSVs often include
+    response.encoding = "utf-8-sig"
     reader = csv.DictReader(io.StringIO(response.text))
     results = []
     period = None
@@ -140,10 +147,15 @@ def fetch() -> dict:
     missing_cols = expected_cols - set(fieldnames)
     if missing_cols:
         logger.error(
-            "NHS A&E: CSV missing expected columns: %s (found: %s)",
+            "NHS A&E: CSV missing expected columns: %s (found: %s) — returning empty results",
             missing_cols,
             fieldnames[:10],
         )
+        return {
+            "results": [],
+            "period": None,
+            "fetched_at": datetime.now(timezone.utc).isoformat(),
+        }
 
     for row in reader:
         org_name = row.get("Org name", "").strip()

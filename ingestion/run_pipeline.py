@@ -41,7 +41,13 @@ SOURCES = {
 DB_PATH = str(PROJECT_ROOT / "data" / "cityscan.duckdb")
 
 
-if __name__ == "__main__":
+def run() -> None:
+    """Execute a single full pipeline cycle: Bronze → Silver → Gold → Embed.
+
+    Bronze fetch failures are logged and skipped so partial runs can still
+    produce Silver/Gold output. The DuckDB connection is always closed via
+    finally, even if Silver, Gold, or Embed stages raise.
+    """
     # --- Bronze ---
     for name, module in SOURCES.items():
         try:
@@ -53,19 +59,30 @@ if __name__ == "__main__":
             logger.error("Bronze fetch failed for %s: %s — skipping", name, exc)
             continue
 
-    # --- Silver ---
+    # --- Silver / Gold / Embed ---
     con = duckdb.connect(DB_PATH)
-    init_db(con)
-    rows = silver.transform_all()
-    inserted = silver.load(con, rows)
-    logger.info("Silver layer complete: %d rows transformed, %d inserted", len(rows), inserted)
+    try:
+        init_db(con)
 
-    # --- Gold ---
-    gold_rows = gold.aggregate(con)
-    logger.info("Gold layer complete: %d rows inserted", gold_rows)
+        # Silver
+        rows = silver.transform_all()
+        inserted = silver.load(con, rows)
+        logger.info("Silver layer complete: %d rows transformed, %d inserted", len(rows), inserted)
 
-    # --- Embed ---
-    embedded = embed_gold_scores(con)
-    logger.info("Embed layer complete: %d documents upserted", embedded)
+        # Gold
+        gold_rows = gold.aggregate(con)
+        logger.info("Gold layer complete: %d rows inserted", gold_rows)
 
-    con.close()
+        # Embed
+        embedded = embed_gold_scores(con)
+        logger.info("Embed layer complete: %d documents upserted", embedded)
+
+    except Exception as exc:
+        logger.error("Pipeline failed in Silver/Gold/Embed stage: %s", exc)
+        raise
+    finally:
+        con.close()
+
+
+if __name__ == "__main__":
+    run()

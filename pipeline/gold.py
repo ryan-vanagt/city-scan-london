@@ -37,6 +37,8 @@ def _load_weights() -> tuple[float, float, float, float]:
         parts = [float(x.strip()) for x in raw.split(",")]
         if len(parts) != 4 or any(w < 0 for w in parts):
             raise ValueError("need 4 non-negative floats")
+        if sum(parts) <= 0:
+            raise ValueError("weights must sum to > 0")
         return (parts[0], parts[1], parts[2], parts[3])
     except (ValueError, TypeError) as exc:
         logger.warning("Gold: invalid SCORE_WEIGHTS '%s': %s — using defaults", raw, exc)
@@ -100,8 +102,8 @@ def aggregate(con: duckdb.DuckDBPyConnection) -> int:
         borough_name = borough_names.get(borough_code, BOROUGHS[borough_code]["name"])
 
         # Pivot: each sub-score is the average of its constituent metric_names
-        air_score = metrics["air_quality"][0] if "air_quality" in metrics else None
-        transit_score = metrics["transit"][0] if "transit" in metrics else None
+        air_score = mean(metrics["air_quality"]) if "air_quality" in metrics else None
+        transit_score = mean(metrics["transit"]) if "transit" in metrics else None
 
         # Sentiment: average across up to 3 sources (reddit, bbc, guardian)
         sentiment_scores = metrics.get("sentiment", [])
@@ -140,6 +142,7 @@ def aggregate(con: duckdb.DuckDBPyConnection) -> int:
 
         total_weight = sum(w for _, w in present)
         composite = sum(s * w for s, w in present) / total_weight
+        composite = max(0.0, min(100.0, composite))
 
         rows.append((
             borough_code,

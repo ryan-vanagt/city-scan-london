@@ -15,6 +15,8 @@ from datetime import datetime, timezone
 
 import requests
 
+from ingestion.retry import retry_request
+
 logger = logging.getLogger(__name__)
 
 SUBREDDITS = ["london"]
@@ -47,7 +49,8 @@ def fetch() -> dict:
 
         url = f"{REDDIT_BASE}/r/{subreddit}/hot.json"
         try:
-            response = requests.get(
+            response = retry_request(
+                requests.get,
                 url,
                 headers=headers,
                 params={"limit": 50},

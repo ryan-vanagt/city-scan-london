@@ -5,13 +5,17 @@ GET /health          — service liveness check
 GET /london/score    — current overall London composite health score
 """
 
+import logging
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends
+from fastapi.responses import JSONResponse
 
 import duckdb
 
 from api.db import get_connection
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -19,11 +23,19 @@ router = APIRouter()
 @router.get("/health")
 def health_check(con: duckdb.DuckDBPyConnection = Depends(get_connection)) -> dict:
     """Service liveness check. Pings DuckDB to verify the database is reachable."""
-    db_status = "connected"
     try:
         con.execute("SELECT 1").fetchone()
-    except Exception:
-        db_status = "error"
+        db_status = "connected"
+    except Exception as exc:
+        logger.error("Health check: database ping failed: %s", exc)
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "degraded",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "database": "error",
+            },
+        )
 
     return {
         "status": "ok",
@@ -39,16 +51,23 @@ def london_score(con: duckdb.DuckDBPyConnection = Depends(get_connection)) -> di
     Returns the mean of each sub-score and composite across the latest
     gold_scores row per borough.
     """
-    rows = con.execute("""
-        SELECT borough_code, air_score, transit_score, sentiment_score,
-               immune_score, composite_score, timestamp
-        FROM (
-            SELECT *,
-                   ROW_NUMBER() OVER (PARTITION BY borough_code ORDER BY ingested_at DESC) AS rn
-            FROM gold_scores
+    try:
+        rows = con.execute("""
+            SELECT borough_code, air_score, transit_score, sentiment_score,
+                   immune_score, composite_score, timestamp
+            FROM (
+                SELECT *,
+                       ROW_NUMBER() OVER (PARTITION BY borough_code ORDER BY ingested_at DESC) AS rn
+                FROM gold_scores
+            )
+            WHERE rn = 1
+        """).fetchall()
+    except duckdb.Error as exc:
+        logger.error("london_score: query failed: %s", exc)
+        return JSONResponse(
+            status_code=503,
+            content={"detail": "Gold scores not yet available"},
         )
-        WHERE rn = 1
-    """).fetchall()
 
     if not rows:
         return {

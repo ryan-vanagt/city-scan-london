@@ -18,6 +18,7 @@ from datetime import datetime, timezone
 
 import requests
 
+from ingestion.retry import retry_request
 from pipeline.schemas import BOROUGHS
 
 logger = logging.getLogger(__name__)
@@ -73,7 +74,8 @@ def fetch() -> dict:
             time.sleep(1)  # Met Police API rate limit
         lat, lng = info["lat"], info["lng"]
         try:
-            response = requests.get(
+            response = retry_request(
+                requests.get,
                 f"{MET_POLICE_BASE}/crimes-street/all-crime",
                 params={"lat": lat, "lng": lng, "date": date_str},
                 timeout=60,

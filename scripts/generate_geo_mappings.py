@@ -412,6 +412,96 @@ def fetch_nhs_trust_to_boroughs(
 
 
 # ---------------------------------------------------------------------------
+# 4. OpenAQ station → borough pre-cache
+# ---------------------------------------------------------------------------
+
+# Bounding box covering Greater London (lon_min, lat_min, lon_max, lat_max)
+OPENAQ_LONDON_BBOX = "-0.51,51.28,0.33,51.69"
+OPENAQ_BASE_URL = "https://api.openaq.org/v3"
+
+
+def fetch_openaq_station_boroughs(boroughs: dict[str, dict]) -> dict[str, str | None]:
+    """Fetch all OpenAQ station coordinates for Greater London and map to boroughs.
+
+    Queries the OpenAQ v3 /locations endpoint with the Greater London bounding
+    box, then bulk-reverse-geocodes station coordinates via postcodes.io to
+    resolve each station to an ONS borough code.
+
+    The result is stored in lookups.json under 'openaq_station_boroughs'
+    (keyed by location_id as a string) so that the silver layer can use this
+    pre-resolved mapping without hitting postcodes.io on every pipeline run.
+
+    Args:
+        boroughs: Borough lookup from fetch_ons_boroughs().
+
+    Returns:
+        Dict mapping location_id (str) → ONS borough code or None.
+    """
+    logger.info("Fetching OpenAQ station locations for London bounding box...")
+
+    api_key = os.environ.get("OPENAQ_API_KEY", "")
+    headers = {"X-API-Key": api_key} if api_key else {}
+    if not api_key:
+        logger.warning("OPENAQ_API_KEY not set — OpenAQ requests may be rate-limited")
+
+    params = {"bbox": OPENAQ_LONDON_BBOX, "limit": 1000}
+
+    stations: list[dict] = []
+    for attempt in range(3):
+        try:
+            resp = requests.get(
+                f"{OPENAQ_BASE_URL}/locations",
+                headers=headers,
+                params=params,
+                timeout=30,
+            )
+            resp.raise_for_status()
+            stations = resp.json().get("results", [])
+            break
+        except requests.RequestException as exc:
+            if attempt == 2:
+                logger.error("OpenAQ /locations failed after 3 attempts: %s", exc)
+                return {}
+            logger.warning("OpenAQ /locations attempt %d failed: %s — retrying", attempt + 1, exc)
+            time.sleep(2 ** attempt)
+
+    if not stations:
+        logger.warning("OpenAQ: no stations found in London bounding box")
+        return {}
+
+    logger.info("OpenAQ: discovered %d stations — resolving coordinates to boroughs", len(stations))
+
+    # Collect station coordinates (skip stations without coordinates)
+    station_ids: list[int] = []
+    coords: list[tuple[float, float]] = []
+    for station in stations:
+        loc_id = station.get("id")
+        coords_data = station.get("coordinates", {}) or {}
+        lat = coords_data.get("latitude")
+        lng = coords_data.get("longitude")
+        if loc_id is not None and lat is not None and lng is not None:
+            station_ids.append(loc_id)
+            coords.append((float(lat), float(lng)))
+
+    # Bulk reverse-geocode via postcodes.io
+    borough_codes = _reverse_geocode_bulk(coords, boroughs)
+
+    # Build mapping: location_id (str) → borough code or None
+    station_borough_map: dict[str, str | None] = {}
+    resolved = 0
+    for loc_id, bc in zip(station_ids, borough_codes):
+        station_borough_map[str(loc_id)] = bc
+        if bc is not None:
+            resolved += 1
+
+    logger.info(
+        "OpenAQ: resolved %d/%d stations to boroughs",
+        resolved, len(station_ids),
+    )
+    return station_borough_map
+
+
+# ---------------------------------------------------------------------------
 # Shared helpers
 # ---------------------------------------------------------------------------
 
@@ -450,6 +540,7 @@ def main() -> None:
     boroughs = fetch_ons_boroughs()
     tfl_lines = fetch_tfl_line_to_boroughs(boroughs)
     nhs_trusts = fetch_nhs_trust_to_boroughs(boroughs)
+    openaq_station_boroughs = fetch_openaq_station_boroughs(boroughs)
 
     lookups = {
         "_metadata": {
@@ -458,11 +549,13 @@ def main() -> None:
                 "boroughs": "ONS Open Geography Portal (LAD boundaries May 2025)",
                 "tfl_lines": "TfL Unified API (StopPoint/Mode/tube)",
                 "nhs_trusts": "NHS ODS API + postcodes.io geocoding",
+                "openaq_station_boroughs": "OpenAQ v3 /locations + postcodes.io reverse geocoding",
             },
         },
         "boroughs": boroughs,
         "tfl_line_to_boroughs": tfl_lines,
         "nhs_trust_to_boroughs": nhs_trusts,
+        "openaq_station_boroughs": openaq_station_boroughs,
     }
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -476,6 +569,11 @@ def main() -> None:
     logger.info("Boroughs:       %d", len(boroughs))
     logger.info("Tube lines:     %d", len(tfl_lines))
     logger.info("NHS trusts:     %d", len(nhs_trusts))
+    logger.info(
+        "OpenAQ stations: %d (%d resolved to boroughs)",
+        len(openaq_station_boroughs),
+        sum(1 for v in openaq_station_boroughs.values() if v is not None),
+    )
     logger.info("Output:         %s", OUTPUT_PATH)
     logger.info("=" * 60)
 

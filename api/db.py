@@ -38,4 +38,4 @@ def get_connection() -> duckdb.DuckDBPyConnection:
     """Return the shared DuckDB connection. Use as a FastAPI Depends()."""
     if _con is None:
         raise RuntimeError("DuckDB connection not initialised — call open_connection() first")
-    return _con
+    return _con.cursor()

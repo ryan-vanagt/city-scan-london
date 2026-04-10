@@ -104,7 +104,7 @@ python ingestion/run_pipeline.py   # runs full chain once and exits
   - `sources` — list of grounded data points used to generate the answer, each with `type`, `data`, and optionally `url` (for Guardian headlines). Enables the user to verify any claim against its source.
 - **Streaming:** `POST /agent/query` returns a Server-Sent Events stream. Tokens are emitted as they are generated — the `sources` object is flushed as a final event after the answer completes.
 - **Hallucination mitigation:** Every factual claim in the answer is grounded in a retrieved tool output. The `sources` field makes this verifiable. Tool outputs are stored in `agent_logs` for audit.
-- **`run_sql` guardrails (5-layer security model):**
+- **`run_sql` guardrails (4-layer security model):**
   1. Read-only DuckDB connection — engine-enforced, all write/DDL operations blocked regardless of query content
   2. Table allowlist — only `gold_scores` and `silver_metrics` queryable; `agent_logs` and `bulletin_logs` blocked (may contain user questions)
   3. Keyword blocklist — rejects write/DDL keywords (`INSERT`, `UPDATE`, `DELETE`, `DROP`, etc.) as defence in depth
@@ -175,7 +175,7 @@ The Doctor agent tools are also exposed as a Model Context Protocol (MCP) server
 - **Location:** `mcp_server/server.py`
 - **SDK:** `mcp` Python package
 - **Port:** 8002
-- **Tools exposed:** `get_borough_health`, `get_london_score`, `get_trend`, `compare_boroughs`
+- **Tools exposed:** `get_borough_health`, `get_london_score`, `get_trend`, `compare_boroughs`, `run_sql`, `search_scores`
 - **Transport:** stdio (default MCP transport) with optional SSE transport for remote clients
 
 This means any external agent can discover and invoke CityScan's data tools without going through the FastAPI REST layer.
@@ -274,6 +274,8 @@ GUARDIAN_API_KEY=
 REDDIT_USER_AGENT=cityscan/1.0
 TFL_APP_KEY=
 SCORE_WEIGHTS=0.25,0.25,0.25,0.25
+CHROMADB_HOST=localhost
+CHROMADB_PORT=8001
 ```
 
 ### Git
@@ -337,6 +339,8 @@ city-scan-london/
 │   ├── bronze.py                ← save raw JSON to /data/bronze/
 │   ├── silver.py                ← normalise to DuckDB silver schema
 │   ├── gold.py                  ← aggregate scores to DuckDB gold schema
+│   ├── embed.py                 ← embed gold scores into ChromaDB
+│   ├── chroma_client.py         ← lazy ChromaDB write-side singleton
 │   ├── schemas.py               ← loads lookups.json + DuckDB DDL
 │   └── lookups.json             ← auto-generated geo mappings (committed)
 ├── sentiment/
@@ -345,9 +349,15 @@ city-scan-london/
 │   ├── doctor.py                ← LangGraph ReAct agent + SSE streaming
 │   ├── bulletin.py              ← LangChain prompt chain
 │   └── tools/
+│       ├── __init__.py
+│       ├── db.py
 │       ├── health_score.py
 │       ├── borough_query.py
-│       └── trend_analysis.py
+│       ├── trend_analysis.py
+│       ├── sql_query.py
+│       ├── rag_query.py
+│       ├── chroma_client.py
+│       └── langchain_tools.py
 ├── mcp_server/
 │   └── server.py                ← MCP server wrapping Doctor agent tools
 ├── api/

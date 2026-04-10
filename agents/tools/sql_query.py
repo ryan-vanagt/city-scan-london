@@ -7,9 +7,10 @@ tools cannot cover (e.g. multi-column filters, correlations, aggregations).
 
 Guardrails:
   1. Read-only DuckDB connection (engine-enforced — INSERT/UPDATE/DELETE/DROP blocked)
-  2. Table allowlist — only gold_scores and silver_metrics are queryable
-  3. Keyword blocklist — rejects write/DDL keywords as defence in depth
-  4. Row limit — appends LIMIT 100 if no LIMIT clause is present
+  2. SQL comments stripped before validation (prevents bypass via comments)
+  3. Table allowlist — only gold_scores and silver_metrics are queryable
+  4. Keyword blocklist — rejects write/DDL/admin keywords as defence in depth
+  5. Row limit — always wraps query in outer LIMIT 100 regardless of inner LIMIT
 """
 
 import logging
@@ -25,15 +26,41 @@ logger = logging.getLogger(__name__)
 _ALLOWED_TABLES = {"gold_scores", "silver_metrics"}
 
 # Tables that must never appear in agent queries (may contain user questions)
-_BLOCKED_TABLES = {"agent_logs", "bulletin_logs"}
+_BLOCKED_TABLES = {
+    "agent_logs",
+    "bulletin_logs",
+    "information_schema",
+    "pg_catalog",
+    "duckdb_tables",
+    "duckdb_columns",
+    "duckdb_schemas",
+}
 
 # SQL keywords that should never appear in agent queries (defence in depth)
 _BLOCKED_KEYWORDS = re.compile(
-    r"\b(INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|TRUNCATE|REPLACE|MERGE)\b",
+    r"\b("
+    r"INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|TRUNCATE|REPLACE|MERGE"
+    r"|COPY|EXPORT|IMPORT|LOAD|INSTALL|CALL|PRAGMA|SET|ATTACH|DETACH"
+    r")\b",
+    re.IGNORECASE,
+)
+
+# DuckDB metadata functions that must be blocked
+_BLOCKED_FUNCTIONS = re.compile(
+    r"\b(duckdb_tables|duckdb_columns|duckdb_schemas)\s*\(",
     re.IGNORECASE,
 )
 
 _DEFAULT_ROW_LIMIT = 100
+
+
+def _strip_sql_comments(sql: str) -> str:
+    """Remove SQL line comments (--) and block comments (/* */) from a query."""
+    # Remove block comments (non-greedy, handles nested poorly but sufficient)
+    sql = re.sub(r"/\*.*?\*/", " ", sql, flags=re.DOTALL)
+    # Remove line comments
+    sql = re.sub(r"--[^\n]*", " ", sql)
+    return sql
 
 
 def run_sql(
@@ -62,8 +89,12 @@ def run_sql(
     if not query:
         return {"success": False, "error": "Empty query"}
 
+    # --- Strip comments before all validation ---
+    query_clean = _strip_sql_comments(query)
+    query_lower = query_clean.lower()
+
     # --- Guardrail: keyword blocklist ---
-    match = _BLOCKED_KEYWORDS.search(query)
+    match = _BLOCKED_KEYWORDS.search(query_clean)
     if match:
         logger.warning("run_sql: blocked keyword '%s' in query", match.group())
         return {
@@ -71,31 +102,42 @@ def run_sql(
             "error": f"Write/DDL operations are not permitted: {match.group()}",
         }
 
-    # --- Guardrail: table allowlist ---
-    query_lower = query.lower()
+    # --- Guardrail: blocked metadata functions ---
+    func_match = _BLOCKED_FUNCTIONS.search(query_clean)
+    if func_match:
+        logger.warning("run_sql: blocked metadata function '%s' in query", func_match.group())
+        return {
+            "success": False,
+            "error": "Metadata introspection functions are not permitted",
+        }
+
+    # --- Guardrail: table blocklist (word-boundary matching) ---
     for table in _BLOCKED_TABLES:
-        if table in query_lower:
+        if re.search(rf"\b{re.escape(table)}\b", query_lower):
             logger.warning("run_sql: blocked table '%s' in query", table)
             return {
                 "success": False,
                 "error": f"Table '{table}' is not queryable by the agent",
             }
 
-    # Check that at least one allowed table is referenced
-    has_allowed = any(table in query_lower for table in _ALLOWED_TABLES)
+    # Check that at least one allowed table is referenced (word-boundary matching)
+    has_allowed = any(
+        re.search(rf"\b{re.escape(table)}\b", query_lower)
+        for table in _ALLOWED_TABLES
+    )
     if not has_allowed:
         return {
             "success": False,
             "error": f"Query must reference one of: {', '.join(sorted(_ALLOWED_TABLES))}",
         }
 
-    # --- Guardrail: row limit ---
-    if not re.search(r"\bLIMIT\b", query, re.IGNORECASE):
-        query = f"{query.rstrip(';')} LIMIT {_DEFAULT_ROW_LIMIT}"
+    # --- Guardrail: enforce row limit via outer wrapper ---
+    # Always wrap to cap at _DEFAULT_ROW_LIMIT regardless of inner LIMIT
+    wrapped_query = f"SELECT * FROM ({query.rstrip(';')}) AS _q LIMIT {_DEFAULT_ROW_LIMIT}"
 
     # --- Execute with timeout ---
     try:
-        result = con.execute(query)
+        result = con.execute(wrapped_query)
         columns = [desc[0] for desc in result.description]
         rows = result.fetchall()
 
