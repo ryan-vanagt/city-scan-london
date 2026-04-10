@@ -41,11 +41,12 @@ docker compose up
 |-----------|--------|
 | Data pipeline (7 sources → Bronze → Silver → Gold) | **Working** |
 | FastAPI (5 endpoints: health, scores, boroughs, trends) | **Working** |
+| Agent tools (4 curated + `run_sql` with guardrails) | **Working** |
 | Sandbox tests (`python sandbox/test_all.py`) | **Working** |
-| Scheduler (APScheduler) | Stub |
 | ChromaDB embedding | Designed, not wired |
-| Doctor Agent (LangGraph) | Stub |
-| Bulletin Agent (LangChain) | Stub |
+| Doctor Agent (LangGraph ReAct + tools + RAG) | Stub |
+| Bulletin Agent (LangChain prompt chain) | Stub |
+| Scheduler (APScheduler) | Stub |
 | MCP Server | Stub |
 | Frontend (Next.js) | Not started |
 

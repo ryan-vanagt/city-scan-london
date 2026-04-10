@@ -24,10 +24,14 @@ flowchart TD
     S --> G[Gold layer\nDuckDB: gold_scores]
     G --> CH[ChromaDB\nembeddings]
 
+    G --> TOOLS[Agent Tools\n4 curated + run_sql]
     G --> API[FastAPI]
-    CH --> API
-    API --> DA[Doctor Agent\nLangGraph]
-    API --> BA[Bulletin Agent\nLangChain]
+    CH --> TOOLS
+
+    TOOLS --> DA[Doctor Agent\nLangGraph]
+    TOOLS --> BA[Bulletin Agent\nLangChain]
+    TOOLS --> MCP[MCP Server]
+    API --> FE[Frontend\nNext.js]
     DA --> LOGS[DuckDB: agent_logs]
     BA --> BLOGS[DuckDB: bulletin_logs]
 ```
@@ -49,3 +53,4 @@ Every Silver and Gold record carries:
 | Bronze | `pipeline/bronze.py` | Raw API response saved as timestamped JSON — no transformation |
 | Silver | `pipeline/silver.py` | Parsed, validated, normalised to 0–100 score, mapped to ONS borough code |
 | Gold | `pipeline/gold.py` | Per-borough weighted average across all four signals; embedded into ChromaDB |
+| Agent Tools | `agents/tools/` | 4 curated DuckDB queries + 1 guarded `run_sql` for flexible analytics |

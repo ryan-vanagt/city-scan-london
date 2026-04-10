@@ -91,17 +91,23 @@ python ingestion/run_pipeline.py   # runs full chain once and exits
 - **Purpose:** Answers natural language queries about London's health using historical Gold-layer data
 - **Framework:** LangChain + LangGraph
 - **Memory:** ChromaDB vector store (semantic retrieval over embedded health score descriptions)
-- **Tools registered:**
-  - `get_borough_health(borough_name, time_range)` — queries DuckDB Gold layer
-  - `get_london_score(timestamp)` — returns overall city score
-  - `get_trend(borough_name, metric, days)` — returns trend direction over N days
-  - `compare_boroughs(metric, top_n)` — ranks boroughs by a given signal
+- **Tools registered (hybrid architecture — 4 curated + 1 flexible):**
+  - `get_borough_health(borough)` — full score breakdown for a single borough (curated)
+  - `get_london_score()` — overall city score averaged across all boroughs (curated)
+  - `get_trend(borough, metric, days)` — trend direction + delta over N days (curated)
+  - `compare_boroughs(metric, top_n)` — ranks boroughs by a given signal (curated)
+  - `run_sql(query)` — read-only SQL against `gold_scores` / `silver_metrics` for analytical questions the curated tools can't answer (flexible, guarded)
 - **Input:** Natural language question from frontend or API
 - **Output:** Structured JSON with two fields:
   - `answer` — natural language response (streamed via SSE)
   - `sources` — list of grounded data points used to generate the answer, each with `type`, `data`, and optionally `url` (for Guardian headlines). Enables the user to verify any claim against its source.
 - **Streaming:** `POST /agent/query` returns a Server-Sent Events stream. Tokens are emitted as they are generated — the `sources` object is flushed as a final event after the answer completes.
 - **Hallucination mitigation:** Every factual claim in the answer is grounded in a retrieved tool output. The `sources` field makes this verifiable. Tool outputs are stored in `agent_logs` for audit.
+- **`run_sql` guardrails (5-layer security model):**
+  1. Read-only DuckDB connection — engine-enforced, all write/DDL operations blocked regardless of query content
+  2. Table allowlist — only `gold_scores` and `silver_metrics` queryable; `agent_logs` and `bulletin_logs` blocked (may contain user questions)
+  3. Keyword blocklist — rejects write/DDL keywords (`INSERT`, `UPDATE`, `DELETE`, `DROP`, etc.) as defence in depth
+  4. Row limit — `LIMIT 100` appended automatically if no LIMIT clause is present
 
 ### Agent 2 — The Bulletin Agent
 
