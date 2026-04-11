@@ -45,7 +45,7 @@ docker compose up
 | ChromaDB embedding (gold → vector store) | **Working** |
 | Sandbox tests (`python sandbox/test_all.py`) | **Working** |
 | Doctor Agent (LangGraph ReAct + SSE streaming + tools + RAG) | **Working** |
-| Bulletin Agent (LangChain prompt chain) | Stub |
+| Bulletin Agent (LangChain prompt chain) | **Working** |
 | Scheduler (APScheduler) | Stub |
 | MCP Server | Stub |
 | Frontend (Next.js) | Not started |
@@ -58,7 +58,7 @@ docker compose up
 - `GET /borough/{name}/trend` — score history
 - `POST /agent/query` — Doctor Agent, SSE stream (`text/event-stream`)
 - `GET /bulletin/latest` — latest bulletin markdown
-- `POST /bulletin/generate` — trigger bulletin (501 until implemented)
+- `POST /bulletin/generate` — trigger bulletin generation
 
 ## Architecture
 

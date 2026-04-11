@@ -16,6 +16,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
+from agents.bulletin import generate_bulletin
 from agents.doctor import stream_doctor_response
 
 logger = logging.getLogger(__name__)
@@ -61,7 +62,20 @@ async def bulletin_latest():
     return {"date": date_str, "content": content}
 
 
-@router.post("/bulletin/generate", status_code=501)
+@router.post("/bulletin/generate")
 async def bulletin_generate():
-    """Trigger bulletin generation (not yet implemented)."""
-    raise HTTPException(status_code=501, detail="Bulletin generation not yet implemented")
+    """Trigger on-demand bulletin generation."""
+    try:
+        result = generate_bulletin(trigger="manual")
+    except Exception as exc:
+        logger.error("Bulletin generation failed: %s", exc)
+        raise HTTPException(status_code=503, detail="Bulletin generation failed") from exc
+
+    if "error" in result:
+        raise HTTPException(status_code=503, detail=result["error"])
+
+    return {
+        "date": result["date"],
+        "content": result["content"],
+        "sources": result.get("sources"),
+    }

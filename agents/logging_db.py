@@ -6,7 +6,7 @@ DuckDB in-process does not allow read-only and read-write connections
 to the same file simultaneously, so we open-write-close for each log
 entry rather than holding a persistent write connection.
 
-Only writes to agent_logs — never touches gold_scores or silver_metrics.
+Only writes to agent_logs and bulletin_logs — never touches gold_scores or silver_metrics.
 """
 
 import json
@@ -94,3 +94,58 @@ def log_agent_interaction(
             con.close()
     except Exception:
         logger.exception("Failed to log agent interaction")
+
+
+def ensure_bulletin_logs_table() -> None:
+    """Create bulletin_logs table if it does not exist."""
+    con = duckdb.connect(LOG_DB_PATH)
+    try:
+        con.execute("""
+            CREATE TABLE IF NOT EXISTS bulletin_logs (
+                id              TEXT PRIMARY KEY,
+                timestamp       TEXT NOT NULL,
+                trigger         TEXT,
+                scores_used     TEXT,
+                headlines_used  TEXT,
+                output_path     TEXT,
+                latency_ms      INTEGER
+            )
+        """)
+        logger.info("bulletin_logs table ensured")
+    finally:
+        con.close()
+
+
+def log_bulletin(
+    *,
+    trigger: str,
+    scores_used: dict,
+    headlines_used: list[dict],
+    output_path: str,
+    latency_ms: int,
+) -> None:
+    """Insert a row into bulletin_logs. Fire-and-forget — never raises."""
+    try:
+        con = duckdb.connect(LOG_DB_PATH)
+        try:
+            con.execute(
+                """
+                INSERT INTO bulletin_logs
+                (id, timestamp, trigger, scores_used, headlines_used,
+                 output_path, latency_ms)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                [
+                    str(uuid.uuid4()),
+                    datetime.now(timezone.utc).isoformat(),
+                    trigger,
+                    json.dumps(scores_used),
+                    json.dumps(headlines_used),
+                    output_path,
+                    latency_ms,
+                ],
+            )
+        finally:
+            con.close()
+    except Exception:
+        logger.exception("Failed to log bulletin generation")
