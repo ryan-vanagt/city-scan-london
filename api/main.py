@@ -8,11 +8,13 @@ All health scores returned are in the range 0-100 (100 = healthiest).
 import logging
 from contextlib import asynccontextmanager
 
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from agents.logging_db import ensure_agent_logs_table
 from api.db import close_connection, open_connection
-from api.routers import boroughs, health
+from api.routers import agent, boroughs, health
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
 
@@ -20,6 +22,8 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(messag
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Open DuckDB on startup, close on shutdown."""
+    load_dotenv()
+    ensure_agent_logs_table()
     open_connection()
     yield
     close_connection()
@@ -41,3 +45,4 @@ app.add_middleware(
 
 app.include_router(health.router)
 app.include_router(boroughs.router)
+app.include_router(agent.router)
