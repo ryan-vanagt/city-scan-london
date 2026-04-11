@@ -233,40 +233,15 @@ CREATE TABLE IF NOT EXISTS gold_scores (
 );
 """
 
-_DDL_AGENT_LOGS = """
-CREATE TABLE IF NOT EXISTS agent_logs (
-    id               VARCHAR NOT NULL,
-    timestamp        VARCHAR NOT NULL,
-    query            VARCHAR,
-    tools_called     VARCHAR,
-    tool_inputs      VARCHAR,
-    tool_outputs     VARCHAR,
-    sources_cited    VARCHAR,
-    final_response   VARCHAR,
-    latency_ms       INTEGER,
-    model_used       VARCHAR
-);
-"""
-
-_DDL_BULLETIN_LOGS = """
-CREATE TABLE IF NOT EXISTS bulletin_logs (
-    id               VARCHAR NOT NULL,
-    timestamp        VARCHAR NOT NULL,
-    trigger          VARCHAR,
-    scores_used      VARCHAR,
-    headlines_used   VARCHAR,
-    output_path      VARCHAR,
-    latency_ms       INTEGER
-);
-"""
-
-
 def init_db(con: duckdb.DuckDBPyConnection) -> None:
     """Create all DuckDB tables if they do not already exist.
+
+    Note: agent_logs and bulletin_logs are managed separately
+    (agent_logs in data/agent_logs.duckdb via agents/logging_db.py).
 
     Args:
         con: An open DuckDB connection.
     """
-    for ddl in (_DDL_SILVER_METRICS, _DDL_GOLD_SCORES, _DDL_AGENT_LOGS, _DDL_BULLETIN_LOGS):
+    for ddl in (_DDL_SILVER_METRICS, _DDL_GOLD_SCORES):
         con.execute(ddl)
     logger.info("DuckDB tables initialised")

@@ -29,10 +29,12 @@ Table gold_scores {
   pipeline_stage   varchar [default: 'gold']
 }
 
+// Stored in separate file: data/agent_logs.duckdb (not cityscan.duckdb)
+// Managed by agents/logging_db.py
 Table agent_logs {
-  id               varchar [not null, note: 'UUID']
+  id               varchar [pk, not null, note: 'UUID']
   timestamp        varchar [not null, note: 'ISO 8601 UTC']
-  query            varchar [note: 'User question']
+  query            varchar [not null, note: 'User question']
   tools_called     varchar [note: 'JSON array of tool names']
   tool_inputs      varchar [note: 'JSON — parameters passed to each tool']
   tool_outputs     varchar [note: 'JSON — raw data returned by each tool']

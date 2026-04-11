@@ -40,11 +40,11 @@ docker compose up
 | Component | Status |
 |-----------|--------|
 | Data pipeline (7 sources → Bronze → Silver → Gold) | **Working** |
-| FastAPI (5 endpoints: health, scores, boroughs, trends) | **Working** |
+| FastAPI (8 endpoints: health, scores, boroughs, trends, agent, bulletin) | **Working** |
 | Agent tools (4 curated + `run_sql` + `search_scores`) | **Working** |
 | ChromaDB embedding (gold → vector store) | **Working** |
 | Sandbox tests (`python sandbox/test_all.py`) | **Working** |
-| Doctor Agent (LangGraph ReAct + tools + RAG) | Stub |
+| Doctor Agent (LangGraph ReAct + SSE streaming + tools + RAG) | **Working** |
 | Bulletin Agent (LangChain prompt chain) | Stub |
 | Scheduler (APScheduler) | Stub |
 | MCP Server | Stub |
@@ -56,6 +56,9 @@ docker compose up
 - `GET /boroughs` — all 33 boroughs ranked
 - `GET /borough/{name}` — single borough (accepts name or ONS code)
 - `GET /borough/{name}/trend` — score history
+- `POST /agent/query` — Doctor Agent, SSE stream (`text/event-stream`)
+- `GET /bulletin/latest` — latest bulletin markdown
+- `POST /bulletin/generate` — trigger bulletin (501 until implemented)
 
 ## Architecture
 

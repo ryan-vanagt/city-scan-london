@@ -57,23 +57,22 @@ def fetch() -> dict:
                 timeout=30,
             )
             response.raise_for_status()
-        except requests.HTTPError as e:
-            logger.error("Reddit HTTP error for r/%s: %s", subreddit, e)
-            raise
-        except requests.RequestException as e:
-            logger.error("Reddit request failed for r/%s: %s", subreddit, e)
-            raise
+        except (requests.HTTPError, requests.RequestException) as e:
+            logger.warning("Reddit fetch failed for r/%s: %s — skipping subreddit", subreddit, e)
+            continue
 
         try:
             posts = response.json().get("data", {}).get("children", [])
         except json.JSONDecodeError as e:
-            logger.error("Reddit: invalid JSON response for r/%s: %s", subreddit, e)
-            raise
+            logger.warning("Reddit: invalid JSON response for r/%s: %s — skipping subreddit", subreddit, e)
+            continue
         text_posts = 0
         for post in posts:
             d = post.get("data", {})
             if not d.get("is_self"):
                 continue  # skip image/link posts — no text to score sentiment on
+            if not d.get("id") or not d.get("title"):
+                continue
             all_posts.append({
                 "id": d.get("id"),
                 "subreddit": subreddit,

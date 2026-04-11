@@ -70,6 +70,7 @@ def get_trend(
 
         borough_code, borough_name = resolved
 
+        # Safe: metric validated against _VALID_METRICS, days is int-cast and clamped to 1-30
         rows = con.execute(f"""
             SELECT timestamp, {metric}
             FROM gold_scores

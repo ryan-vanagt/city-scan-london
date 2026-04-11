@@ -33,7 +33,8 @@ def _latest_available_month() -> str | None:
         Month string in 'YYYY-MM' format, or None on failure.
     """
     try:
-        response = requests.get(
+        response = retry_request(
+            requests.get,
             f"{MET_POLICE_BASE}/crimes-street-dates",
             timeout=30,
         )

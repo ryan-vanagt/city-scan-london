@@ -41,7 +41,11 @@ def get_client() -> chromadb.ClientAPI:
             return _client
 
         host = os.environ.get("CHROMADB_HOST", "")
-        port = int(os.environ.get("CHROMADB_PORT", "8001"))
+        try:
+            port = int(os.environ.get("CHROMADB_PORT", "8001"))
+        except ValueError:
+            logger.warning("Invalid CHROMADB_PORT, defaulting to 8001")
+            port = 8001
 
         if host:
             _client = chromadb.HttpClient(host=host, port=port)

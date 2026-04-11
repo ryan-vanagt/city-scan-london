@@ -9,5 +9,6 @@ COPY api/ ./api/
 COPY agents/ ./agents/
 COPY pipeline/__init__.py ./pipeline/__init__.py
 COPY pipeline/schemas.py ./pipeline/schemas.py
+COPY pipeline/lookups.json ./pipeline/lookups.json
 
 CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]

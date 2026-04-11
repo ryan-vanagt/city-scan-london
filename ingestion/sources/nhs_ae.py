@@ -13,6 +13,7 @@ Raw responses are saved to /data/bronze/nhs_ae/ as timestamped JSON.
 import csv
 import io
 import logging
+import re
 from datetime import datetime, timezone
 
 import requests
@@ -92,18 +93,29 @@ def _latest_csv_url() -> str | None:
         return None
 
     soup = BeautifulSoup(response.text, "html.parser")
+    candidates: list[tuple[str, str]] = []  # (date_key, href)
     for link in soup.find_all("a", href=True):
         href = link["href"]
-        # Filter to A&E attendance CSV files — the URL must contain 'AE' or 'attendances'
-        # to avoid accidentally picking up other CSV files on the page
         if href.endswith(".csv"):
             href_lower = href.lower()
             if "ae" in href_lower or "attendances" in href_lower or "emergency" in href_lower:
-                logger.info("NHS A&E: found CSV at %s", href)
-                return href
+                # Extract date pattern from URL for sorting
+                match = re.search(r"(\d{4}-\d{2})", href) or re.search(r"(\d{8})", href)
+                date_key = match.group(1) if match else ""
+                candidates.append((date_key, href))
 
-    logger.error("NHS A&E: no CSV link found on statistics page")
-    return None
+    if not candidates:
+        logger.error("NHS A&E: no CSV link found on statistics page")
+        return None
+
+    for date_key, href in candidates:
+        logger.debug("NHS A&E: candidate CSV: date_key=%s url=%s", date_key, href)
+
+    # Sort by date key descending to pick the most recent
+    candidates.sort(key=lambda x: x[0], reverse=True)
+    best = candidates[0][1]
+    logger.info("NHS A&E: selected CSV at %s (from %d candidates)", best, len(candidates))
+    return best
 
 
 def fetch() -> dict:

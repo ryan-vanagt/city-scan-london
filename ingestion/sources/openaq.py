@@ -64,7 +64,11 @@ def _fetch_locations(headers: dict[str, str]) -> list[dict]:
         logger.error("OpenAQ locations request failed: %s", e)
         raise
 
-    data = response.json()
+    try:
+        data = response.json()
+    except requests.exceptions.JSONDecodeError as e:
+        logger.error("OpenAQ locations: invalid JSON response: %s", e)
+        raise
     stations = data.get("results", [])
     logger.info("OpenAQ: discovered %d stations", len(stations))
     return stations
@@ -113,57 +117,44 @@ def _fetch_latest_readings(
         if i > 0 and i % 50 == 0:
             logger.info("OpenAQ: fetched readings for %d/%d stations", i, len(relevant_stations))
 
-        # Retry loop for rate-limited requests (HTTP 429)
-        for attempt in range(3):
+        try:
+            response = retry_request(
+                requests.get,
+                f"{OPENAQ_BASE_URL}/locations/{location_id}/sensors",
+                headers=headers,
+                timeout=15,
+            )
+            response.raise_for_status()
             try:
-                response = requests.get(
-                    f"{OPENAQ_BASE_URL}/locations/{location_id}/sensors",
-                    headers=headers,
-                    timeout=15,
-                )
-                if response.status_code == 429:
-                    try:
-                        reset = int(response.headers.get("x-ratelimit-reset", 60))
-                    except (ValueError, TypeError):
-                        reset = 60
-                    sleep_secs = min(reset, 120)  # cap to 120s to avoid indefinite stalls
-                    rate_limited += 1
-                    logger.warning(
-                        "OpenAQ: rate-limited (429), waiting %ds (attempt %d/3)",
-                        sleep_secs, attempt + 1,
-                    )
-                    time.sleep(sleep_secs)
+                sensor_data = response.json()
+            except requests.exceptions.JSONDecodeError as e:
+                logger.warning("OpenAQ: invalid JSON for location %d: %s", location_id, e)
+                errors += 1
+                continue
+            sensors = sensor_data.get("results", [])
+
+            station_readings = []
+            for sensor in sensors:
+                param_name = sensor.get("parameter", {}).get("name", "")
+                if param_name not in TARGET_PARAMETERS:
                     continue
+                sensor_id = sensor.get("id")
+                if sensor_id is None:
+                    continue
+                latest = sensor.get("latest") or {}
+                station_readings.append({
+                    "sensor_id": sensor_id,
+                    "parameter": param_name,
+                    "value": latest.get("value"),
+                    "datetime_utc": (latest.get("datetime") or {}).get("utc"),
+                    "units": sensor.get("parameter", {}).get("units", ""),
+                })
 
-                response.raise_for_status()
-                sensors = response.json().get("results", [])
+            readings[location_id] = station_readings
 
-                station_readings = []
-                for sensor in sensors:
-                    param_name = sensor.get("parameter", {}).get("name", "")
-                    if param_name not in TARGET_PARAMETERS:
-                        continue
-                    sensor_id = sensor.get("id")
-                    if sensor_id is None:
-                        continue
-                    latest = sensor.get("latest") or {}
-                    station_readings.append({
-                        "sensor_id": sensor_id,
-                        "parameter": param_name,
-                        "value": latest.get("value"),
-                        "datetime_utc": (latest.get("datetime") or {}).get("utc"),
-                        "units": sensor.get("parameter", {}).get("units", ""),
-                    })
-
-                readings[location_id] = station_readings
-                break  # success, exit retry loop
-
-            except requests.RequestException as e:
-                if attempt == 2:
-                    logger.warning("OpenAQ: failed after 3 attempts for location %d: %s", location_id, e)
-                    errors += 1
-                else:
-                    time.sleep(2 ** attempt)
+        except requests.RequestException as e:
+            logger.warning("OpenAQ: failed for location %d: %s", location_id, e)
+            errors += 1
 
         # OpenAQ free tier: 60 req/min. Sleep 1s = 60 req/min exactly.
         time.sleep(1.0)

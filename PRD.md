@@ -72,7 +72,7 @@ python ingestion/run_pipeline.py   # runs full chain once and exits
 
 ### Storage
 
-- **DuckDB** — primary structured store for Silver, Gold, agent logs, and bulletin logs
+- **DuckDB** — primary structured store for Silver and Gold layers (`data/cityscan.duckdb`); agent logs stored in separate file (`data/agent_logs.duckdb`) to avoid connection conflicts
 - **ChromaDB** — vector store for Gold-layer embeddings, enabling semantic RAG queries
 - **Local filesystem** — Bronze JSON files, organised by source and date
 
@@ -86,10 +86,11 @@ python ingestion/run_pipeline.py   # runs full chain once and exits
 
 ## Agent Architecture
 
-### Agent 1 — The Doctor (RAG Agent)
+### Agent 1 — The Doctor (RAG Agent) — IMPLEMENTED
 
 - **Purpose:** Answers natural language queries about London's health using historical Gold-layer data
-- **Framework:** LangChain + LangGraph
+- **Framework:** LangGraph `create_react_agent` + LangChain tools
+- **LLM:** `claude-haiku-4-5` via `langchain-anthropic`
 - **Memory:** ChromaDB vector store (semantic retrieval over embedded health score descriptions)
 - **Tools registered (hybrid architecture — 4 curated + 1 flexible):**
   - `get_borough_health(borough)` — full score breakdown for a single borough (curated)
@@ -102,7 +103,7 @@ python ingestion/run_pipeline.py   # runs full chain once and exits
 - **Output:** Structured JSON with two fields:
   - `answer` — natural language response (streamed via SSE)
   - `sources` — list of grounded data points used to generate the answer, each with `type`, `data`, and optionally `url` (for Guardian headlines). Enables the user to verify any claim against its source.
-- **Streaming:** `POST /agent/query` returns a Server-Sent Events stream. Tokens are emitted as they are generated — the `sources` object is flushed as a final event after the answer completes.
+- **Streaming:** `POST /agent/query` returns a Server-Sent Events stream. Events: `data: {"type": "token", "content": "..."}` for tokens, `data: {"type": "sources", "sources": [...]}` for sources, `data: [DONE]` as sentinel.
 - **Hallucination mitigation:** Every factual claim in the answer is grounded in a retrieved tool output. The `sources` field makes this verifiable. Tool outputs are stored in `agent_logs` for audit.
 - **`run_sql` guardrails (4-layer security model):**
   1. Read-only DuckDB connection — engine-enforced, all write/DDL operations blocked regardless of query content

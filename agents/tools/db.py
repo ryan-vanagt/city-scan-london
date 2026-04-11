@@ -32,7 +32,8 @@ def get_connection() -> duckdb.DuckDBPyConnection:
     with _lock:
         if _con is None:  # double-check after acquiring lock
             _con = duckdb.connect(DB_PATH, read_only=True)
-            logger.info("Agent tools: DuckDB connection opened (read-only): %s", DB_PATH)
+            _con.execute("SET memory_limit = '256MB'")
+            logger.info("Agent tools: DuckDB connection opened (read-only, 256MB limit): %s", DB_PATH)
     return _con
 
 

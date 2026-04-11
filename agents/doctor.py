@@ -15,6 +15,7 @@ Only Gold-layer aggregated data reaches the LLM — no raw text, no PII.
 import json
 import logging
 import time
+import uuid
 from typing import AsyncGenerator
 
 from langchain_anthropic import ChatAnthropic
@@ -103,6 +104,7 @@ async def stream_doctor_response(question: str) -> AsyncGenerator[str, None]:
         async for event in agent.astream_events(
             {"messages": [HumanMessage(content=question)]},
             version="v2",
+            config={"run_id": str(uuid.uuid4())},
         ):
             kind = event.get("event")
 
@@ -111,8 +113,13 @@ async def stream_doctor_response(question: str) -> AsyncGenerator[str, None]:
                 if not chunk:
                     continue
                 content = chunk.content
-                # content can be a str or a list of content blocks
+                # Skip tool-call tokens — only stream the agent's final text response
                 if isinstance(content, list):
+                    if any(
+                        isinstance(block, dict) and block.get("type") == "tool_use"
+                        for block in content
+                    ):
+                        continue
                     text = "".join(
                         block.get("text", "")
                         for block in content

@@ -548,7 +548,7 @@ def load(con: duckdb.DuckDBPyConnection, rows: list[tuple]) -> int:
             if ts < cutoff:
                 stale_sources.add(source)
         except (ValueError, TypeError, AttributeError):
-            pass  # unparseable timestamp — skip staleness check for this row
+            logger.debug("Unparseable timestamp in silver staleness check: %s", ts_str)
 
     if stale_sources:
         logger.warning(

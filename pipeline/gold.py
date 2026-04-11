@@ -39,6 +39,8 @@ def _load_weights() -> tuple[float, float, float, float]:
             raise ValueError("need 4 non-negative floats")
         if sum(parts) <= 0:
             raise ValueError("weights must sum to > 0")
+        if abs(sum(parts) - 1.0) > 0.01:
+            logger.warning("SCORE_WEIGHTS sum to %.2f, not 1.0 — scores will be renormalised", sum(parts))
         return (parts[0], parts[1], parts[2], parts[3])
     except (ValueError, TypeError) as exc:
         logger.warning("Gold: invalid SCORE_WEIGHTS '%s': %s — using defaults", raw, exc)
@@ -141,6 +143,9 @@ def aggregate(con: duckdb.DuckDBPyConnection) -> int:
             continue
 
         total_weight = sum(w for _, w in present)
+        if total_weight == 0:
+            skipped.append(borough_code)
+            continue
         composite = sum(s * w for s, w in present) / total_weight
         composite = max(0.0, min(100.0, composite))
 

@@ -32,7 +32,7 @@ flowchart TD
     TOOLS --> BA[Bulletin Agent\nLangChain]
     TOOLS --> MCP[MCP Server]
     API --> FE[Frontend\nNext.js]
-    DA --> LOGS[DuckDB: agent_logs]
+    DA --> LOGS[agent_logs.duckdb]
     BA --> BLOGS[DuckDB: bulletin_logs]
 ```
 

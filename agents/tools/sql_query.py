@@ -15,6 +15,8 @@ Guardrails:
 
 import logging
 import re
+from datetime import date, datetime, timedelta
+from decimal import Decimal
 
 import duckdb
 
@@ -52,6 +54,17 @@ _BLOCKED_FUNCTIONS = re.compile(
 )
 
 _DEFAULT_ROW_LIMIT = 100
+
+
+def _serialize_value(val):
+    """Convert DuckDB-specific types to JSON-serializable Python types."""
+    if isinstance(val, (datetime, date)):
+        return val.isoformat()
+    if isinstance(val, Decimal):
+        return float(val)
+    if isinstance(val, timedelta):
+        return str(val)
+    return val
 
 
 def _strip_sql_comments(sql: str) -> str:
@@ -133,7 +146,7 @@ def run_sql(
 
     # --- Guardrail: enforce row limit via outer wrapper ---
     # Always wrap to cap at _DEFAULT_ROW_LIMIT regardless of inner LIMIT
-    wrapped_query = f"SELECT * FROM ({query.rstrip(';')}) AS _q LIMIT {_DEFAULT_ROW_LIMIT}"
+    wrapped_query = f"SELECT * FROM ({query_clean.rstrip(';')}) AS _q LIMIT {_DEFAULT_ROW_LIMIT}"
 
     # --- Execute with timeout ---
     try:
@@ -142,7 +155,7 @@ def run_sql(
         rows = result.fetchall()
 
         # Convert rows to list of dicts for clean JSON serialisation
-        row_dicts = [dict(zip(columns, row)) for row in rows]
+        row_dicts = [{k: _serialize_value(v) for k, v in zip(columns, row)} for row in rows]
 
         return {
             "success": True,

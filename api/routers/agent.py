@@ -35,10 +35,14 @@ class AgentQuery(BaseModel):
 @router.post("/agent/query")
 async def agent_query(body: AgentQuery):
     """Stream a Doctor Agent response as Server-Sent Events."""
-    return StreamingResponse(
-        stream_doctor_response(body.question),
-        media_type="text/event-stream",
-    )
+    try:
+        return StreamingResponse(
+            stream_doctor_response(body.question),
+            media_type="text/event-stream",
+        )
+    except Exception as exc:
+        logger.error("Doctor Agent initialization failed: %s", exc)
+        raise HTTPException(status_code=503, detail="Doctor Agent unavailable") from exc
 
 
 @router.get("/bulletin/latest")

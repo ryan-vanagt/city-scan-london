@@ -8,8 +8,7 @@ GET /london/score    — current overall London composite health score
 import logging
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Depends, HTTPException
 
 import duckdb
 
@@ -28,14 +27,10 @@ def health_check(con: duckdb.DuckDBPyConnection = Depends(get_connection)) -> di
         db_status = "connected"
     except Exception as exc:
         logger.error("Health check: database ping failed: %s", exc)
-        return JSONResponse(
+        raise HTTPException(
             status_code=503,
-            content={
-                "status": "degraded",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "database": "error",
-            },
-        )
+            detail="Database unavailable",
+        ) from exc
 
     return {
         "status": "ok",
@@ -64,10 +59,10 @@ def london_score(con: duckdb.DuckDBPyConnection = Depends(get_connection)) -> di
         """).fetchall()
     except duckdb.Error as exc:
         logger.error("london_score: query failed: %s", exc)
-        return JSONResponse(
+        raise HTTPException(
             status_code=503,
-            content={"detail": "Gold scores not yet available"},
-        )
+            detail="Gold scores not yet available",
+        ) from exc
 
     if not rows:
         return {

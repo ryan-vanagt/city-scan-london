@@ -17,7 +17,7 @@ _MODEL_NAME = "cardiffnlp/twitter-roberta-base-sentiment"
 _pipeline = None
 
 
-def _load_model():
+def _load_model() -> None:
     """Load the sentiment model lazily on first use."""
     global _pipeline
     if _pipeline is not None:
@@ -76,7 +76,8 @@ def score_texts(texts: list[str]) -> list[float]:
             probs = {item["label"]: item["score"] for item in result}
             prob_positive = probs.get("LABEL_2", 0.0)
             prob_negative = probs.get("LABEL_0", 0.0)
-            scores.append(prob_positive - prob_negative)
+            score = max(-1.0, min(1.0, prob_positive - prob_negative))
+            scores.append(score)
         except Exception as exc:  # noqa: BLE001
             logger.warning(
                 "Sentiment scoring failed for text %d/%d: %s — using neutral (0.0)",

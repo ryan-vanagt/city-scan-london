@@ -164,6 +164,7 @@ def compare_boroughs(
     direction = "ASC" if ascending else "DESC"
 
     try:
+        # Safe: metric validated against _VALID_METRICS frozenset, direction is literal "ASC"/"DESC"
         rows = con.execute(f"""
             SELECT borough_code, borough_name, {metric}
             FROM (

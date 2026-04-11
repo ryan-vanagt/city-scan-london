@@ -36,7 +36,7 @@ def search_scores(
 
         results = collection.query(
             query_texts=[query],
-            n_results=min(n_results, 20),
+            n_results=max(1, min(n_results, 20)),
             where=where_filter,
             include=["documents", "metadatas", "distances"],
         )

@@ -7,5 +7,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY mcp_server/ ./mcp_server/
 COPY pipeline/schemas.py ./pipeline/schemas.py
+COPY pipeline/lookups.json ./pipeline/lookups.json
+COPY agents/ ./agents/
 
 CMD ["python", "mcp_server/server.py"]
