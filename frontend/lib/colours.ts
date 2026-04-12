@@ -76,6 +76,10 @@ export function pulseDuration(score: number | null): number {
 /** X-ray scan blue for the bulletin landing mode. */
 export const XRAY_BLUE = "#0ea5e9";
 
+/** X-ray blue as rgb() — matches scoreToColour() output format so CSS
+ *  fill transitions interpolate smoothly between X-ray and thermal. */
+export const XRAY_BLUE_RGB = "rgb(14, 165, 233)";
+
 /** Background colours */
 export const BG_PAGE = "#020617";
 export const BG_CARD = "#0f172a";

@@ -9,7 +9,7 @@
 
 import { useMemo } from "react";
 import type { BoroughScore, MetricFilter } from "@/lib/types";
-import { scoreToColour, glowIntensity, pulseDuration, XRAY_BLUE } from "@/lib/colours";
+import { scoreToColour, glowIntensity, pulseDuration, XRAY_BLUE_RGB } from "@/lib/colours";
 
 interface BoroughPathProps {
   borough: BoroughScore;
@@ -50,7 +50,7 @@ export default function BoroughPath({
   const pulse = useMemo(() => `${pulseDuration(score)}s`, [score]);
   const glowPx = glow * 25;
 
-  const fill = xrayMode ? XRAY_BLUE : thermalColour;
+  const fill = xrayMode ? XRAY_BLUE_RGB : thermalColour;
   const isElevated = !xrayMode && (isHovered || isSelected);
   const isDimmed = !xrayMode && isAnyHovered && !isElevated;
 
