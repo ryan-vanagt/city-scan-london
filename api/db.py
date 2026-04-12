@@ -32,23 +32,32 @@ def open_connection() -> None:
     global _con
     db_path = Path(DB_PATH)
 
-    if not db_path.exists():
-        logger.info("Database not found at %s — waiting for ingestion service to create it...", DB_PATH)
-        waited = 0
-        while not db_path.exists() and waited < _DB_WAIT_TIMEOUT:
+    logger.info("Waiting for database at %s ...", DB_PATH)
+    waited = 0
+    while waited < _DB_WAIT_TIMEOUT:
+        # Wait for file to exist
+        if not db_path.exists():
+            if waited % 30 == 0:
+                logger.info("Database not found yet... (%ds elapsed)", waited)
             time.sleep(_DB_POLL_INTERVAL)
             waited += _DB_POLL_INTERVAL
+            continue
+
+        # File exists — try to connect (may fail if ingestion holds write lock)
+        try:
+            _con = duckdb.connect(DB_PATH, read_only=True)
+            logger.info("DuckDB connection opened (read-only): %s", DB_PATH)
+            return
+        except duckdb.IOException:
             if waited % 30 == 0:
-                logger.info("Still waiting for database... (%ds elapsed)", waited)
+                logger.info("Database locked by ingestion pipeline, retrying... (%ds elapsed)", waited)
+            time.sleep(_DB_POLL_INTERVAL)
+            waited += _DB_POLL_INTERVAL
 
-        if not db_path.exists():
-            raise RuntimeError(
-                f"Database not created after {_DB_WAIT_TIMEOUT}s — "
-                f"check ingestion service logs"
-            )
-
-    _con = duckdb.connect(DB_PATH, read_only=True)
-    logger.info("DuckDB connection opened (read-only): %s", DB_PATH)
+    raise RuntimeError(
+        f"Could not connect to database after {_DB_WAIT_TIMEOUT}s — "
+        f"check ingestion service logs"
+    )
 
 
 def close_connection() -> None:
