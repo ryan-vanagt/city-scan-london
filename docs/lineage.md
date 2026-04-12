@@ -6,9 +6,9 @@
 flowchart TD
     OQ[OpenAQ API] -->|hourly| B_OQ[bronze/openaq/]
     TFL[TfL API] -->|hourly| B_TFL[bronze/tfl/]
-    RD[Reddit public JSON API] -->|3h| B_RD[bronze/reddit/]
-    GD[Guardian API] -->|3h| B_GD[bronze/guardian/]
-    BBC[BBC News RSS] -->|3h| B_BBC[bronze/bbc/]
+    RD[Reddit public JSON API] -->|hourly| B_RD[bronze/reddit/]
+    GD[Guardian API] -->|hourly| B_GD[bronze/guardian/]
+    BBC[BBC News RSS] -->|hourly| B_BBC[bronze/bbc/]
     MP[Met Police API] -->|monthly| B_MP[bronze/met_police/]
     NHS[NHS England A&E CSV] -->|monthly| B_NHS[bronze/nhs_ae/]
 
@@ -32,8 +32,8 @@ flowchart TD
     TOOLS --> BA[Bulletin Agent\nLangChain]
     TOOLS --> MCP[MCP Server]
     API --> FE[Frontend\nNext.js]
-    DA --> LOGS[agent_logs.duckdb]
-    BA --> BLOGS[DuckDB: bulletin_logs]
+    DA --> LOGS[agent_logs\nagent_logs.duckdb]
+    BA --> BLOGS[bulletin_logs\nagent_logs.duckdb]
 ```
 
 
@@ -50,6 +50,16 @@ Every Silver and Gold record carries:
 | `pipeline_stage` | `bronze`, `silver`, or `gold`                                                     |
 
 
+## Retention
+
+| Layer | Retention | Mechanism |
+|-------|-----------|-----------|
+| Bronze (JSON files) | 1 day | `bronze.cleanup()` after every fetch |
+| Silver (DuckDB) | 90 days | `silver_retention` scheduler job at 03:00 UTC |
+| Gold (DuckDB) | Forever | Tiny footprint (~290KB/month), needed for long-term trends |
+| ChromaDB (embeddings) | Forever | One embedding per borough per day |
+
+
 ## Transformations
 
 
@@ -57,8 +67,8 @@ Every Silver and Gold record carries:
 | ----------- | -------------------- | ---------------------------------------------------------------------------- |
 | Bronze      | `pipeline/bronze.py` | Raw API response saved as timestamped JSON — no transformation               |
 | Silver      | `pipeline/silver.py` | Parsed, validated, normalised to 0–100 score, mapped to ONS borough code     |
-| Gold        | `pipeline/gold.py`   | Per-borough weighted average across all four signals; embedded into ChromaDB |
+| Gold        | `pipeline/gold.py`   | Per-borough weighted average across all four signals (48h time-bound on silver data); embedded into ChromaDB |
 | Embed       | `pipeline/embed.py`  | Gold rows converted to text descriptions and upserted into ChromaDB for RAG  |
-| Agent Tools | `agents/tools/`      | 4 curated DuckDB queries + 1 guarded `run_sql` + 1 RAG `search_scores`       |
+| Agent Tools | `agents/tools/`      | 4 curated DuckDB queries + 1 guarded `run_sql` (8-layer security) + 1 RAG `search_scores` |
 
 

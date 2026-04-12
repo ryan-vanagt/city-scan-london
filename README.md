@@ -43,11 +43,11 @@ docker compose up
 | FastAPI (8 endpoints: health, scores, boroughs, trends, agent, bulletin) | **Working** |
 | Agent tools (4 curated + `run_sql` + `search_scores`) | **Working** |
 | ChromaDB embedding (gold → vector store) | **Working** |
-| Sandbox tests (`python sandbox/test_all.py`) | **Working** |
+| pytest test suite (`pytest tests/`) | **Working** |
 | Doctor Agent (LangGraph ReAct + SSE streaming + tools + RAG) | **Working** |
 | Bulletin Agent (LangChain prompt chain) | **Working** |
-| Scheduler (APScheduler) | Stub |
-| MCP Server | Stub |
+| Scheduler (APScheduler) | **Working** |
+| MCP Server | **Working** |
 | Frontend (Next.js) | Not started |
 
 **API endpoints** (interactive docs at `http://localhost:8000/docs`):

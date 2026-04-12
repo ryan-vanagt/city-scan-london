@@ -19,7 +19,7 @@ CityScan is a live urban health diagnostic platform that models London as a huma
 | ----------------- | ----------------------------------------------- | ------------------------------------------- | -------------- | --------------------------------- |
 | 🫁 Lungs          | OpenAQ API                                      | PM2.5, NO2 per borough                       | Hourly         | ~1 hour                           |
 | 🩸 Arteries       | TfL Unified API                                 | Tube line status & severity scores          | Hourly         | Real-time                         |
-| 🧠 Brain          | Reddit (r/london) + Guardian API + BBC News RSS | NLP sentiment score from posts & headlines  | Every 3 hours  | ~3 hours                          |
+| 🧠 Brain          | Reddit (r/london) + Guardian API + BBC News RSS | NLP sentiment score from posts & headlines  | Hourly         | ~1 hour                           |
 | 🛡️ Immune System | Met Police API + NHS England A&E stats          | Crime rate per borough + A&E pressure index | Monthly        | Crime: ~2 months · A&E: ~2 months |
 
 
@@ -98,18 +98,23 @@ python ingestion/run_pipeline.py   # runs full chain once and exits
   - `get_trend(borough, metric, days)` — trend direction + delta over N days (curated)
   - `compare_boroughs(metric, top_n)` — ranks boroughs by a given signal (curated)
   - `run_sql(query)` — read-only SQL against `gold_scores` / `silver_metrics` for analytical questions the curated tools can't answer (flexible, guarded)
-  - `search_scores(query, n_results)` — semantic similarity search over ChromaDB gold_scores embeddings for RAG context retrieval
+  - `search_scores(query, n_results, borough_code)` — semantic similarity search over ChromaDB gold_scores embeddings for RAG context retrieval
 - **Input:** Natural language question from frontend or API
 - **Output:** Structured JSON with two fields:
   - `answer` — natural language response (streamed via SSE)
   - `sources` — list of grounded data points used to generate the answer, each with `type`, `data`, and optionally `url` (for Guardian headlines). Enables the user to verify any claim against its source.
 - **Streaming:** `POST /agent/query` returns a Server-Sent Events stream. Events: `data: {"type": "token", "content": "..."}` for tokens, `data: {"type": "sources", "sources": [...]}` for sources, `data: [DONE]` as sentinel.
 - **Hallucination mitigation:** Every factual claim in the answer is grounded in a retrieved tool output. The `sources` field makes this verifiable. Tool outputs are stored in `agent_logs` for audit.
-- **`run_sql` guardrails (4-layer security model):**
+- **`run_sql` guardrails (8-layer security model):**
   1. Read-only DuckDB connection — engine-enforced, all write/DDL operations blocked regardless of query content
-  2. Table allowlist — only `gold_scores` and `silver_metrics` queryable; `agent_logs` and `bulletin_logs` blocked (may contain user questions)
-  3. Keyword blocklist — rejects write/DDL keywords (`INSERT`, `UPDATE`, `DELETE`, `DROP`, etc.) as defence in depth
-  4. Row limit — `LIMIT 100` appended automatically if no LIMIT clause is present
+  2. SQL comments stripped before validation (prevents hiding keywords in `--` or `/* */` comments)
+  3. Table allowlist — only `gold_scores` and `silver_metrics` queryable; `agent_logs`, `bulletin_logs`, all `duckdb_*` and `sqlite_*` system tables blocked
+  4. Keyword blocklist — rejects write/DDL keywords (`INSERT`, `UPDATE`, `DELETE`, `DROP`, `ALTER`, `CREATE`, etc.) as defence in depth
+  5. Metadata function blocklist — blocks all `duckdb_*()` introspection functions
+  6. File-read function blocklist — blocks `read_csv_auto`, `read_parquet`, `read_json_auto`, `glob`, and other DuckDB functions that can read the filesystem
+  7. File path table reference blocklist — blocks `FROM '/path/...'` patterns
+  8. Row limit — query always wrapped in outer `SELECT * FROM (...) LIMIT 100` regardless of any inner LIMIT clause
+  - Plus: query length limit (10,000 characters) and sanitised error messages (no internal details leaked)
 
 ### Agent 2 — The Bulletin Agent
 
@@ -177,7 +182,7 @@ The Doctor agent tools are also exposed as a Model Context Protocol (MCP) server
 - **SDK:** `mcp` Python package
 - **Port:** 8002
 - **Tools exposed:** `get_borough_health`, `get_london_score`, `get_trend`, `compare_boroughs`, `run_sql`, `search_scores`
-- **Transport:** stdio (default MCP transport) with optional SSE transport for remote clients
+- **Transport:** Streamable HTTP transport on port 8002 (path: `/mcp`)
 
 This means any external agent can discover and invoke CityScan's data tools without going through the FastAPI REST layer.
 
@@ -208,8 +213,9 @@ All non-streaming endpoints return JSON. Health scores are always 0–100.
 
 `POST /agent/query` returns `Content-Type: text/event-stream`. Events:
 
-- `data: <token>` — streamed answer tokens
-- `data: [SOURCES] <json>` — final event with grounded sources list
+- `data: {"type": "token", "content": "..."}` — streamed answer tokens
+- `data: {"type": "sources", "sources": [...]}` — final event with grounded sources list
+- `data: [DONE]` — stream sentinel
 
 ### MCP-style tool definitions
 
@@ -277,6 +283,8 @@ TFL_APP_KEY=
 SCORE_WEIGHTS=0.25,0.25,0.25,0.25
 CHROMADB_HOST=localhost
 CHROMADB_PORT=8001
+MCP_PORT=8002
+MCP_HOST=127.0.0.1
 ```
 
 ### Git
@@ -349,6 +357,7 @@ city-scan-london/
 ├── agents/
 │   ├── doctor.py                ← LangGraph ReAct agent + SSE streaming
 │   ├── bulletin.py              ← LangChain prompt chain
+│   ├── logging_db.py            ← manages agent_logs.duckdb (agent_logs + bulletin_logs)
 │   └── tools/
 │       ├── __init__.py
 │       ├── db.py

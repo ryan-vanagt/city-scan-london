@@ -67,6 +67,6 @@ logs/
 # Claude Code
 .claude/
 
-# Local sandbox (tests, queries, scratch scripts)
+# Local sandbox (scratch scripts — tests moved to tests/)
 sandbox/
 .aider*

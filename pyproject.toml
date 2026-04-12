@@ -1,0 +1,9 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+markers = [
+    "network: tests that require external network access",
+    "slow: tests that take more than 10 seconds",
+    "api_key: tests that require ANTHROPIC_API_KEY",
+]
