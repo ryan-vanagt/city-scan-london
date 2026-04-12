@@ -10,9 +10,11 @@ COPY pipeline/ ./pipeline/
 COPY sentiment/ ./sentiment/
 COPY agents/ ./agents/
 
-RUN mkdir -p /app/data /app/embeddings && \
+RUN mkdir -p /app/data /app/embeddings /app/.cache && \
     useradd --no-create-home --system appuser && \
     chown -R appuser:appuser /app
 USER appuser
+
+ENV HF_HOME=/app/.cache
 
 CMD ["python", "ingestion/scheduler.py"]

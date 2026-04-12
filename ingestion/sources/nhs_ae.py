@@ -94,15 +94,37 @@ def _latest_csv_url() -> str | None:
 
     soup = BeautifulSoup(response.text, "html.parser")
     candidates: list[tuple[str, str]] = []  # (date_key, href)
+
+    # Month names for parsing URLs like "February-2026-CSV-Dl8t54.csv"
+    _MONTHS = {
+        "january": "01", "february": "02", "march": "03", "april": "04",
+        "may": "05", "june": "06", "july": "07", "august": "08",
+        "september": "09", "october": "10", "november": "11", "december": "12",
+    }
+
     for link in soup.find_all("a", href=True):
         href = link["href"]
-        if href.endswith(".csv"):
-            href_lower = href.lower()
-            if "ae" in href_lower or "attendances" in href_lower or "emergency" in href_lower:
-                # Extract date pattern from URL for sorting
-                match = re.search(r"(\d{4}-\d{2})", href) or re.search(r"(\d{8})", href)
-                date_key = match.group(1) if match else ""
-                candidates.append((date_key, href))
+        if not href.endswith(".csv"):
+            continue
+
+        # Extract date from URL — try multiple patterns:
+        # Pattern 1: "February-2026-CSV-..." (current NHS format)
+        # Pattern 2: "2026-02" or "20260201" (older formats)
+        date_key = ""
+        month_match = re.search(
+            r"(january|february|march|april|may|june|july|august|september|october|november|december)"
+            r"[_-](\d{4})",
+            href.lower(),
+        )
+        if month_match:
+            month_num = _MONTHS[month_match.group(1)]
+            date_key = f"{month_match.group(2)}-{month_num}"
+        else:
+            num_match = re.search(r"(\d{4}-\d{2})", href) or re.search(r"(\d{8})", href)
+            if num_match:
+                date_key = num_match.group(1)
+
+        candidates.append((date_key, href))
 
     if not candidates:
         logger.error("NHS A&E: no CSV link found on statistics page")
