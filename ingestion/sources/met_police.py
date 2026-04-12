@@ -72,7 +72,8 @@ def fetch() -> dict:
 
     for i, (borough_code, info) in enumerate(BOROUGHS.items()):
         if i > 0:
-            time.sleep(1)  # Met Police API rate limit
+            # UK Police API allows ~15 req/s; 0.15s ≈ 6.7 req/s — safely under.
+            time.sleep(0.15)
         lat, lng = info["lat"], info["lng"]
         try:
             response = retry_request(

@@ -16,6 +16,7 @@ by scripts/generate_geo_mappings.py from authoritative public APIs:
     - NHS ODS API + postcodes.io (trust site locations)
 """
 
+import functools
 import json
 import logging
 import threading
@@ -81,35 +82,36 @@ OPENAQ_STATION_BOROUGHS: dict[str, str | None] = _LOOKUPS.get("openaq_station_bo
 # ---------------------------------------------------------------------------
 
 # In-memory cache: (rounded lat, lng) → borough code or None
+# Bounded at 2048 entries via lru_cache on the internal lookup helper to
+# prevent unbounded memory growth when many unique coordinates are seen.
 _COORD_CACHE: dict[tuple[float, float], str | None] = {}
 _COORD_CACHE_LOCK = threading.Lock()
 
 # Round coordinates to 4 decimal places (~11m precision) for cache keys
 _COORD_PRECISION = 4
 
+# Greater London bounding box (WGS84) — coordinates outside this range
+# cannot be in a London borough and are rejected before hitting the API.
+_LONDON_LAT_MIN = 51.2
+_LONDON_LAT_MAX = 51.8
+_LONDON_LNG_MIN = -0.6
+_LONDON_LNG_MAX = 0.4
 
-def coord_to_borough(lat: float, lng: float) -> str | None:
-    """Map a coordinate to a London borough using postcodes.io reverse geocoding.
 
-    Uses the postcodes.io API which resolves against actual ONS boundary
-    polygons, giving accurate results even near borough borders. Results
-    are cached in memory to avoid repeated API calls for nearby coordinates.
+@functools.lru_cache(maxsize=2048)
+def _fetch_borough_for_coord(lat: float, lng: float) -> str | None:
+    """Internal cached helper: call postcodes.io for a single coordinate.
 
-    Falls back to None if the coordinate is outside London or if the API
-    is unavailable.
+    Uses lru_cache(maxsize=2048) to bound memory — the plain dict approach
+    grows without limit. Coordinates are pre-rounded by the caller.
 
     Args:
-        lat: Latitude (WGS84).
-        lng: Longitude (WGS84).
+        lat: Rounded latitude.
+        lng: Rounded longitude.
 
     Returns:
-        ONS borough code, or None if the point is outside Greater London.
+        ONS borough code, or None if outside London or API unavailable.
     """
-    cache_key = (round(lat, _COORD_PRECISION), round(lng, _COORD_PRECISION))
-    with _COORD_CACHE_LOCK:
-        if cache_key in _COORD_CACHE:
-            return _COORD_CACHE[cache_key]
-
     try:
         resp = requests.get(
             "https://api.postcodes.io/postcodes",
@@ -120,16 +122,54 @@ def coord_to_borough(lat: float, lng: float) -> str | None:
         results = resp.json().get("result")
         if results and len(results) > 0:
             district = results[0].get("admin_district", "")
-            code = BOROUGH_NAME_TO_CODE.get(district.lower())
-            with _COORD_CACHE_LOCK:
-                _COORD_CACHE[cache_key] = code
-            return code
+            return BOROUGH_NAME_TO_CODE.get(district.lower())
     except requests.RequestException as exc:
         logger.warning("postcodes.io lookup failed for (%.4f, %.4f): %s", lat, lng, exc)
-
-    with _COORD_CACHE_LOCK:
-        _COORD_CACHE[cache_key] = None
     return None
+
+
+def coord_to_borough(lat: float, lng: float) -> str | None:
+    """Map a coordinate to a London borough using postcodes.io reverse geocoding.
+
+    Uses the postcodes.io API which resolves against actual ONS boundary
+    polygons, giving accurate results even near borough borders. Results
+    are cached in memory (bounded at 2048 entries) to avoid repeated API
+    calls for nearby coordinates.
+
+    Falls back to None if the coordinate is outside Greater London or if
+    the API is unavailable.
+
+    Args:
+        lat: Latitude (WGS84).
+        lng: Longitude (WGS84).
+
+    Returns:
+        ONS borough code, or None if the point is outside Greater London.
+    """
+    # Bounds check — reject coordinates clearly outside Greater London
+    # before making any network call.
+    if not (_LONDON_LAT_MIN <= lat <= _LONDON_LAT_MAX and
+            _LONDON_LNG_MIN <= lng <= _LONDON_LNG_MAX):
+        logger.warning(
+            "coord_to_borough: (%.4f, %.4f) is outside Greater London bounds — skipping",
+            lat, lng,
+        )
+        return None
+
+    # Maintain the plain-dict cache for backward compatibility with
+    # coord_to_borough_bulk which writes to it directly.
+    cache_key = (round(lat, _COORD_PRECISION), round(lng, _COORD_PRECISION))
+    with _COORD_CACHE_LOCK:
+        if cache_key in _COORD_CACHE:
+            return _COORD_CACHE[cache_key]
+
+    code = _fetch_borough_for_coord(
+        round(lat, _COORD_PRECISION),
+        round(lng, _COORD_PRECISION),
+    )
+    with _COORD_CACHE_LOCK:
+        _COORD_CACHE[cache_key] = code
+    return code
 
 
 def coord_to_borough_bulk(

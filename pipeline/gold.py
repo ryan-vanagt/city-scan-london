@@ -8,6 +8,7 @@ Schema: (borough_code, borough_name, timestamp, air_score, transit_score,
          sentiment_score, immune_score, composite_score, ingested_at, pipeline_stage)
 """
 
+import functools
 import logging
 import os
 from collections import defaultdict
@@ -24,11 +25,15 @@ logger = logging.getLogger(__name__)
 _DEFAULT_WEIGHTS = (0.25, 0.25, 0.25, 0.25)
 
 
+@functools.lru_cache(maxsize=1)
 def _load_weights() -> tuple[float, float, float, float]:
     """Load composite score weights from SCORE_WEIGHTS env var.
 
     Format: 'air,transit,sentiment,immune' e.g. '0.25,0.25,0.25,0.25'.
     Falls back to equal weights on parse error.
+
+    Result is cached for the lifetime of the process — the env var is
+    expected to be set once at startup and not changed at runtime.
     """
     raw = os.environ.get("SCORE_WEIGHTS", "")
     if not raw:
@@ -66,7 +71,9 @@ def aggregate(con: duckdb.DuckDBPyConnection) -> int:
     weights = _load_weights()
     now = datetime.now(timezone.utc).isoformat()
 
-    # Get latest silver row per (borough, metric_name)
+    # Get latest silver row per (borough, metric_name), restricted to rows
+    # ingested within the last 48 hours so that dead sources drop out
+    # automatically rather than persisting stale scores indefinitely.
     latest = con.execute("""
         SELECT borough_code, borough_name, metric_name, source, normalised_score
         FROM (
@@ -76,6 +83,7 @@ def aggregate(con: duckdb.DuckDBPyConnection) -> int:
                        ORDER BY ingested_at DESC
                    ) AS rn
             FROM silver_metrics
+            WHERE ingested_at > CURRENT_TIMESTAMP - INTERVAL 48 HOUR
         )
         WHERE rn = 1
     """).fetchall()

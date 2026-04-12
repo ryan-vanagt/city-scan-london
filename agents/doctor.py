@@ -12,8 +12,10 @@ Every interaction is logged to the agent_logs DuckDB table.
 Only Gold-layer aggregated data reaches the LLM — no raw text, no PII.
 """
 
+import html
 import json
 import logging
+import threading
 import time
 import uuid
 from typing import AsyncGenerator
@@ -67,6 +69,7 @@ called get_london_score to verify it.
 """
 
 _agent = None
+_agent_lock = threading.Lock()
 
 
 def get_doctor_agent():
@@ -74,10 +77,11 @@ def get_doctor_agent():
     global _agent
     if _agent is not None:
         return _agent
-
-    llm = ChatAnthropic(model=MODEL_NAME, streaming=True)
-    _agent = create_react_agent(llm, ALL_TOOLS, prompt=SYSTEM_PROMPT)
-    logger.info("Doctor Agent built with model=%s, tools=%d", MODEL_NAME, len(ALL_TOOLS))
+    with _agent_lock:
+        if _agent is None:  # double-check after acquiring lock
+            llm = ChatAnthropic(model=MODEL_NAME, streaming=True)
+            _agent = create_react_agent(llm, ALL_TOOLS, prompt=SYSTEM_PROMPT)
+            logger.info("Doctor Agent built with model=%s, tools=%d", MODEL_NAME, len(ALL_TOOLS))
     return _agent
 
 
@@ -131,7 +135,8 @@ async def stream_doctor_response(question: str) -> AsyncGenerator[str, None]:
                     text = ""
                 if text:
                     tokens.append(text)
-                    sse = json.dumps({"type": "token", "content": text})
+                    escaped = html.escape(text)
+                    sse = json.dumps({"type": "token", "content": escaped})
                     yield f"data: {sse}\n\n"
 
             elif kind == "on_tool_start":
@@ -171,6 +176,8 @@ async def stream_doctor_response(question: str) -> AsyncGenerator[str, None]:
         logger.exception("Doctor Agent stream error for query: %s", question)
         err = json.dumps({"type": "error", "message": "Agent encountered an error"})
         yield f"data: {err}\n\n"
+        yield "data: [DONE]\n\n"
+        return
 
     # Flush sources and done sentinel
     sources_sse = json.dumps({"type": "sources", "sources": sources})

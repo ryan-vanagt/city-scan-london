@@ -27,6 +27,7 @@ def get_borough_health_tool(borough: str) -> dict:
     where 100 is healthiest). Accepts borough name (e.g. 'Camden',
     'Hackney') or ONS code (e.g. 'E09000007').
     """
+    borough = borough[:100]
     return get_borough_health(borough)
 
 

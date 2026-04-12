@@ -11,6 +11,7 @@ Only writes to agent_logs and bulletin_logs — never touches gold_scores or sil
 
 import json
 import logging
+import threading
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -18,6 +19,9 @@ from pathlib import Path
 import duckdb
 
 logger = logging.getLogger(__name__)
+
+# Serialises all DuckDB write operations to prevent concurrent write conflicts
+_write_lock = threading.Lock()
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DB_PATH = str(PROJECT_ROOT / "data" / "cityscan.duckdb")
@@ -68,30 +72,31 @@ def log_agent_interaction(
     immediately so it does not conflict with long-lived read-only connections.
     """
     try:
-        con = duckdb.connect(LOG_DB_PATH)
-        try:
-            con.execute(
-                """
-                INSERT INTO agent_logs
-                (id, timestamp, query, tools_called, tool_inputs,
-                 tool_outputs, sources_cited, final_response, latency_ms, model_used)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                [
-                    str(uuid.uuid4()),
-                    datetime.now(timezone.utc).isoformat(),
-                    query,
-                    json.dumps(tools_called),
-                    json.dumps(tool_inputs),
-                    json.dumps(tool_outputs),
-                    json.dumps(sources_cited),
-                    final_response,
-                    latency_ms,
-                    model_used,
-                ],
-            )
-        finally:
-            con.close()
+        with _write_lock:
+            con = duckdb.connect(LOG_DB_PATH)
+            try:
+                con.execute(
+                    """
+                    INSERT INTO agent_logs
+                    (id, timestamp, query, tools_called, tool_inputs,
+                     tool_outputs, sources_cited, final_response, latency_ms, model_used)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    [
+                        str(uuid.uuid4()),
+                        datetime.now(timezone.utc).isoformat(),
+                        query,
+                        json.dumps(tools_called),
+                        json.dumps(tool_inputs),
+                        json.dumps(tool_outputs),
+                        json.dumps(sources_cited),
+                        final_response,
+                        latency_ms,
+                        model_used,
+                    ],
+                )
+            finally:
+                con.close()
     except Exception:
         logger.exception("Failed to log agent interaction")
 
@@ -126,26 +131,27 @@ def log_bulletin(
 ) -> None:
     """Insert a row into bulletin_logs. Fire-and-forget — never raises."""
     try:
-        con = duckdb.connect(LOG_DB_PATH)
-        try:
-            con.execute(
-                """
-                INSERT INTO bulletin_logs
-                (id, timestamp, trigger, scores_used, headlines_used,
-                 output_path, latency_ms)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-                """,
-                [
-                    str(uuid.uuid4()),
-                    datetime.now(timezone.utc).isoformat(),
-                    trigger,
-                    json.dumps(scores_used),
-                    json.dumps(headlines_used),
-                    output_path,
-                    latency_ms,
-                ],
-            )
-        finally:
-            con.close()
+        with _write_lock:
+            con = duckdb.connect(LOG_DB_PATH)
+            try:
+                con.execute(
+                    """
+                    INSERT INTO bulletin_logs
+                    (id, timestamp, trigger, scores_used, headlines_used,
+                     output_path, latency_ms)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    [
+                        str(uuid.uuid4()),
+                        datetime.now(timezone.utc).isoformat(),
+                        trigger,
+                        json.dumps(scores_used),
+                        json.dumps(headlines_used),
+                        output_path,
+                        latency_ms,
+                    ],
+                )
+            finally:
+                con.close()
     except Exception:
         logger.exception("Failed to log bulletin generation")

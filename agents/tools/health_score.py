@@ -67,6 +67,9 @@ def get_london_score(
     if not rows:
         return _null_result
 
+    # Use MAX(timestamp) for a deterministic timestamp across all boroughs
+    max_ts = max(r[6] for r in rows if r[6] is not None)
+
     return {
         "composite_score": _avg([r[5] for r in rows]),
         "air_score": _avg([r[1] for r in rows]),
@@ -74,5 +77,5 @@ def get_london_score(
         "sentiment_score": _avg([r[3] for r in rows]),
         "immune_score": _avg([r[4] for r in rows]),
         "borough_count": len(rows),
-        "timestamp": str(rows[0][6]),
+        "timestamp": str(max_ts) if max_ts is not None else None,
     }

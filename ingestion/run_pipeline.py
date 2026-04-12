@@ -49,15 +49,23 @@ def run() -> None:
     finally, even if Silver, Gold, or Embed stages raise.
     """
     # --- Bronze ---
+    success_count = 0
     for name, module in SOURCES.items():
         try:
             data = module.fetch()
             path = bronze.save(name, data)
             bronze.cleanup(name)
             logger.info("Saved %s bronze data to %s", name, path)
+            success_count += 1
         except Exception as exc:
             logger.error("Bronze fetch failed for %s: %s — skipping", name, exc)
             continue
+
+    if success_count == 0:
+        logger.warning(
+            "All %d bronze fetches failed — pipeline will process stale data",
+            len(SOURCES),
+        )
 
     # --- Silver / Gold / Embed ---
     con = duckdb.connect(DB_PATH)

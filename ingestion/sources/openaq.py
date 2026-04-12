@@ -108,7 +108,6 @@ def _fetch_latest_readings(
 
     readings: dict[int, list[dict]] = {}
     errors = 0
-    rate_limited = 0
 
     for i, station in enumerate(relevant_stations):
         location_id = station.get("id")
@@ -156,14 +155,14 @@ def _fetch_latest_readings(
             logger.warning("OpenAQ: failed for location %d: %s", location_id, e)
             errors += 1
 
-        # OpenAQ free tier: 60 req/min. Sleep 1s = 60 req/min exactly.
-        time.sleep(1.0)
+        # OpenAQ free tier: ~10 req/s. Sleep 0.15s ≈ 6.7 req/s — stays safely
+        # under the limit while being 6x faster than the previous 1s sleep.
+        time.sleep(0.15)
 
     logger.info(
-        "OpenAQ: fetched readings for %d stations (%d errors, %d rate-limited retries)",
+        "OpenAQ: fetched readings for %d stations (%d errors)",
         len(readings),
         errors,
-        rate_limited,
     )
     return readings
 

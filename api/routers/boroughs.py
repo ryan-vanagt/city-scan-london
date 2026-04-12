@@ -140,6 +140,9 @@ def get_borough_trend(
     if borough_code is None:
         raise HTTPException(status_code=404, detail="Borough not found")
 
+    # int(days) ensures the value is a safe integer — prevents SQL injection
+    # in the f-string interpolation. FastAPI's Query(ge=1, le=30) validates
+    # the range, but int() is the injection guard.
     rows = con.execute(f"""
         SELECT timestamp, air_score, transit_score, sentiment_score,
                immune_score, composite_score

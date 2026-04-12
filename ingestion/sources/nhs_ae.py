@@ -114,6 +114,12 @@ def _latest_csv_url() -> str | None:
     # Sort by date key descending to pick the most recent
     candidates.sort(key=lambda x: x[0], reverse=True)
     best = candidates[0][1]
+
+    # SSRF guard: reject any URL that doesn't resolve to the expected NHS England domain.
+    if not best.startswith("https://www.england.nhs.uk/"):
+        logger.error("NHS A&E: unexpected CSV URL domain (SSRF guard): %s", best)
+        return None
+
     logger.info("NHS A&E: selected CSV at %s (from %d candidates)", best, len(candidates))
     return best
 

@@ -27,6 +27,9 @@ def search_scores(
         Dict with 'results' (list of dicts with document, metadata,
         distance) and 'count'. Returns empty results with 'error' on failure.
     """
+    # Truncate query to prevent excessively long embeddings
+    query = query[:1000]
+
     try:
         from agents.tools.chroma_client import get_collection
 
@@ -53,5 +56,5 @@ def search_scores(
         return {"results": items, "count": len(items)}
 
     except Exception as exc:
-        logger.warning("RAG search failed: %s", exc)
-        return {"results": [], "count": 0, "error": str(exc)}
+        logger.error("RAG search failed: %s", exc)
+        return {"results": [], "count": 0, "error": "Search temporarily unavailable"}

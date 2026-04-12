@@ -151,7 +151,8 @@ def _transform_nhs_ae(data: dict, timestamp: str) -> list[tuple]:
     rows = []
     for bc, pcts in borough_pcts.items():
         avg_pct = mean(pcts)
-        rows.append(_make_row(bc, timestamp, "nhs_ae", avg_pct, _clamp(avg_pct), "nhs_ae"))
+        # _make_row already calls _clamp internally; no need to clamp here too.
+        rows.append(_make_row(bc, timestamp, "nhs_ae", avg_pct, avg_pct, "nhs_ae"))
 
     logger.info("Silver NHS A&E: %d borough rows", len(rows))
     return rows

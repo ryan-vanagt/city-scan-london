@@ -55,12 +55,12 @@ def save(source: str, data: dict | list) -> str:
     return str(file_path)
 
 
-def cleanup(source: str, days: int = 7) -> None:
+def cleanup(source: str, days: int = 1) -> None:
     """Delete bronze files older than `days` days for the given source.
 
     Args:
         source: Source name (e.g. "openaq"). Determines subdirectory.
-        days: Files older than this many days are deleted. Defaults to 7.
+        days: Files older than this many days are deleted. Defaults to 1.
     """
     directory = BRONZE_BASE / source
     if not directory.exists():

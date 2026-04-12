@@ -16,6 +16,7 @@ Every run logged to the bulletin_logs table in agent_logs.duckdb.
 
 import json
 import logging
+import os
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -141,6 +142,9 @@ def _build_data_prompt(
 def generate_bulletin(trigger: str = "manual") -> dict:
     """Generate a daily London health bulletin.
 
+    Intentionally synchronous — FastAPI runs sync endpoint handlers in its
+    default thread pool (anyio), so this does not block the event loop.
+
     Fetches data via direct DuckDB queries and Guardian API, synthesises
     a markdown bulletin via LLM, saves to disk, and logs the run.
 
@@ -196,10 +200,12 @@ def generate_bulletin(trigger: str = "manual") -> dict:
             if isinstance(block, dict) and block.get("type") == "text"
         )
 
-    # 6. Save to disk
+    # 6. Save to disk (atomic write via temp file + rename)
     BULLETINS_DIR.mkdir(parents=True, exist_ok=True)
     output_path = str(BULLETINS_DIR / f"{date_str}.md")
-    Path(output_path).write_text(content, encoding="utf-8")
+    temp_path = str(Path(output_path).with_suffix(".tmp"))
+    Path(temp_path).write_text(content, encoding="utf-8")
+    os.replace(temp_path, output_path)
     logger.info("Bulletin saved to %s", output_path)
 
     # 7. Log the run

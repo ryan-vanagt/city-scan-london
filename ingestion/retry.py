@@ -59,6 +59,13 @@ def retry_request(
 
             # Handle rate limiting explicitly before raise_for_status
             if response.status_code == 429:
+                last_exc = requests.HTTPError(
+                    f"429 Too Many Requests (attempt {attempt + 1}/{max_attempts})",
+                    response=response,
+                )
+                # No point sleeping if this is the last attempt — just exit.
+                if attempt >= max_attempts - 1:
+                    break
                 raw_header = response.headers.get("Retry-After", "")
                 try:
                     retry_after = int(raw_header)
@@ -70,11 +77,6 @@ def retry_request(
                     sleep_secs, attempt + 1, max_attempts,
                 )
                 time.sleep(sleep_secs)
-                # 429 is always retried — treat as a transient error
-                last_exc = requests.HTTPError(
-                    f"429 Too Many Requests (attempt {attempt + 1}/{max_attempts})",
-                    response=response,
-                )
                 continue
 
             return response
