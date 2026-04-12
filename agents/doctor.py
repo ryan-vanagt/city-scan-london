@@ -90,7 +90,7 @@ def get_doctor_agent():
         return _agent
     with _agent_lock:
         if _agent is None:  # double-check after acquiring lock
-            llm = ChatAnthropic(model=MODEL_NAME, streaming=True)
+            llm = ChatAnthropic(model=MODEL_NAME, max_tokens=1024, streaming=True)
             _agent = create_react_agent(llm, ALL_TOOLS, prompt=SYSTEM_PROMPT)
             logger.info("Doctor Agent built with model=%s, tools=%d", MODEL_NAME, len(ALL_TOOLS))
     return _agent

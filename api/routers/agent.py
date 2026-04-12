@@ -21,6 +21,7 @@ from pydantic import BaseModel, Field
 
 from agents.bulletin import generate_bulletin
 from agents.doctor import stream_doctor_response
+from api.rate_limit import check_rate_limit
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +69,12 @@ async def _guarded_sse_stream(question: str, request: Request):
 @router.post("/agent/query")
 async def agent_query(body: AgentQuery, request: Request):
     """Stream a Doctor Agent response as Server-Sent Events."""
+    # Rate limiting (per-IP + global daily cap)
+    client_ip = request.client.host if request.client else "unknown"
+    limit_msg = check_rate_limit(client_ip)
+    if limit_msg:
+        raise HTTPException(status_code=429, detail=limit_msg)
+
     try:
         return StreamingResponse(
             _guarded_sse_stream(body.question, request),
