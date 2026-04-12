@@ -11,7 +11,9 @@ COPY pipeline/__init__.py ./pipeline/__init__.py
 COPY pipeline/lookups.json ./pipeline/lookups.json
 COPY agents/ ./agents/
 
-RUN useradd --no-create-home --system appuser && chown -R appuser:appuser /app
+RUN mkdir -p /app/data && \
+    useradd --no-create-home --system appuser && \
+    chown -R appuser:appuser /app
 USER appuser
 
 CMD ["python", "mcp_server/server.py"]

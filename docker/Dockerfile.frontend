@@ -8,7 +8,7 @@ RUN npm ci
 COPY frontend/ .
 RUN npm run build
 
-RUN adduser --disabled-password --no-create-home --system appuser && chown -R appuser:appuser /app
+RUN adduser -D -H appuser && chown -R appuser /app
 USER appuser
 
 CMD ["npm", "start"]
