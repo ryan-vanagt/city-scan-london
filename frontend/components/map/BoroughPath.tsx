@@ -9,7 +9,7 @@
 
 import { useMemo } from "react";
 import type { BoroughScore, MetricFilter } from "@/lib/types";
-import { scoreToColour, glowIntensity, pulseDuration } from "@/lib/colours";
+import { scoreToColour, glowIntensity, pulseDuration, XRAY_BLUE } from "@/lib/colours";
 
 interface BoroughPathProps {
   borough: BoroughScore;
@@ -50,11 +50,11 @@ export default function BoroughPath({
   const pulse = useMemo(() => `${pulseDuration(score)}s`, [score]);
   const glowPx = glow * 25;
 
-  const fill = thermalColour;
+  const fill = xrayMode ? XRAY_BLUE : thermalColour;
   const isElevated = !xrayMode && (isHovered || isSelected);
   const isDimmed = !xrayMode && isAnyHovered && !isElevated;
 
-  const opacity = isDimmed ? 0.3 : 1;
+  const opacity = xrayMode ? 0.3 : isDimmed ? 0.3 : 1;
 
   // Glow + brightness: ONLY when effectsReady (well after transition completes).
   // This prevents any filter computation during the fill/opacity transition.
@@ -86,9 +86,7 @@ export default function BoroughPath({
         transform: isElevated ? "scale(1.05)" : "scale(1)",
         transformOrigin: "center",
         transformBox: "fill-box",
-        transition: effectsReady
-          ? "fill 0.5s ease-out, opacity 0.5s ease-out, transform 300ms ease-out"
-          : "none",
+        transition: "fill 1.5s ease-out, opacity 1s ease-out, transform 300ms ease-out, filter 1s ease-out",
       } as React.CSSProperties}
       onMouseEnter={xrayMode ? undefined : onHover}
       onMouseLeave={xrayMode ? undefined : onLeave}

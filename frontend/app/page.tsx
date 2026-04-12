@@ -45,6 +45,7 @@ export default function Home() {
   // --- State ---
   const [showLanding, setShowLanding] = useState(true);   // overlay visibility
   const [mapZoomed, setMapZoomed] = useState(true);       // map scale
+  const [xrayActive, setXrayActive] = useState(true);     // borough colours
   const [effectsReady, setEffectsReady] = useState(false); // glow + pulse (after transition)
   const [showUI, setShowUI] = useState(false);            // header/footer/FABs
   const [boroughs, setBoroughs] = useState<BoroughScore[]>([]);
@@ -127,10 +128,11 @@ export default function Home() {
   }, []);
 
   const handleEnterLiveMap = useCallback(() => {
-    setShowLanding(false);                          // Act 1: overlay dissolves (1.2s)
-    setTimeout(() => setMapZoomed(false), 600);     // Act 2: map dezooms (2s transition)
-    setTimeout(() => setShowUI(true), 2000);        // Act 3: UI appears
-    setTimeout(() => setEffectsReady(true), 3000);  // Act 4: glow + pulse
+    setShowLanding(false);                          // Act 1: overlay dissolves
+    setTimeout(() => setMapZoomed(false), 600);     // Act 2: map dezooms
+    setTimeout(() => setXrayActive(false), 1800);   // Act 3: colours flood in
+    setTimeout(() => setShowUI(true), 2200);        // Act 4: UI appears
+    setTimeout(() => setEffectsReady(true), 3500);  // Act 5: glow + pulse enabled
   }, []);
 
   const handlePanelClose = useCallback(() => {
@@ -174,9 +176,8 @@ export default function Home() {
           <div
             className="w-full max-w-3xl"
             style={{
-              transform: mapZoomed ? "scale(2.5)" : "scale(1)",
+              transform: mapZoomed ? "scale(4)" : "scale(1)",
               transition: "transform 2s cubic-bezier(0.16, 1, 0.3, 1)",
-              willChange: "transform",
             }}
             onClick={(e) => {
               if (e.target === e.currentTarget) {
@@ -189,7 +190,7 @@ export default function Home() {
               boroughs={boroughs}
               metricFilter={metricFilter}
               selectedBorough={null}
-              xrayMode={showLanding}
+              xrayMode={xrayActive}
               effectsReady={effectsReady}
               onBoroughHover={handleBoroughHover}
             />
@@ -253,7 +254,8 @@ export default function Home() {
         style={{
           background: "rgba(2,6,23,0.65)",
           opacity: showLanding ? 1 : 0,
-          transition: "opacity 1.2s ease-out",
+          filter: showLanding ? "blur(0px)" : "blur(6px)",
+          transition: "opacity 1.2s ease-out, filter 1.2s ease-out",
           pointerEvents: showLanding ? "auto" : "none",
         }}
       >

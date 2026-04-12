@@ -30,7 +30,7 @@ function lerp(a: number, b: number, t: number): number {
  * 100 = healthiest (deep blue/cold), 0 = critical (red/hot).
  */
 export function scoreToColour(score: number | null): string {
-  if (score === null) return "rgb(100, 116, 139)"; // slate-500 for unknown (rgb to match thermal format)
+  if (score === null) return "#64748b"; // slate-500 for unknown
 
   const clamped = Math.max(0, Math.min(100, score));
 
@@ -75,10 +75,6 @@ export function pulseDuration(score: number | null): number {
 
 /** X-ray scan blue for the bulletin landing mode. */
 export const XRAY_BLUE = "#0ea5e9";
-
-/** X-ray blue as rgb() — matches scoreToColour() output format so CSS
- *  fill transitions interpolate smoothly between X-ray and thermal. */
-export const XRAY_BLUE_RGB = "rgb(14, 165, 233)";
 
 /** Background colours */
 export const BG_PAGE = "#020617";

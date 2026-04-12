@@ -79,8 +79,6 @@ export default function LondonMap({
         role="group"
         aria-label="Interactive London borough health map"
       >
-        {/* Thermal map — always rendered with colours, even during landing.
-             The landing overlay hides it; no fill changes needed during transition. */}
         <g>
           {BOROUGH_PATHS.map((geo) => {
             const borough = scoreMap.get(geo.code);
