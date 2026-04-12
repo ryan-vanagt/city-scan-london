@@ -42,6 +42,12 @@ pytestmark = pytest.mark.skipif(
     reason="no bronze data on disk — run `python ingestion/run_pipeline.py` first",
 )
 
+
+@pytest.fixture(scope="module")
+def silver_rows():
+    """Compute transform_all() once for the entire module (loads sentiment model)."""
+    return transform_all()
+
 # ---------------------------------------------------------------------------
 # Helper
 # ---------------------------------------------------------------------------
@@ -140,29 +146,26 @@ def test_borough_coverage(source_name, transformer, _):
 # Full transform_all() + load() into DuckDB
 # ---------------------------------------------------------------------------
 
-def test_transform_all_returns_rows():
-    rows = transform_all()
-    assert len(rows) > 0, f"transform_all() returned {len(rows)} rows"
+def test_transform_all_returns_rows(silver_rows):
+    assert len(silver_rows) > 0, f"transform_all() returned {len(silver_rows)} rows"
 
 
-def test_load_inserts_all_rows():
-    rows = transform_all()
+def test_load_inserts_all_rows(silver_rows):
     con = duckdb.connect(":memory:")
     init_db(con)
-    total_rows = load(con, rows)
+    total_rows = load(con, silver_rows)
     con.close()
-    assert total_rows == len(rows), f"inserted {total_rows} of {len(rows)}"
+    assert total_rows == len(silver_rows), f"inserted {total_rows} of {len(silver_rows)}"
 
 
 @pytest.mark.parametrize("col", [
     "borough_code", "borough_name", "timestamp",
     "metric_name", "normalised_score", "source",
 ])
-def test_no_nulls_in_not_null_columns(col):
-    rows = transform_all()
+def test_no_nulls_in_not_null_columns(silver_rows, col):
     con = duckdb.connect(":memory:")
     init_db(con)
-    load(con, rows)
+    load(con, silver_rows)
     nulls = con.execute(
         f"SELECT COUNT(*) FROM silver_metrics WHERE {col} IS NULL"
     ).fetchone()[0]
@@ -170,11 +173,10 @@ def test_no_nulls_in_not_null_columns(col):
     assert nulls == 0, f"{nulls} NULLs found in {col}"
 
 
-def test_no_orphan_borough_codes_in_db():
-    rows = transform_all()
+def test_no_orphan_borough_codes_in_db(silver_rows):
     con = duckdb.connect(":memory:")
     init_db(con)
-    load(con, rows)
+    load(con, silver_rows)
     orphans = con.execute("""
         SELECT DISTINCT borough_code FROM silver_metrics
         WHERE borough_code NOT IN (SELECT unnest(?::VARCHAR[]))
@@ -183,11 +185,10 @@ def test_no_orphan_borough_codes_in_db():
     assert len(orphans) == 0, f"orphan borough codes: {orphans}"
 
 
-def test_db_scores_in_range():
-    rows = transform_all()
+def test_db_scores_in_range(silver_rows):
     con = duckdb.connect(":memory:")
     init_db(con)
-    load(con, rows)
+    load(con, silver_rows)
     r = con.execute(
         "SELECT MIN(normalised_score), MAX(normalised_score) FROM silver_metrics"
     ).fetchone()

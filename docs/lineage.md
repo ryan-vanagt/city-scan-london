@@ -9,8 +9,8 @@ flowchart TD
     RD[Reddit public JSON API] -->|hourly| B_RD[bronze/reddit/]
     GD[Guardian API] -->|hourly| B_GD[bronze/guardian/]
     BBC[BBC News RSS] -->|hourly| B_BBC[bronze/bbc/]
-    MP[Met Police API] -->|monthly| B_MP[bronze/met_police/]
-    NHS[NHS England A&E CSV] -->|monthly| B_NHS[bronze/nhs_ae/]
+    MP[Met Police API] -->|"daily (data updates monthly)"| B_MP[bronze/met_police/]
+    NHS[NHS England A&E CSV] -->|"daily (data updates monthly)"| B_NHS[bronze/nhs_ae/]
 
     B_OQ --> S[Silver layer\nDuckDB: silver_metrics]
     B_TFL --> S
@@ -25,13 +25,22 @@ flowchart TD
     G --> CH[ChromaDB\nembeddings]
 
     G --> TOOLS[Agent Tools\n4 curated + run_sql\n+ search_scores]
-    G --> API[FastAPI]
     CH --> TOOLS
 
-    TOOLS --> DA[Doctor Agent\nLangGraph]
-    TOOLS --> BA[Bulletin Agent\nLangChain]
-    TOOLS --> MCP[MCP Server]
-    API --> FE[Frontend\nNext.js]
+    %% Access layers — FastAPI and MCP Server both use Agent Tools
+    G -->|direct read| API[FastAPI]
+    API -->|"/agent/query (SSE)"| DA[Doctor Agent\nLangGraph]
+    API -->|"/bulletin/generate"| BA[Bulletin Agent\nLangChain]
+    DA --> TOOLS
+    BA --> TOOLS
+    MCP[MCP Server] --> TOOLS
+
+    %% Frontend communicates via FastAPI only
+    FE[Frontend\nNext.js] -->|"HTTP /boroughs, /london/score"| API
+    FE -->|"POST /agent/query"| API
+    FE -->|"GET /bulletin/latest"| API
+
+    %% Logging
     DA --> LOGS[agent_logs\nagent_logs.duckdb]
     BA --> BLOGS[bulletin_logs\nagent_logs.duckdb]
 ```
@@ -69,6 +78,6 @@ Every Silver and Gold record carries:
 | Silver      | `pipeline/silver.py` | Parsed, validated, normalised to 0–100 score, mapped to ONS borough code     |
 | Gold        | `pipeline/gold.py`   | Per-borough weighted average across all four signals (48h time-bound on silver data); embedded into ChromaDB |
 | Embed       | `pipeline/embed.py`  | Gold rows converted to text descriptions and upserted into ChromaDB for RAG  |
-| Agent Tools | `agents/tools/`      | 4 curated DuckDB queries + 1 guarded `run_sql` (8-layer security) + 1 RAG `search_scores` |
+| Agent Tools | `agents/tools/`      | 4 curated DuckDB queries + 1 guarded `run_sql` (9-layer security) + 1 RAG `search_scores` |
 
 

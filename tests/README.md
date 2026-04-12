@@ -6,7 +6,7 @@ Pytest test suite for the CityScan London backend.
 
 ```bash
 # Run all tests (excluding network and API-key dependent)
-pytest tests/ -m "not network and not api_key"
+pytest tests/ -m "not network and not api_key and not slow"
 
 # Run all tests including API-key dependent ones
 pytest tests/ -m "not network"

@@ -34,6 +34,10 @@ def _resolve_borough(
     Accepts ONS 9-char codes (e.g. 'E09000007') or borough names
     (case-insensitive, e.g. 'camden', 'City of London').
 
+    Resolution order: exact match → starts-with → contains.
+    Each fuzzy step only accepts if exactly one borough matches
+    (ambiguous matches return None to avoid returning wrong data).
+
     Returns None if not found in gold_scores.
     """
     if not borough or not borough.strip():
@@ -49,12 +53,40 @@ def _resolve_borough(
         ).fetchone()
         return (row[0], row[1]) if row else None
 
-    # Otherwise search by name (case-insensitive)
+    # Strip trailing punctuation that LLMs sometimes append (e.g. "Havering?")
+    import re
+    cleaned = re.sub(r"[^\w\s&]", "", borough).strip()
+    if not cleaned:
+        return None
+
+    # Step 1: exact match (case-insensitive)
     row = con.execute(
         "SELECT DISTINCT borough_code, borough_name FROM gold_scores WHERE LOWER(borough_name) = LOWER(?)",
-        [borough],
+        [cleaned],
     ).fetchone()
-    return (row[0], row[1]) if row else None
+    if row:
+        return (row[0], row[1])
+
+    # Step 2: starts-with (e.g. "Tower" → "Tower Hamlets") — single match only
+    rows = con.execute(
+        "SELECT DISTINCT borough_code, borough_name FROM gold_scores WHERE borough_name ILIKE ? || '%'",
+        [cleaned],
+    ).fetchall()
+    if len(rows) == 1:
+        return (rows[0][0], rows[0][1])
+
+    # Step 3: input contains borough name (e.g. "London Borough of Camden" contains "Camden")
+    # OR borough name contains input (e.g. "Tower" in "Tower Hamlets")
+    # — single match only to avoid ambiguity
+    rows = con.execute(
+        "SELECT DISTINCT borough_code, borough_name FROM gold_scores "
+        "WHERE borough_name ILIKE '%' || ? || '%' OR LOWER(?) LIKE '%' || LOWER(borough_name) || '%'",
+        [cleaned, cleaned],
+    ).fetchall()
+    if len(rows) == 1:
+        return (rows[0][0], rows[0][1])
+
+    return None
 
 
 def get_borough_health(

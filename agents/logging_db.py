@@ -24,7 +24,6 @@ logger = logging.getLogger(__name__)
 _write_lock = threading.Lock()
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DB_PATH = str(PROJECT_ROOT / "data" / "cityscan.duckdb")
 LOG_DB_PATH = str(PROJECT_ROOT / "data" / "agent_logs.duckdb")
 
 

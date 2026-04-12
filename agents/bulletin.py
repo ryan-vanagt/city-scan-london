@@ -47,8 +47,9 @@ Rules:
 3. Frame the bulletin in medical metaphors when natural, but prioritise clarity.
 4. The immune system data (crime + A&E) has a ~2 month lag — mention this \
 when reporting immune scores, and state the approximate data period.
-5. Include Guardian headline links as markdown links. List them as context \
-but do NOT draw causal connections between headlines and scores.
+5. CRITICAL: Every Guardian headline MUST be followed by [(article)](url). \
+Do NOT remove or rewrite the article links. List them as context but do NOT \
+draw causal connections between headlines and scores.
 6. Do not speculate on causes — only report what the data shows. Do not \
 editorialize or suggest policy actions.
 7. Keep the bulletin concise — aim for ~500 words.
@@ -126,7 +127,7 @@ def _build_data_prompt(
     if headlines:
         sections.append("## Recent London Headlines (Guardian)")
         for h in headlines:
-            sections.append(f"- [{h['headline']}]({h['url']})")
+            sections.append(f"- {h['headline']} [(article)]({h['url']})")
         sections.append("")
 
     sections.append(

@@ -10,14 +10,16 @@ CityScan London visualises London's health as a **thermal medical scan**. The UI
 
 | Layer | Choice |
 |---|---|
-| Framework | Next.js 14+ (App Router) |
-| Language | TypeScript |
-| Styling | Tailwind CSS |
-| Components | shadcn/ui (dark theme) |
+| Framework | Next.js 16+ (App Router) |
+| Language | TypeScript (strict mode) |
+| Styling | Tailwind CSS v4 (inline theme via PostCSS) |
 | Icons | Lucide React |
+| Markdown | react-markdown + remark-gfm |
 | Fonts | JetBrains Mono (numbers/scores), Inter (body text), IBM Plex Sans (bulletin text) |
-| Map | London borough SVG from ONS GeoJSON (static file, no map library needed) |
-| API client | Native `fetch` with SSE via `EventSource` or manual stream parsing |
+| Map | London borough SVG from ONS GeoJSON (`lib/london-boroughs.json`), Mercator-projected in `lib/geo.ts` |
+| API client | Native `fetch` with manual SSE stream parsing via `ReadableStream` |
+
+All fonts loaded via `next/font` (Google Fonts).
 
 ---
 
@@ -27,86 +29,101 @@ CityScan London visualises London's health as a **thermal medical scan**. The UI
 
 **Background & surfaces:**
 
-| Element | Hex | Usage |
-|---|---|---|
-| Page background | `#020617` (slate-950) | Darkest — radiologist monitor |
-| Card/panel background | `#0f172a` (slate-900) | Panels, detail views |
-| Border/dividers | `#1e293b` (slate-800) | Subtle structure |
-| Text primary | `#e2e8f0` (slate-200) | Main readable text |
-| Text secondary | `#64748b` (slate-500) | Labels, timestamps |
-
-**Thermal gradient (borough fill, continuous based on score 0-100):**
-
-| Score Range | Colour | Hex | Thermal feel |
+| Element | Hex | Tailwind | Usage |
 |---|---|---|---|
-| 90-100 | Deep blue | `#1e3a8a` | Cold — perfectly healthy |
-| 75-89 | Blue | `#2563eb` | Cool — healthy |
-| 60-74 | Cyan/teal | `#06b6d4` | Moderate — stable |
-| 45-59 | Green-yellow | `#84cc16` | Warming — watch |
-| 30-44 | Orange | `#f97316` | Hot — struggling |
-| 0-29 | Red | `#ef4444` | Hotspot — critical |
+| Page background | `#020617` | slate-950 | Darkest — radiologist monitor |
+| Card/panel background | `#0f172a` | slate-900 | Panels, tooltips, detail views |
+| Border/dividers | `#1e293b` | slate-800 | Subtle structure |
+| Text primary | `#e2e8f0` | slate-200 | Main readable text |
+| Text secondary | `#64748b` | slate-500 | Labels, timestamps, muted |
+| X-ray blue | `#0ea5e9` | sky-500 | Accent, links, active states |
 
-Implement as a continuous interpolation function: `scoreToColour(score: number): string` — interpolate between these stops so every score gets a unique shade.
+**Thermal gradient** (borough fill, continuous interpolation in `lib/colours.ts`):
 
-**X-ray mode (bulletin landing):** All boroughs rendered in monochrome scan blue `#0ea5e9` on `#020617` background.
+| Score | Colour | Hex | Thermal feel |
+|---|---|---|---|
+| 100 | Deep blue | `#1e3a8a` | Cold — perfectly healthy |
+| 75 | Blue | `#2563eb` | Cool — healthy |
+| 60 | Cyan/teal | `#06b6d4` | Moderate — stable |
+| 45 | Green-yellow | `#84cc16` | Warming — watch |
+| 30 | Orange | `#f97316` | Hot — struggling |
+| 0 | Red | `#ef4444` | Hotspot — critical |
+
+Implemented as `scoreToColour(score)` — linearly interpolates RGB between stops. Null scores render as `#64748b` (slate-500).
+
+**X-ray mode (landing):** All boroughs rendered in monochrome `#0ea5e9` at 30% opacity.
 
 ### Glow Effect
 
-Boroughs have a CSS `box-shadow` / SVG `filter: drop-shadow(...)` glow in their thermal colour. Intensity proportional to how far from "moderate" the score is — very healthy (deep blue glow) and very unhealthy (red glow) both glow more than mid-range boroughs.
+Boroughs have SVG `filter: drop-shadow(...)` glow in their thermal colour. Intensity calculated by `glowIntensity(score)` — returns 0.1-0.9 based on distance from score 50. Extreme scores (very healthy or very unhealthy) glow brighter than mid-range.
 
 ### Pulse Animation
 
-Every borough pulses (subtle opacity oscillation 0.7 → 1.0 → 0.7). Pulse speed mapped to health:
-- Score 90+: slow, steady pulse (~2s cycle) — healthy resting heartbeat
-- Score 50-89: medium pulse (~1.5s cycle)
-- Score <50: faster pulse (~0.8s cycle) — elevated, stressed
+Every borough has a `borough-pulse` CSS animation — subtle scale oscillation (1.0 → 1.03 → 1.0). Pulse speed mapped to health via `pulseDuration(score)`:
+- Score 80+: 1.5s cycle — healthy resting heartbeat
+- Score 50-79: 2.0s cycle — slightly slower
+- Score 30-49: 3.0s cycle — laboured
+- Score <30: 4.0s cycle — barely alive
+
+Pulse only activates after the landing-to-map transition completes (`effectsReady` state).
 
 ### Typography
 
-- **Scores and numbers:** JetBrains Mono, monospace. Clinical readout feel.
-- **Body text, labels:** Inter. Clean, neutral.
-- **Bulletin report text:** IBM Plex Sans. Editorial, medical report.
-- **Borough names on hover:** ALL CAPS, letter-spacing: 0.15em, small font (12px). Like a medical chart label.
+- **Scores and numbers:** JetBrains Mono (`--font-jetbrains`). Clinical readout.
+- **Body text, labels:** Inter (`--font-inter`). Clean, neutral.
+- **Bulletin text:** IBM Plex Sans (`--font-ibm-plex`). Editorial, medical report.
+- **Borough names:** ALL CAPS, letter-spacing: 0.15em, 11px. Medical chart label.
 
-All fonts loaded via `next/font` (Google Fonts for Inter and IBM Plex Sans, self-hosted or Google for JetBrains Mono).
+### Transitions & Animations
 
-### Transitions
-
-All interactive transitions: `300ms ease-out`. Never instant, never slow.
+| Animation | Duration | Easing | Used by |
+|---|---|---|---|
+| Borough hover (scale, filter) | 300ms | ease-out | BoroughPath |
+| Borough fill (thermal colour) | 1.5s | ease-out | BoroughPath |
+| Borough opacity (dim/restore) | 1s | ease-out | BoroughPath |
+| Panel slide-in | 0.4s | ease-out | page.tsx panel container |
+| Landing dissolve | 1.2s | ease-out | page.tsx landing overlay |
+| Map dezoom | 2s | cubic-bezier(0.16,1,0.3,1) | page.tsx map container |
+| Header/footer appear | 0.5s | ease-out | page.tsx |
+| EKG scroll | 2s | linear infinite | EkgLine (translateX loop) |
+| Scan line | 3s | ease-in-out infinite | XRayMap (vertical sweep) |
+| Borough pulse | variable | ease-in-out infinite | BoroughPath (scale) |
+| Scanning pulse | 1.5s | ease-in-out infinite | Loading text, cursor |
 
 ---
 
 ## Page Structure — Single Page
+
+All state lives in `app/page.tsx`. No routing — everything is panel-based.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
 │                     LANDING: BULLETIN SCAN REPORT                    │
 │          (full viewport, X-ray blue London map + report text)        │
 │                                                                      │
-│                    scroll or click to enter live map                  │
-└──────────────────────────────┬───────────────────────────────────────┘
-                               │ smooth transition
-                               ▼
+│              "SCANNING LONDON..." pulsing text while loading         │
+│              bulletin card centred, "VIEW LIVE SIGNALS" button       │
+└──────────────────────────┬───────────────────────────────────────────┘
+                           │ 5-act transition (3.5s total)
+                           ▼
 ┌──────────────────────────────────────────────────────────────────────┐
-│ HEADER: Vital Signs Bar                                              │
-│  🫁 ~~42~~  │  🩸 ~~78~~  │  🧠 ~~61~~  │  🛡️ ~~55~~  │  ❤️ 59   │
-│  (EKG line)    (EKG line)    (EKG line)    (EKG line)     overall    │
+│ HEADER: Vital Signs Bar (sticky)                                     │
+│  [ALL] AIR ~~42~~ │ TRANSIT ~~78~~ │ SENTIMENT ~~61~~ │ IMMUNE ~~55~~│ ❤ 59│
+│        (EKG line)   (EKG line)       (EKG line)         (EKG line)   │
 ├────────────────────────────────────────┬─────────────────────────────┤
 │                                        │                             │
 │         LONDON THERMAL MAP             │    CONTEXTUAL PANEL         │
-│         (SVG, ~65% width)              │    (slides in/out)          │
+│         (SVG, responsive width)        │    (35% desktop, 90% mobile)│
 │                                        │                             │
-│         boroughs filled with           │    - Borough detail         │
-│         thermal gradient               │      (on borough click)     │
-│         pulsing, interactive           │    - Doctor chat             │
-│                                        │      (on 🩺 click)          │
-│                                        │    - Bulletin                │
-│                                        │      (on 📋 click)          │
+│         boroughs filled with           │    - Doctor chat             │
+│         thermal gradient               │      (on ASK THE DOCTOR)    │
+│         pulsing, hover-interactive     │    - Bulletin                │
+│                                        │      (on DAILY BULLETIN)    │
 │                                        │                             │
 ├────────────────────────────────────────┴─────────────────────────────┤
-│ FOOTER: Ryan Van Agt • UCL MSc Business Analytics                    │
-│         Powered by Claude Haiku 4.5, LangGraph, DuckDB, ChromaDB    │
-│         [LinkedIn icon] [GitHub icon]                        🔊 📋 🩺│
+│ FOOTER: Ryan Van Agt • Sources • Powered by...    [LinkedIn][GitHub] │
+│                                                   DAILY BULLETIN     │
+│                                                   ASK THE DOCTOR     │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -114,228 +131,200 @@ All interactive transitions: `300ms ease-out`. Never instant, never slow.
 
 ## Section 1: Landing — Bulletin Scan Report
 
-**Trigger:** page load (default view).
+**Trigger:** Page load (default view). Shown while `showLanding` is true.
 
-**Layout:** Full viewport, centred.
+**Layout:** Full viewport overlay (fixed inset-0, z-30). Semi-transparent background `rgba(2,6,23,0.65)`.
 
-**Left/centre:** London borough map in X-ray blue (monochrome `#0ea5e9`, all boroughs same colour). Static, no interaction. Like a medical scan image on a dark background.
+**Loading state:** While API data is loading (`isLoading && boroughs.length === 0`), displays pulsing "SCANNING LONDON..." text (cyan, JetBrains Mono, tracking-widest, `animate-pulse`).
 
-**Right or below map:** Today's bulletin text, styled as a medical scan report:
+**Content (after data loads):**
+- `BulletinReport` component — medical scan report card:
+  - Header: "CITYSCAN LONDON", date, overall score (thermal-coloured, 4xl)
+  - Decorative dash divider
+  - Bulletin markdown (truncated to 500 chars on landing, full in panel)
+  - Footer: "ATTENDING: Dr. CityScan AI" / "MODEL: Claude Haiku 4.5"
+  - Font: IBM Plex Sans for markdown, JetBrains Mono for scores
+- "VIEW LIVE SIGNALS" button with bouncing ChevronDown icon
 
-```
-CITYSCAN LONDON
-Daily Health Scan — 12 April 2026
-──────────────────────────────────────
+**X-ray map:** `XRayMap` component renders static monochrome borough outlines behind the bulletin card. Scan-line animation sweeps vertically.
 
-PATIENT:    Greater London (33 boroughs)
-OVERALL:    62 / 100
+**Transition to live map (5-act sequence):**
+1. (0ms) Landing overlay dissolves (opacity → 0, blur → 6px, 1.2s)
+2. (600ms) Map dezooms from scale(4) → scale(1) (2s cubic-bezier)
+3. (1800ms) Borough colours change from X-ray blue → thermal gradient (1.5s fill transition)
+4. (2200ms) Header, footer, FABs fade in (0.5s)
+5. (3500ms) Glow and pulse effects enabled
 
-FINDINGS:
-• Respiratory (Air): Moderate impairment...
-• Circulatory (Transit): Strong...
-• Neurological (Sentiment): Stable...
-• Immune (Crime/A&E): Within normal parameters...
-
-AREAS OF CONCERN:
-• Tower Hamlets — composite 41/100
-• Newham — air quality 28/100
-
-ATTENDING: Dr. CityScan AI
-MODEL:     Claude Haiku 4.5
-```
-
-Font: JetBrains Mono for the whole report block. Bordered with `border: 1px solid #1e293b`. Subtle scan-line CSS animation (horizontal line sweeping down slowly, like a scanner).
-
-**Transition trigger:** scroll down, or click a "View Live Vitals" button/arrow at the bottom. The bulletin slides up, the X-ray map smoothly transitions to thermal colours — boroughs fill with their health colours one by one (staggered animation, ~50ms delay per borough).
-
-**API:** `GET /bulletin/latest` for bulletin content. `GET /london/score` for overall score in header.
+**Error state:** If all API fetches fail and no boroughs load, a toast appears: "Unable to connect to API — make sure backend is running on port 8000"
 
 ---
 
 ## Section 2: Vital Signs Header
 
-**Always visible** once the live map is active (sticky top bar).
+**Component:** `VitalSigns` — sticky top bar, z-40.
 
-**Content:** Four vital signs + overall score, each with:
-1. Medical icon (Lucide React)
-2. EKG-style animated SVG line (~120px wide, continuously animating left-to-right)
-3. Numerical score in JetBrains Mono, bold
+**Layout:** Three sections:
+1. **Left:** Context label — shows abbreviated hovered borough name or "LONDON" (hidden on mobile)
+2. **Centre:** "ALL" button + 4 metric buttons (air, transit, sentiment, immune)
+3. **Right:** HeartPulse icon (pulsing) + overall composite score
 
-**EKG line shapes per metric:**
-- Lungs (Air): smooth sine wave — breathing rhythm
-- Arteries (Transit): sharp spikes with flat sections — heartbeat
-- Brain (Sentiment): gentle undulation — brain waves
-- Immune: steady small pulses — immune ticks
+**Each metric button shows:**
+- Label text (hidden on xs screens, visible on sm+)
+- EKG animated SVG line (120px wide, `ekg-scroll` animation, always X-ray blue colour)
+- Score value in thermal colour (JetBrains Mono, bold)
 
-Each EKG line is an SVG `<path>` with `stroke-dashoffset` animation. The line colour matches the thermal colour of that metric's score.
+**EKG line variants** (via `EkgLine` component, one per metric):
+- Air: smooth sine wave (breathing rhythm)
+- Transit: sharp ECG spikes (heartbeat)
+- Sentiment: gentle curves (brain waves)
+- Immune: small pulses (immune ticks)
 
 **Interactivity:**
-- **Hover a borough on the map** → header scores smoothly transition to that borough's scores (not London-wide). On mouse leave, transition back to London averages.
-- **Click a metric in the header** → map recolours to show only that metric. Clicking again (or clicking "Overall") resets to composite score. Active metric is underlined or highlighted.
+- **Hover a borough** → header scores transition to that borough's scores. On leave → back to London-wide.
+- **Click a metric** → map recolours to that metric only. Click again → resets to composite. "ALL" button resets.
+- Active metric: X-ray blue background + text. Inactive: slate text, transparent background.
 
-**API:** `GET /london/score` for city-wide scores. Borough-specific scores come from the map data already loaded.
+**Accessibility:** `aria-pressed` on all metric toggle buttons.
 
 ---
 
 ## Section 3: London Thermal Map
 
-**Source:** London borough boundaries GeoJSON from ONS, converted to an inline SVG or rendered via a lightweight SVG component. Each borough is a `<path>` element with a unique `data-borough-code` attribute.
+**Component:** `LondonMap` — orchestrates 33 `BoroughPath` components.
 
-**Fill:** Each borough filled with its thermal colour via `scoreToColour(compositeScore)`. When a metric filter is active, use that metric's score instead.
+**Source:** ONS GeoJSON (`lib/london-boroughs.json`) projected to SVG via Mercator projection in `lib/geo.ts`. ViewBox: 800x600.
 
-**Default state (no hover):** All boroughs visible at full opacity, pulsing at their health-rate.
+**Fill:** Each borough filled with `scoreToColour(score)`. When a metric filter is active, uses that metric's score.
 
 **Hover behaviour (focus mode):**
-1. Hovered borough: `opacity: 1`, `transform: scale(1.05)`, `filter: brightness(1.2)`, glow intensifies
-2. All other boroughs: `opacity: 0.3`, `filter: brightness(0.5)`, pulse pauses
-3. Tooltip appears adjacent to the borough:
-   ```
-   C A M D E N
-   🫁 34  🩸 82  🧠 62  🛡️ 55
-   ━━━━━━━━━━━━━━━━
-   Overall: 58
-   ```
-   Background: `#0f172a` with 90% opacity. Border: `1px solid` in the borough's thermal colour.
-4. Header scores transition to this borough's scores.
+1. Hovered borough: opacity 1, scale 1.05, brightness 1.2, glow intensifies
+2. All other boroughs: opacity 0.3, brightness 0.5
+3. Tooltip appears above the borough (positioned at centroid):
+   - Borough name (uppercase, tracking)
+   - Metric scores (abbreviations: AIR, TRS, SNT, IMM)
+   - Divider
+   - Overall composite score
+   - Border colour matches the borough's thermal colour (with glow)
+4. Header scores update to this borough
 
-**Click behaviour:**
-- Right panel slides in with borough detail.
-- Clicked borough stays elevated + highlighted.
-- Other boroughs stay dimmed.
-- Click elsewhere or panel X → panel closes, map returns to normal.
+**No click behaviour** — boroughs are hover-only. Deep questions go through the Doctor chat.
 
-**CSS approach for focus:**
-```css
-.map-container:hover .borough { opacity: 0.3; filter: brightness(0.5); transition: all 0.3s ease-out; }
-.map-container:hover .borough:hover { opacity: 1; filter: brightness(1.2); transform: scale(1.05); }
-```
+**Performance:** `scoreMap` wrapped in `useMemo([boroughs])`. Tooltip position calculated from SVG centroid mapped to DOM coordinates.
 
-**API:** `GET /boroughs` — returns all 33 boroughs with all scores. Single request, cached. This data drives the entire map + tooltips + header updates.
+**Vignette:** Radial gradient overlay darkens map edges.
+
+**Accessibility:** SVG has `role="group"` and `aria-label`. Each `<path>` contains `<title>` with borough name and score.
 
 ---
 
 ## Section 4: Contextual Right Panel
 
-A slide-in panel (~35% width) that appears from the right edge. Three possible states:
+Slide-in panel (35% width desktop, 90% mobile). Fixed position, right-0, top-0, padding-top 52px (below header). Opacity + translateX transition (0.4s ease-out).
 
-### State A: Borough Detail (on borough click)
+### State A: Doctor Chat (on "ASK THE DOCTOR" FAB)
 
-Minimal. Clean. Scores only — the Doctor handles deep questions.
+**Component:** `DoctorChat` — SSE streaming chat panel.
 
+**Header:** "DR. CITYSCAN" (uppercase, tracking-widest). Close button (X icon).
+
+**Initial greeting** (pre-populated, not from API):
 ```
-┌─────────────────────────────┐
-│  ✕                    E09000007 │
-│                                 │
-│  C A M D E N                    │
-│                                 │
-│  🫁 Air Quality         34     │
-│  ████████░░░░░░░░░░░░  34/100  │
-│                                 │
-│  🩸 Transit             82     │
-│  ████████████████░░░░  82/100  │
-│                                 │
-│  🧠 Sentiment           62     │
-│  ████████████░░░░░░░░  62/100  │
-│                                 │
-│  🛡️ Immune              55     │
-│  ███████████░░░░░░░░░  55/100  │
-│                                 │
-│  ──────────────────────         │
-│  Overall: 58                    │
-│                                 │
-│  Last updated: 12 Apr 09:00     │
-│                                 │
-│  [🩺 Ask the Doctor about       │
-│      Camden]                    │
-│                                 │
-└─────────────────────────────────┘
+"Good [morning/afternoon/evening]. London's overall health is [score]/100 today. What would you like to know?"
 ```
 
-Score bars filled with the thermal gradient colour of each score. The "Ask the Doctor" button pre-fills the chat with "How is Camden doing?" and opens the chat panel.
+**Suggestion chips** (shown only before first user query):
+- "How is London doing today?"
+- "Which boroughs need attention?"
+- "Compare air quality across boroughs"
 
-**API:** No extra call needed — data already loaded from `GET /boroughs`.
+**Chat behaviour:**
+- User submits question → POST /agent/query (SSE)
+- Tokens appear one by one (typewriter effect) in JetBrains Mono
+- Blinking cyan cursor while streaming
+- After `[DONE]`, collapsible source cards appear below the message
 
-### State B: Doctor Chat (on 🩺 click)
+**Source cards:** Collapsible, show tool name + raw JSON data on expand.
 
-Chat interface styled as a medical consultation.
+**Rate limiting:** 3-second cooldown between queries. Send button disabled during cooldown. Prevents rapid-fire API calls.
 
-**Header:** "Dr. CityScan" with stethoscope icon.
+**Input:** maxLength 500 (matches backend validation). JetBrains Mono. AutoComplete off.
 
-**Initial message (pre-populated, not from API):**
-"Good morning. London's overall health is 62/100 today. What would you like to know?"
+**Accessibility:** Messages container has `role="log"` and `aria-live="polite"`. Input and send button have `aria-label`.
 
-**User input:** text field at the bottom. On submit → `POST /agent/query` with SSE streaming.
+### State B: Bulletin Panel (on "DAILY BULLETIN" FAB)
 
-**Token streaming:** tokens appear one by one (typewriter effect) in a chat bubble. Use JetBrains Mono for the response text (medical readout feel).
+**Component:** `BulletinPanel` — renders full bulletin markdown.
 
-**Sources:** after the response completes (after `[DONE]`), sources appear as small collapsible cards below the message: "Source: get_borough_health(Camden) → DuckDB" with a toggle to expand raw data.
+**Header:** "DAILY BULLETIN" (uppercase, tracking-widest). Close button.
 
-**Chat history:** maintained in React state for the session. Not persisted.
+**Content:** Full bulletin rendered via ReactMarkdown + remark-gfm. Same markdown component styling as BulletinReport. Font: IBM Plex Sans.
 
-**SSE parsing:** Connect to `POST /agent/query` endpoint. Parse SSE events:
-- `{"type": "token", "content": "..."}` → append to current response
-- `{"type": "sources", "sources": [...]}` → store for display after response
-- `[DONE]` → mark response complete
-
-### State C: Bulletin (on 📋 click)
-
-Renders the latest bulletin markdown in IBM Plex Sans. Same content as the landing page report but in the side panel. Useful for reference while exploring the map.
-
-**API:** `GET /bulletin/latest` (can cache from landing page load).
-
----
-
-## Section 5: Floating Action Buttons
-
-Bottom-right corner, vertical stack:
-
-1. **📋 Bulletin** — opens/closes bulletin panel
-2. **🩺 Doctor** — opens/closes chat panel
-3. **🔊 Sound** (polish) — toggles heartbeat audio
-
-Each button: circular, `48px`, background `#0f172a`, border `1px solid #1e293b`. Hover: glow effect in `#0ea5e9`. The stethoscope icon does a subtle pulse animation when idle (inviting interaction).
+**Empty state:** "No bulletin available yet." centred text.
 
 Only one panel can be open at a time — opening one closes the other.
 
 ---
 
+## Section 5: Floating Action Buttons
+
+**Component:** `FloatingActions` — fixed bottom-right (bottom: 56px, right: 24px, z-50).
+
+Two pill-shaped buttons stacked vertically (12px gap):
+1. **"DAILY BULLETIN"** — toggles bulletin panel
+2. **"ASK THE DOCTOR"** — toggles doctor chat panel
+
+**Button style:** Rounded (24px radius), dark background (`#0f172a`), 1px border. Text: uppercase Inter 11px, font-weight 600, tracking 0.1em.
+
+**States:**
+- Inactive: border `#1e293b`, text `#64748b`
+- Hover/Active: border `#0ea5e9`, text `#0ea5e9`, box-shadow glow
+
+**Visibility:** Hidden during landing and when a panel is open.
+
+**Accessibility:** `aria-label` and `aria-pressed` on both buttons.
+
+---
+
 ## Section 6: Footer
 
-Thin bar, always visible at bottom of map section.
+**Component:** `Footer` — fixed thin bar at viewport bottom.
 
+**Content:**
 ```
-Ryan Van Agt  •  UCL MSc Business Analytics  •  Powered by Claude Haiku 4.5, LangGraph, DuckDB, ChromaDB   [LinkedIn] [GitHub]
+Ryan Van Agt • Sources: OpenAQ, TfL, Reddit/Guardian/BBC, Met Police, NHS A&E • Powered by Claude Haiku 4.5, LangGraph, DuckDB, ChromaDB   [LinkedIn] [GitHub]
 ```
 
-Font: Inter, 12px, `text-secondary` colour. LinkedIn and GitHub are small Lucide icons linked to:
-- LinkedIn: Ryan's profile URL
-- GitHub: `https://github.com/ryan-vanagt/city-scan-london` (404 while private, works when public)
+Custom inline SVG icons for LinkedIn (18px) and GitHub (16px).
+
+**Styling:** Inter 12px, `#64748b` text, `#020617` background, `#1e293b` border-top.
+
+**Accessibility:** `aria-label` on social links, `aria-hidden` on icons, `rel="noopener noreferrer"`.
 
 ---
 
 ## Section 7: Loading State
 
 On initial page load, before API data arrives:
-
-1. London borough map outline in X-ray blue (`#0ea5e9`), no fill
-2. Pulsing text: "Scanning London..." in JetBrains Mono, centre of map
-3. Subtle horizontal scan-line animation sweeping top to bottom
-4. Once data loads, boroughs fill with thermal colours in a staggered wave (50ms per borough, sorted by borough code)
+1. Landing overlay visible with pulsing "SCANNING LONDON..." text (cyan, JetBrains Mono)
+2. X-ray map renders behind (static, scan-line animation)
+3. Once data loads, bulletin card appears and "VIEW LIVE SIGNALS" button becomes active
 
 ---
 
 ## API Endpoints Consumed
 
-| Endpoint | Method | Used by | Caching |
+| Endpoint | Method | Used by | Notes |
 |---|---|---|---|
-| `/london/score` | GET | Header vital signs, landing overall score | Cache 60s |
-| `/boroughs` | GET | Map fills, tooltips, borough detail panel, header on hover | Cache 60s |
-| `/bulletin/latest` | GET | Landing bulletin, bulletin panel | Cache 5min |
-| `/agent/query` | POST (SSE) | Doctor chat | No cache |
+| `/london/score` | GET | Header vital signs, landing overall score | Runtime shape validation |
+| `/boroughs` | GET | Map fills, tooltips, header on hover | Runtime array validation |
+| `/bulletin/latest` | GET | Landing bulletin, bulletin panel | Returns null on 404 |
+| `/agent/query` | POST (SSE) | Doctor chat | Manual stream parsing, type-guarded events |
 
-**Base URL:** `http://localhost:8000` in dev. Configurable via `NEXT_PUBLIC_API_URL` env var.
+**Base URL:** `NEXT_PUBLIC_API_URL` env var (default `http://localhost:8000`).
 
-**CORS:** API already allows `http://localhost:3000`.
+**CORS:** API allows `http://localhost:3000`.
+
+**Error handling:** `Promise.allSettled` for parallel initial fetch — partial data renders if any single endpoint fails.
 
 ---
 
@@ -344,63 +333,73 @@ On initial page load, before API data arrives:
 ```
 frontend/
 ├── app/
-│   ├── layout.tsx          ← root layout, fonts, metadata
-│   ├── page.tsx            ← single page entry point
-│   └── globals.css         ← Tailwind base + custom animations
+│   ├── layout.tsx          ← root layout, fonts (Inter, JetBrains Mono, IBM Plex Sans), metadata
+│   ├── page.tsx            ← single page orchestrator (all state, transitions, panels)
+│   └── globals.css         ← Tailwind v4 theme, keyframe animations, scrollbar styles
 ├── components/
 │   ├── landing/
-│   │   ├── BulletinReport.tsx   ← scan report styled bulletin
-│   │   └── XRayMap.tsx          ← static X-ray blue London map
+│   │   ├── BulletinReport.tsx   ← scan report styled bulletin (truncated, markdown)
+│   │   └── XRayMap.tsx          ← static X-ray blue London map with scan-line
 │   ├── map/
-│   │   ├── LondonMap.tsx        ← interactive SVG thermal map
-│   │   ├── BoroughPath.tsx      ← individual borough SVG path
-│   │   └── BoroughTooltip.tsx   ← hover tooltip
+│   │   ├── LondonMap.tsx        ← interactive SVG thermal map (hover, tooltip, metric filter)
+│   │   ├── BoroughPath.tsx      ← individual borough path (thermal fill, glow, pulse)
+│   │   └── BoroughTooltip.tsx   ← hover tooltip (metric scores, thermal border)
 │   ├── header/
-│   │   ├── VitalSigns.tsx       ← header bar with 4 metrics
-│   │   └── EkgLine.tsx          ← animated SVG EKG line
+│   │   ├── VitalSigns.tsx       ← sticky header (4 metrics + composite, metric filter)
+│   │   └── EkgLine.tsx          ← animated SVG EKG waveform (4 variants)
 │   ├── panels/
-│   │   ├── BoroughDetail.tsx    ← borough scores panel
-│   │   ├── DoctorChat.tsx       ← SSE chat interface
-│   │   └── BulletinPanel.tsx    ← bulletin in side panel
+│   │   ├── DoctorChat.tsx       ← SSE streaming chat (rate-limited, markdown, source cards)
+│   │   └── BulletinPanel.tsx    ← full bulletin markdown in side panel
 │   ├── ui/
-│   │   ├── FloatingActions.tsx  ← FAB buttons (doctor, bulletin, sound)
-│   │   └── ScoreBar.tsx         ← horizontal score bar with thermal fill
-│   └── Footer.tsx
+│   │   └── FloatingActions.tsx  ← FAB buttons (doctor, bulletin)
+│   └── Footer.tsx               ← attribution bar with social links
 ├── lib/
-│   ├── api.ts              ← fetch wrappers for all endpoints
-│   ├── colours.ts          ← scoreToColour() thermal gradient function
-│   ├── types.ts            ← TypeScript interfaces for API responses
-│   └── london-boroughs.json ← GeoJSON borough boundaries
+│   ├── api.ts              ← fetch wrappers + SSE async generator (type-guarded)
+│   ├── colours.ts          ← scoreToColour(), glowIntensity(), pulseDuration(), constants
+│   ├── types.ts            ← TypeScript interfaces (LondonScore, BoroughScore, PanelState, etc.)
+│   ├── geo.ts              ← GeoJSON → SVG path converter (Mercator projection)
+│   └── london-boroughs.json ← ONS GeoJSON borough boundaries
 ├── public/
-│   └── heartbeat.wav       ← optional audio file (CC0 licensed)
+│   └── (static assets)
 ├── package.json
-├── tailwind.config.ts
 ├── tsconfig.json
+├── eslint.config.mjs
+├── postcss.config.mjs
 └── next.config.ts
 ```
 
 ---
 
-## Polish Features (if time allows)
+## Component Hierarchy
 
-Ordered by impact-to-effort ratio:
-
-1. **EKG line animations** in header — high impact, ~50 lines SVG per shape
-2. **Staggered borough reveal** on transition from bulletin → map — high impact, CSS only
-3. **Map zoom on Doctor mention** — when Doctor response contains a borough name, that borough auto-highlights for 2 seconds
-4. **Heartbeat audio** — toggle on/off, speed tied to hovered borough score
-5. **Scan-line animation** on landing bulletin — horizontal line sweeping down
-6. **Borough entrance animation** — boroughs fly in or fade in when page loads
+```
+RootLayout (layout.tsx)
+└─ Page (page.tsx)
+   ├─ VitalSigns
+   │  └─ EkgLine (x4)
+   ├─ LondonMap
+   │  ├─ BoroughPath (x33)
+   │  └─ BoroughTooltip (0 or 1)
+   ├─ Panel container
+   │  ├─ DoctorChat [conditional]
+   │  │  └─ SourceCard (xN)
+   │  └─ BulletinPanel [conditional]
+   ├─ FloatingActions [conditional]
+   │  └─ FabButton (x2)
+   ├─ Footer [conditional]
+   ├─ BulletinReport [landing only]
+   │  └─ (XRayMap rendered separately)
+   ├─ XRayMap [landing only]
+   └─ Error toast [conditional]
+```
 
 ---
 
-## Responsive Behaviour (Desktop-First)
+## Responsive Behaviour
 
-**Desktop (>1024px):** Full layout as described. Map ~65%, panel ~35%.
+**Desktop (md+):** Full layout. Map responsive width. Panel 35% width from right.
 
-**Tablet (768-1024px):** Map full width. Panel overlays from bottom (half height) instead of right side.
-
-**Mobile (<768px):** Map full width (simplified, no hover — tap to select). Panel is full-screen overlay. FABs remain in bottom-right.
+**Mobile (<md):** Panel takes 90% width. Metric labels hidden in header (scores + EKG lines only). Borough name label hidden.
 
 ---
 
@@ -410,4 +409,4 @@ Ordered by impact-to-effort ratio:
 NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 
-In Docker, this is set to the API service's internal URL.
+In Docker, set to the API service's internal URL.

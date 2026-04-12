@@ -567,7 +567,7 @@ def test_run_sql_drop_blocked(db_with_sql_data):
 
 def test_run_sql_drop_error_message(db_with_sql_data):
     result = run_sql("DROP TABLE gold_scores", con=db_with_sql_data)
-    assert "DROP" in result["error"]
+    assert "SELECT" in result["error"] or "DROP" in result["error"]
 
 
 def test_run_sql_insert_blocked(db_with_sql_data):
@@ -604,9 +604,18 @@ def test_run_sql_empty_query_rejected(db_with_sql_data):
 
 
 def test_run_sql_auto_limit_applied(db_with_sql_data):
+    """LIMIT 100 wrapper must cap results even when table has more rows."""
+    # Insert 150 rows so the limit is exercised
+    for i in range(150):
+        db_with_sql_data.execute(
+            """INSERT INTO gold_scores VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            [f"E090000{i:02d}", f"Borough{i}", "2026-04-10T00:00:00+00",
+             50.0, 50.0, 50.0, 50.0, 50.0,
+             "2026-04-10T00:00:00+00", "gold"],
+        )
     result = run_sql("SELECT * FROM gold_scores", con=db_with_sql_data)
     assert result["success"] is True
-    assert result["row_count"] <= 100
+    assert result["row_count"] == 100, f"expected 100 rows, got {result['row_count']}"
 
 
 def test_run_sql_explicit_limit_respected(db_with_sql_data):
@@ -668,6 +677,136 @@ def test_run_sql_comment_stripping_concealed_keyword(db_with_sql_data):
 def test_run_sql_join_with_agent_logs_blocked(db_with_sql_data):
     result = run_sql("SELECT * FROM gold_scores JOIN agent_logs ON 1=1", con=db_with_sql_data)
     assert result["success"] is False
+
+
+# ---------------------------------------------------------------------------
+# run_sql: comprehensive keyword blocklist tests (#1, #2)
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("keyword", [
+    "INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "CREATE", "TRUNCATE",
+    "REPLACE", "MERGE", "COPY", "EXPORT", "IMPORT", "LOAD", "INSTALL",
+    "CALL", "PRAGMA", "SET", "ATTACH", "DETACH",
+    "SUMMARIZE", "DESCRIBE", "EXPLAIN", "SHOW", "PREPARE", "EXECUTE",
+    "CHECKPOINT", "VACUUM",
+])
+def test_run_sql_blocked_keyword(keyword, db_with_sql_data):
+    """Every keyword in _BLOCKED_KEYWORDS must be rejected."""
+    result = run_sql(f"{keyword} gold_scores", con=db_with_sql_data)
+    assert result["success"] is False, f"{keyword} was not blocked"
+
+
+@pytest.mark.parametrize("table", [
+    "agent_logs", "bulletin_logs", "information_schema", "pg_catalog",
+    "duckdb_tables", "duckdb_columns", "duckdb_schemas", "duckdb_views",
+    "duckdb_constraints", "duckdb_indexes", "duckdb_functions",
+    "duckdb_settings", "duckdb_extensions", "duckdb_types",
+    "duckdb_dependencies", "sqlite_master", "sqlite_schema",
+])
+def test_run_sql_blocked_table(table, db_with_sql_data):
+    """Every table in _BLOCKED_TABLES must be rejected."""
+    result = run_sql(f"SELECT * FROM {table}", con=db_with_sql_data)
+    assert result["success"] is False, f"table {table} was not blocked"
+
+
+@pytest.mark.parametrize("sql", [
+    "SELECT duckdb_tables() FROM gold_scores",
+    "SELECT current_setting('home_directory') FROM gold_scores",
+    "SELECT table_info('gold_scores') FROM gold_scores",
+    "SELECT pragma_table_info('gold_scores') FROM gold_scores",
+])
+def test_run_sql_blocked_metadata_function(sql, db_with_sql_data):
+    """Metadata introspection functions must be rejected."""
+    result = run_sql(sql, con=db_with_sql_data)
+    assert result["success"] is False, f"metadata function was not blocked: {sql}"
+
+
+@pytest.mark.parametrize("sql", [
+    "SELECT * FROM read_csv_auto('/etc/passwd'), gold_scores",
+    "SELECT * FROM read_parquet('/tmp/x.parquet'), gold_scores",
+    "SELECT * FROM read_json('/tmp/x.json'), gold_scores",
+    "SELECT * FROM read_text('/etc/passwd'), gold_scores",
+    "SELECT * FROM read_ndjson('/tmp/x.ndjson'), gold_scores",
+    "SELECT http_get('https://evil.com') FROM gold_scores",
+    "SELECT https_get('https://evil.com') FROM gold_scores",
+    "SELECT httpfs('https://evil.com') FROM gold_scores",
+])
+def test_run_sql_blocked_file_function(sql, db_with_sql_data):
+    """File-read and HTTP functions must be rejected."""
+    result = run_sql(sql, con=db_with_sql_data)
+    assert result["success"] is False, f"file function was not blocked: {sql}"
+
+
+def test_run_sql_file_path_table_blocked(db_with_sql_data):
+    result = run_sql("SELECT * FROM '/tmp/file.csv', gold_scores", con=db_with_sql_data)
+    assert result["success"] is False
+
+def test_run_sql_file_path_table_double_quotes_blocked(db_with_sql_data):
+    result = run_sql('SELECT * FROM "/tmp/file.csv", gold_scores', con=db_with_sql_data)
+    assert result["success"] is False
+
+
+def test_run_sql_query_length_limit(db_with_sql_data):
+    long_query = "SELECT * FROM gold_scores WHERE borough_name = '" + "x" * 10_001 + "'"
+    result = run_sql(long_query, con=db_with_sql_data)
+    assert result["success"] is False
+    assert "too long" in result["error"].lower()
+
+
+def test_run_sql_block_comment_hides_keyword(db_with_sql_data):
+    """Block comments around a blocked keyword should be stripped, leaving the keyword exposed."""
+    result = run_sql("/* DROP TABLE gold_scores */ SELECT * FROM gold_scores", con=db_with_sql_data)
+    assert result["success"] is True  # comment stripped, only SELECT remains
+
+def test_run_sql_nested_block_comment(db_with_sql_data):
+    """Nested block comments: inner comment stripped but residual '*/' causes syntax error.
+
+    The stripping loop uses non-greedy regex so '/* /* INSERT */' is removed
+    first, leaving '*/ SELECT ...'.  The stray '*/' is harmless — DuckDB rejects
+    the malformed SQL with an error, so the query never executes.
+    """
+    result = run_sql("/* /* INSERT */ */ SELECT * FROM gold_scores", con=db_with_sql_data)
+    assert result["success"] is False  # residual '*/' makes query invalid
+
+def test_run_sql_keyword_inside_block_comment_not_hidden(db_with_sql_data):
+    """A keyword hidden inside only the comment text should not block the query."""
+    result = run_sql("SELECT /* just a comment mentioning DROP */ * FROM gold_scores", con=db_with_sql_data)
+    assert result["success"] is True
+
+
+def test_run_sql_cte_with_blocked_table(db_with_sql_data):
+    result = run_sql(
+        "WITH x AS (SELECT * FROM agent_logs) SELECT * FROM gold_scores",
+        con=db_with_sql_data,
+    )
+    assert result["success"] is False, "CTE referencing blocked table should be rejected"
+
+
+def test_run_sql_semicolon_rejected(db_with_sql_data):
+    result = run_sql("SELECT * FROM gold_scores; SELECT 1", con=db_with_sql_data)
+    assert result["success"] is False
+    assert "Multiple statements" in result["error"]
+
+
+def test_run_sql_non_select_rejected(db_with_sql_data):
+    """Non-SELECT statements should be rejected even if they reference allowed tables."""
+    result = run_sql("SUMMARIZE gold_scores", con=db_with_sql_data)
+    assert result["success"] is False
+
+
+def test_resolve_borough_sql_injection_safe():
+    """_resolve_borough uses parameterized queries — injection input returns None safely."""
+    from agents.tools.borough_query import _resolve_borough
+    import duckdb
+    from pipeline.schemas import init_db
+    con = duckdb.connect(":memory:")
+    init_db(con)
+    result = _resolve_borough("Camden'; DROP TABLE gold_scores --", con)
+    assert result is None
+    # Verify gold_scores still exists
+    tables = [r[0] for r in con.execute("SHOW TABLES").fetchall()]
+    assert "gold_scores" in tables
+    con.close()
 
 
 # ===========================================================================

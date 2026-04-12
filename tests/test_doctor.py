@@ -231,9 +231,9 @@ def test_london_query_returns_200(london_response):
 def test_london_query_used_get_london_score_tool(london_response):
     _, events = london_response
     source_events = [e for e in events if isinstance(e, dict) and e.get("type") == "sources"]
-    if source_events:
-        tools_used = [s["tool"] for s in source_events[0].get("sources", [])]
-        assert "get_london_score" in tools_used, f"tools used: {tools_used}"
+    assert source_events, "Expected agent to return sources event but got none"
+    tools_used = [s["tool"] for s in source_events[0].get("sources", [])]
+    assert "get_london_score" in tools_used, f"tools used: {tools_used}"
 
 
 # ============================================================

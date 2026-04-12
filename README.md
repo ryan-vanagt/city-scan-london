@@ -48,7 +48,7 @@ docker compose up
 | Bulletin Agent (LangChain prompt chain) | **Working** |
 | Scheduler (APScheduler) | **Working** |
 | MCP Server | **Working** |
-| Frontend (Next.js) | Not started |
+| Frontend (Next.js) | **Working** |
 
 **API endpoints** (interactive docs at `http://localhost:8000/docs`):
 - `GET /health` — service liveness

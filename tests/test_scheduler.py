@@ -138,26 +138,60 @@ def test_pipeline_chain_completes_with_bronze_data():
 # Job function imports
 # ---------------------------------------------------------------------------
 
-def test_job_hourly_pipeline_is_callable():
-    from ingestion.scheduler import job_hourly_pipeline
-    assert callable(job_hourly_pipeline)
+def test_scheduler_job_functions_importable():
+    """All scheduler job functions should be importable."""
+    from ingestion.scheduler import (
+        job_hourly_pipeline,
+        job_daily_pipeline,
+        job_daily_bulletin,
+        job_silver_retention,
+        _run_full_pipeline_once,
+        main,
+    )
+    # Verify they're all callable (basic sanity)
+    for fn in [job_hourly_pipeline, job_daily_pipeline, job_daily_bulletin,
+               job_silver_retention, _run_full_pipeline_once, main]:
+        assert callable(fn)
 
 
-def test_job_daily_pipeline_is_callable():
-    from ingestion.scheduler import job_daily_pipeline
-    assert callable(job_daily_pipeline)
+def test_silver_retention_deletes_old_rows_only():
+    """Retention should delete rows older than 90 days and keep recent ones."""
+    import duckdb
+    from datetime import datetime, timezone, timedelta
+    from pipeline.schemas import init_db
 
+    con = duckdb.connect(":memory:")
+    init_db(con)
 
-def test_job_daily_bulletin_is_callable():
-    from ingestion.scheduler import job_daily_bulletin
-    assert callable(job_daily_bulletin)
+    now = datetime.now(timezone.utc)
+    old_ts = (now - timedelta(days=91)).isoformat()
+    new_ts = (now - timedelta(days=1)).isoformat()
 
+    # Insert one old row and one recent row
+    for ts, bc in [(old_ts, "E09000001"), (new_ts, "E09000007")]:
+        con.execute(
+            """INSERT INTO silver_metrics
+               (borough_code, borough_name, timestamp, metric_name, raw_value,
+                normalised_score, source, ingested_at, pipeline_stage)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            [bc, "Test", ts, "test", 50.0, 50.0, "test", ts, "silver"],
+        )
 
-def test_run_full_pipeline_once_is_callable():
-    from ingestion.scheduler import _run_full_pipeline_once
-    assert callable(_run_full_pipeline_once)
+    # Verify 2 rows exist
+    assert con.execute("SELECT COUNT(*) FROM silver_metrics").fetchone()[0] == 2
 
+    # Run the retention DELETE (same SQL as scheduler)
+    from ingestion.scheduler import SILVER_RETENTION_DAYS
+    result = con.execute(
+        f"DELETE FROM silver_metrics WHERE ingested_at < CURRENT_TIMESTAMP - INTERVAL {int(SILVER_RETENTION_DAYS)} DAY",
+    )
+    count = result.fetchone()[0]
 
-def test_main_is_callable():
-    from ingestion.scheduler import main
-    assert callable(main)
+    # Should have deleted exactly 1 old row
+    assert count == 1, f"expected 1 deleted, got {count}"
+    remaining = con.execute("SELECT COUNT(*) FROM silver_metrics").fetchone()[0]
+    assert remaining == 1, f"expected 1 remaining, got {remaining}"
+    # Verify it's the recent row
+    bc = con.execute("SELECT borough_code FROM silver_metrics").fetchone()[0]
+    assert bc == "E09000007"
+    con.close()

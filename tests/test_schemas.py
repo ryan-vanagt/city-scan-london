@@ -137,7 +137,7 @@ def test_init_db_creates_gold_scores_table():
 def test_check_constraint_rejects_score_above_100():
     con = duckdb.connect(":memory:")
     init_db(con)
-    with pytest.raises(Exception):
+    with pytest.raises(duckdb.Error):
         con.execute(
             "INSERT INTO silver_metrics VALUES "
             "('E09000001','Test','2026-01-01T00:00:00+00','test',0,150,'test','2026-01-01T00:00:00+00','silver')"
@@ -148,7 +148,7 @@ def test_check_constraint_rejects_score_above_100():
 def test_check_constraint_rejects_score_below_0():
     con = duckdb.connect(":memory:")
     init_db(con)
-    with pytest.raises(Exception):
+    with pytest.raises(duckdb.Error):
         con.execute(
             "INSERT INTO silver_metrics VALUES "
             "('E09000001','Test','2026-01-01T00:00:00+00','test',0,-5,'test','2026-01-01T00:00:00+00','silver')"

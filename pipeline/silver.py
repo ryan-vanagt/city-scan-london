@@ -238,6 +238,11 @@ def _transform_met_police(data: dict, timestamp: str) -> list[tuple]:
             "min-max range is zero; all boroughs will score 100 this cycle",
             len(borough_counts), min_count,
         )
+        # Design note: when all boroughs report identical crime counts, relative
+        # scoring gives everyone 100/100.  This is intentional — the score
+        # measures *relative* safety across boroughs, not absolute crime levels.
+        # If absolute thresholds are needed, they belong in a future gold-layer
+        # enrichment step, not here.
     range_count = max_count - min_count if max_count != min_count else 1
 
     rows = []

@@ -17,6 +17,7 @@ On startup, runs a full pipeline cycle (all sources) so that the first
 import logging
 import signal
 import sys
+import threading
 from pathlib import Path
 from types import ModuleType
 
@@ -60,6 +61,8 @@ SLOW_SOURCES: dict[str, ModuleType] = {
 
 DB_PATH = str(PROJECT_ROOT / "data" / "cityscan.duckdb")
 
+_db_write_lock = threading.Lock()
+
 # ---------------------------------------------------------------------------
 # Pipeline helpers
 # ---------------------------------------------------------------------------
@@ -87,24 +90,25 @@ def _run_pipeline_chain() -> None:
     Opens a write-mode DuckDB connection, runs all three stages,
     and always closes the connection in finally.
     """
-    con = duckdb.connect(DB_PATH)
-    try:
-        con.execute("SET memory_limit = '512MB'")
-        init_db(con)
+    with _db_write_lock:
+        con = duckdb.connect(DB_PATH)
+        try:
+            con.execute("SET memory_limit = '512MB'")
+            init_db(con)
 
-        rows = silver.transform_all() or []
-        inserted = silver.load(con, rows)
-        logger.info("Silver: %d rows transformed, %d inserted", len(rows), inserted)
+            rows = silver.transform_all() or []
+            inserted = silver.load(con, rows)
+            logger.info("Silver: %d rows transformed, %d inserted", len(rows), inserted)
 
-        gold_rows = gold.aggregate(con)
-        logger.info("Gold: %d rows inserted", gold_rows)
+            gold_rows = gold.aggregate(con)
+            logger.info("Gold: %d rows inserted", gold_rows)
 
-        embedded = embed_gold_scores(con)
-        logger.info("Embed: %d documents upserted", embedded)
-    except Exception as exc:
-        logger.error("Pipeline chain failed: %s", exc)
-    finally:
-        con.close()
+            embedded = embed_gold_scores(con)
+            logger.info("Embed: %d documents upserted", embedded)
+        except Exception as exc:
+            logger.error("Pipeline chain failed: %s", exc)
+        finally:
+            con.close()
 
 
 # ---------------------------------------------------------------------------
@@ -137,21 +141,20 @@ def job_silver_retention() -> None:
     Gold rows are kept forever (tiny footprint, needed for long-term trends).
     """
     logger.info("=== Silver retention: starting ===")
-    con = duckdb.connect(DB_PATH)
-    try:
-        con.execute("SET memory_limit = '512MB'")
-        deleted = con.execute(
-            "DELETE FROM silver_metrics "
-            "WHERE ingested_at < CURRENT_TIMESTAMP - INTERVAL ? DAY "
-            "RETURNING COUNT(*)",
-            [SILVER_RETENTION_DAYS],
-        ).fetchone()
-        count = deleted[0] if deleted else 0
-        logger.info("Silver retention: deleted %d rows older than %d days", count, SILVER_RETENTION_DAYS)
-    except Exception as exc:
-        logger.error("Silver retention failed: %s", exc)
-    finally:
-        con.close()
+    with _db_write_lock:
+        con = duckdb.connect(DB_PATH)
+        try:
+            con.execute("SET memory_limit = '512MB'")
+            result = con.execute(
+                f"DELETE FROM silver_metrics "
+                f"WHERE ingested_at < CURRENT_TIMESTAMP - INTERVAL {int(SILVER_RETENTION_DAYS)} DAY",
+            )
+            count = result.fetchone()[0]
+            logger.info("Silver retention: deleted %d rows older than %d days", count, SILVER_RETENTION_DAYS)
+        except Exception as exc:
+            logger.error("Silver retention failed: %s", exc)
+        finally:
+            con.close()
     logger.info("=== Silver retention: complete ===")
 
 
@@ -232,6 +235,8 @@ def main() -> None:
         minute=0,
         misfire_grace_time=300,
         id="silver_retention",
+        max_instances=1,
+        coalesce=True,
     )
 
     # Daily at 09:00 UTC: bulletin generation

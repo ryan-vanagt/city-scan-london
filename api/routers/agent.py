@@ -72,6 +72,7 @@ async def agent_query(body: AgentQuery, request: Request):
         return StreamingResponse(
             _guarded_sse_stream(body.question, request),
             media_type="text/event-stream",
+            headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
         )
     except Exception as exc:
         logger.error("Doctor Agent initialization failed: %s", exc)

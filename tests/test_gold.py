@@ -3,6 +3,7 @@
 from pathlib import Path
 from statistics import mean
 
+import duckdb
 import pytest
 
 from pipeline.schemas import BOROUGHS
@@ -100,10 +101,13 @@ def test_all_sub_scores_null_or_in_range(real_gold_data):
                 f"{bc} {label}={val} out of [0, 100]"
 
 
-def test_transit_coverage_is_26(real_gold_data):
+def test_transit_coverage_matches_mapping(real_gold_data):
+    """Transit coverage should match the number of boroughs served by tube lines."""
+    from pipeline.schemas import LINE_TO_BOROUGHS
+    expected = len({bc for bcs in LINE_TO_BOROUGHS.values() for bc in bcs})
     gold_data, _ = real_gold_data
     has_transit = sum(1 for r in gold_data if r[4] is not None)
-    assert has_transit == 26, f"expected 26 transit-covered boroughs, got {has_transit}"
+    assert has_transit == expected, f"expected {expected} transit-covered boroughs, got {has_transit}"
 
 
 def test_sentiment_coverage_is_33(real_gold_data):
@@ -217,7 +221,7 @@ def test_invalid_weights_fall_back_to_defaults(monkeypatch):
 
 
 def test_ddl_rejects_null_composite(fresh_db):
-    with pytest.raises(Exception):
+    with pytest.raises(duckdb.Error):
         fresh_db.execute(
             "INSERT INTO gold_scores VALUES "
             "('E09000001','Test','2026-01-01T00:00:00+00',80,90,70,60,NULL,'2026-01-01T00:00:00+00','gold')"

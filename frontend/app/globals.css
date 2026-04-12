@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: #020617;
+  --color-foreground: #e2e8f0;
+  --color-card: #0f172a;
+  --color-border: #1e293b;
+  --color-muted: #64748b;
+  --color-xray: #0ea5e9;
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains);
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+}
+
+/* Borough pulse — subtle scale throb (breathing effect).
+   Only applied after effectsReady=true to avoid transition conflicts. */
+@keyframes borough-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+}
+
+.borough-pulse {
+  animation: borough-pulse var(--pulse-duration, 1.5s) ease-in-out infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+/* EKG line animation — seamless translateX scroll */
+@keyframes ekg-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-120px);
+  }
+}
+
+.ekg-scroll {
+  animation: ekg-scroll 2s linear infinite;
+}
+
+/* Scan line animation for landing page */
+@keyframes scan-line {
+  0% {
+    top: 0%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  90% {
+    opacity: 0.6;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+.scan-line {
+  animation: scan-line 3s ease-in-out infinite;
+}
+
+/* Scanning text pulse */
+@keyframes scanning-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.scanning-pulse {
+  animation: scanning-pulse 1.5s ease-in-out infinite;
+}
+
+/* Stethoscope idle pulse */
+@keyframes stethoscope-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+.stethoscope-pulse {
+  animation: stethoscope-pulse 2s ease-in-out infinite;
+}
+
+/* Fade in stagger for borough reveal */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scrollbar styling for dark theme */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #020617;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}

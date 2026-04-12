@@ -5,15 +5,18 @@ Executes a guarded, read-only SQL query against the CityScan DuckDB database.
 Enables the Doctor Agent to answer analytical questions that the four curated
 tools cannot cover (e.g. multi-column filters, correlations, aggregations).
 
-Guardrails:
+Guardrails (9-layer security model):
   1. Read-only DuckDB connection (engine-enforced — INSERT/UPDATE/DELETE/DROP blocked)
-  2. SQL comments stripped before validation (prevents bypass via comments)
-  3. Table allowlist — only gold_scores and silver_metrics are queryable
-  4. Keyword blocklist — rejects write/DDL/admin keywords as defence in depth
-  5. Metadata function blocklist — blocks duckdb_*() and other introspection calls
-  6. File-read function blocklist — blocks read_csv, read_parquet, etc.
-  7. Row limit — always wraps query in outer LIMIT 100 regardless of inner LIMIT
-  8. Query length limit — rejects queries longer than 10000 characters
+  2. Query length limit — rejects queries longer than 10000 characters
+  3. SQL comments stripped before validation (prevents bypass via comments)
+  4. Semicolon rejection — blocks multi-statement payloads
+  5. SELECT-only enforcement — query must start with SELECT
+  6. Keyword blocklist — rejects write/DDL/admin/metadata keywords as defence in depth
+  7. Metadata function blocklist — blocks duckdb_*() and other introspection calls
+  8. File-read function blocklist — blocks read_csv, read_parquet, read_text, http_get, etc.
+  9. File path table reference blocklist — blocks FROM '/path/...' patterns
+  10. Table blocklist + allowlist — only gold_scores and silver_metrics queryable
+  11. Row limit — always wraps query in outer LIMIT 100 regardless of inner LIMIT
 """
 
 import logging
@@ -65,6 +68,7 @@ _BLOCKED_KEYWORDS = re.compile(
     r"\b("
     r"INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|TRUNCATE|REPLACE|MERGE"
     r"|COPY|EXPORT|IMPORT|LOAD|INSTALL|CALL|PRAGMA|SET|ATTACH|DETACH"
+    r"|SUMMARIZE|DESCRIBE|EXPLAIN|SHOW|PREPARE|EXECUTE|CHECKPOINT|VACUUM"
     r")\b",
     re.IGNORECASE,
 )
@@ -77,7 +81,8 @@ _BLOCKED_FUNCTIONS = re.compile(
 
 # File-read functions that must be blocked to prevent local file access
 _BLOCKED_FILE_FUNCTIONS = re.compile(
-    r"\b(read_csv_auto|read_csv|read_parquet|read_json_auto|read_json|read_blob|glob)\s*\(",
+    r"\b(read_csv_auto|read_csv|read_parquet|read_json_auto|read_json|read_blob|glob"
+    r"|read_text|read_ndjson|http_get|https_get|httpfs)\s*\(",
     re.IGNORECASE,
 )
 
@@ -147,6 +152,14 @@ def run_sql(
     # --- Strip comments before all validation ---
     query_clean = _strip_sql_comments(query)
     query_lower = query_clean.lower()
+
+    # --- Guardrail: reject semicolons (multi-statement prevention) ---
+    if ";" in query_clean:
+        return {"success": False, "error": "Multiple statements are not permitted"}
+
+    # --- Guardrail: must start with SELECT ---
+    if not query_lower.lstrip().startswith("select"):
+        return {"success": False, "error": "Only SELECT queries are permitted"}
 
     # --- Guardrail: keyword blocklist ---
     match = _BLOCKED_KEYWORDS.search(query_clean)

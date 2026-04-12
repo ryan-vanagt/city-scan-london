@@ -10,4 +10,7 @@ COPY pipeline/ ./pipeline/
 COPY sentiment/ ./sentiment/
 COPY agents/ ./agents/
 
+RUN useradd --no-create-home --system appuser && chown -R appuser:appuser /app
+USER appuser
+
 CMD ["python", "ingestion/scheduler.py"]

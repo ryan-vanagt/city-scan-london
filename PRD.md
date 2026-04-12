@@ -92,11 +92,11 @@ python ingestion/run_pipeline.py   # runs full chain once and exits
 - **Framework:** LangGraph `create_react_agent` + LangChain tools
 - **LLM:** `claude-haiku-4-5` via `langchain-anthropic`
 - **Memory:** ChromaDB vector store (semantic retrieval over embedded health score descriptions)
-- **Tools registered (hybrid architecture — 4 curated + 1 flexible):**
+- **Tools registered (hybrid architecture — 4 curated + 1 flexible + 1 RAG):**
   - `get_borough_health(borough)` — full score breakdown for a single borough (curated)
   - `get_london_score()` — overall city score averaged across all boroughs (curated)
   - `get_trend(borough, metric, days)` — trend direction + delta over N days (curated)
-  - `compare_boroughs(metric, top_n)` — ranks boroughs by a given signal (curated)
+  - `compare_boroughs(metric, top_n, ascending)` — ranks boroughs by a given signal (curated)
   - `run_sql(query)` — read-only SQL against `gold_scores` / `silver_metrics` for analytical questions the curated tools can't answer (flexible, guarded)
   - `search_scores(query, n_results, borough_code)` — semantic similarity search over ChromaDB gold_scores embeddings for RAG context retrieval
 - **Input:** Natural language question from frontend or API
@@ -225,33 +225,23 @@ FastAPI routes are decorated with machine-readable descriptions consistent with 
 
 ## Frontend (Next.js)
 
-### Pages
+### Architecture
 
-`**/` — Dashboard**
+Single-page application with panel-based navigation. All interactions happen on the root page (`/`) using sliding panels instead of separate routes.
 
-- London map with borough-level colour coding (green → red based on composite score)
-- Overall London health score with organ breakdown panel
-- Last updated timestamp
+**Landing state:** Bulletin rendered as a scan report with X-ray blue London map. Click "Enter Live Map" to transition.
 
-`**/borough/[name]` — Borough Detail**
-
-- Per-organ score breakdown with sparkline trends
-- Recent Guardian headlines cited as sources (headline + link only)
-
-`**/ask` — Ask The Doctor**
-
-- Natural language input → streams Doctor agent SSE response token by token
-- Expandable "Sources" panel showing grounded data points used in the answer
-
-`**/bulletin` — Daily Bulletin**
-
-- Latest bulletin rendered as formatted report
-- "Generate new bulletin" button (triggers `POST /bulletin/generate`)
+**Live map state:** Interactive thermal map with boroughs coloured by health score. UI elements:
+- Header: vital signs with EKG lines, metric filter buttons
+- Floating action buttons: "Daily Bulletin" and "Ask the Doctor"
+- Panels slide in from the right when activated:
+  - **Bulletin panel** — latest bulletin markdown rendered as formatted report
+  - **Doctor chat panel** — natural language input with SSE streaming response
 
 ### Design principles
 
 - Borough health score displayed as a body organ diagram (SVG) alongside the map
-- Colour scale: 80–100 = green, 50–79 = amber, 0–49 = red
+- Colour scale: 6-stop thermal gradient (deep blue = healthy → red = critical)
 - Mobile responsive
 
 ---

@@ -59,6 +59,7 @@ def get_trend_tool(
             immune_score, composite_score.
         days: Lookback window, 1-30 (default 7).
     """
+    borough = borough[:100]
     return get_trend(borough, metric, days)
 
 

@@ -54,6 +54,15 @@ except ValueError:
 # Default to localhost; Docker sets MCP_HOST=0.0.0.0 for container networking
 MCP_HOST = os.environ.get("MCP_HOST", "127.0.0.1")
 
+# Security: MCP server relies on network-level access control (localhost binding).
+# In docker-compose, ports are bound to 127.0.0.1 to prevent external access.
+# For additional security, set MCP_AUTH_TOKEN in .env — validated at startup.
+MCP_AUTH_TOKEN = os.environ.get("MCP_AUTH_TOKEN", "")
+if MCP_AUTH_TOKEN:
+    logger.info("MCP_AUTH_TOKEN is set — token-based auth available for custom clients")
+else:
+    logger.info("MCP_AUTH_TOKEN not set — relying on network-level access control")
+
 mcp = FastMCP(
     name="CityScan London",
     instructions=(

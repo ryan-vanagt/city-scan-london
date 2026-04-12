@@ -24,10 +24,19 @@ def fresh_db():
 
 @pytest.fixture
 def gold_db_path():
-    """Return path to cityscan.duckdb, skip if missing."""
+    """Return path to cityscan.duckdb, skip if missing or empty."""
     path = PROJECT_ROOT / "data" / "cityscan.duckdb"
     if not path.exists():
         pytest.skip("cityscan.duckdb not found — run pipeline first")
+    # Verify gold_scores has data
+    try:
+        con = duckdb.connect(str(path), read_only=True)
+        count = con.execute("SELECT COUNT(*) FROM gold_scores").fetchone()[0]
+        con.close()
+        if count == 0:
+            pytest.skip("gold_scores is empty — run pipeline first")
+    except Exception:
+        pytest.skip("gold_scores table not accessible — run pipeline first")
     return str(path)
 
 

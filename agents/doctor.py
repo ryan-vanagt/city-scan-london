@@ -12,7 +12,6 @@ Every interaction is logged to the agent_logs DuckDB table.
 Only Gold-layer aggregated data reaches the LLM — no raw text, no PII.
 """
 
-import html
 import json
 import logging
 import threading
@@ -68,6 +67,18 @@ called get_london_score to verify it.
 12. Frame your diagnosis in medical metaphors when natural, but prioritise clarity.\
 """
 
+_INJECTION_PATTERNS = ["ignore previous", "ignore all", "system prompt", "you are now", "disregard", "forget your"]
+
+
+def _check_prompt_injection(question: str) -> None:
+    """Log a warning if the question contains potential prompt injection patterns."""
+    q_lower = question.lower()
+    for pattern in _INJECTION_PATTERNS:
+        if pattern in q_lower:
+            logger.warning("Potential prompt injection detected: %r", question[:100])
+            return
+
+
 _agent = None
 _agent_lock = threading.Lock()
 
@@ -95,6 +106,7 @@ async def stream_doctor_response(question: str) -> AsyncGenerator[str, None]:
 
     Logs the full interaction to agent_logs after streaming completes.
     """
+    _check_prompt_injection(question)
     agent = get_doctor_agent()
     start = time.monotonic()
 
@@ -135,8 +147,8 @@ async def stream_doctor_response(question: str) -> AsyncGenerator[str, None]:
                     text = ""
                 if text:
                     tokens.append(text)
-                    escaped = html.escape(text)
-                    sse = json.dumps({"type": "token", "content": escaped})
+                    # No html.escape() — React's JSX rendering prevents XSS by default
+                    sse = json.dumps({"type": "token", "content": text})
                     yield f"data: {sse}\n\n"
 
             elif kind == "on_tool_start":

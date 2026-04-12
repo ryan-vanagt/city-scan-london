@@ -1,0 +1,14 @@
+.git
+data/
+embeddings/
+node_modules/
+.next/
+venv/
+.env
+__pycache__/
+*.duckdb
+*.duckdb.wal
+.claude/
+tests/
+*.pyc
+.pytest_cache/

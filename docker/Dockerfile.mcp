@@ -7,7 +7,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY mcp_server/ ./mcp_server/
 COPY pipeline/schemas.py ./pipeline/schemas.py
+COPY pipeline/__init__.py ./pipeline/__init__.py
 COPY pipeline/lookups.json ./pipeline/lookups.json
 COPY agents/ ./agents/
+
+RUN useradd --no-create-home --system appuser && chown -R appuser:appuser /app
+USER appuser
 
 CMD ["python", "mcp_server/server.py"]

@@ -26,17 +26,19 @@ def _row_to_document(row: tuple) -> str:
 
     Args:
         row: (borough_code, borough_name, timestamp, air_score,
-              transit_score, sentiment_score, immune_score, composite_score)
+              transit_score, sentiment_score, immune_score, composite_score,
+              ingested_at)
 
     Returns:
         Human-readable text description suitable for embedding.
     """
-    code, name, ts, air, transit, sentiment, immune, composite = row
+    code, name, ts, air, transit, sentiment, immune, composite, ingested_at = row
     date_str = str(ts)[:10]
     return (
         f"{name} ({code}) scored {composite:.2f} overall on {date_str}. "
         f"Air: {_format_score(air)}, Transit: {_format_score(transit)}, "
-        f"Sentiment: {_format_score(sentiment)}, Immune: {_format_score(immune)}"
+        f"Sentiment: {_format_score(sentiment)}, Immune: {_format_score(immune)} "
+        f"(data from {ingested_at})"
     )
 
 
@@ -56,7 +58,7 @@ def _row_to_metadata(row: tuple) -> dict:
 
     ChromaDB metadata values cannot be None, so NULL scores are omitted.
     """
-    code, name, ts, air, transit, sentiment, immune, composite = row
+    code, name, ts, air, transit, sentiment, immune, composite = row[:8]
     date_str = str(ts)[:10]
     meta: dict = {
         "borough_code": code,
@@ -100,7 +102,7 @@ def embed_gold_scores(con: duckdb.DuckDBPyConnection) -> int:
     rows = con.execute("""
         SELECT borough_code, borough_name, timestamp,
                air_score, transit_score, sentiment_score,
-               immune_score, composite_score
+               immune_score, composite_score, ingested_at
         FROM (
             SELECT *,
                    ROW_NUMBER() OVER (
@@ -108,6 +110,7 @@ def embed_gold_scores(con: duckdb.DuckDBPyConnection) -> int:
                        ORDER BY ingested_at DESC
                    ) AS rn
             FROM gold_scores
+            WHERE ingested_at > CURRENT_TIMESTAMP - INTERVAL 48 HOUR
         )
         WHERE rn = 1
     """).fetchall()
