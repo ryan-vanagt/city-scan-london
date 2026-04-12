@@ -30,7 +30,7 @@ function lerp(a: number, b: number, t: number): number {
  * 100 = healthiest (deep blue/cold), 0 = critical (red/hot).
  */
 export function scoreToColour(score: number | null): string {
-  if (score === null) return "#64748b"; // slate-500 for unknown
+  if (score === null) return "rgb(100, 116, 139)"; // slate-500 for unknown (rgb to match thermal format)
 
   const clamped = Math.max(0, Math.min(100, score));
 

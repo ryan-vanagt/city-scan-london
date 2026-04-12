@@ -130,9 +130,9 @@ export default function Home() {
   const handleEnterLiveMap = useCallback(() => {
     setShowLanding(false);                          // Act 1: overlay dissolves
     setTimeout(() => setMapZoomed(false), 600);     // Act 2: map dezooms
-    setTimeout(() => setXrayActive(false), 1800);   // Act 3: colours flood in
-    setTimeout(() => setShowUI(true), 2200);        // Act 4: UI appears
-    setTimeout(() => setEffectsReady(true), 3500);  // Act 5: glow + pulse enabled
+    setTimeout(() => setXrayActive(false), 1800);   // Act 3: colours flood in (fill transition 1.5s)
+    setTimeout(() => setShowUI(true), 2400);        // Act 4: UI appears
+    setTimeout(() => setEffectsReady(true), 5000);  // Act 5: glow + pulse (well after fill completes at ~3300ms)
   }, []);
 
   const handlePanelClose = useCallback(() => {
