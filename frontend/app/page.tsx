@@ -128,11 +128,11 @@ export default function Home() {
   }, []);
 
   const handleEnterLiveMap = useCallback(() => {
-    setShowLanding(false);                          // Act 1: overlay dissolves
-    setTimeout(() => setMapZoomed(false), 600);     // Act 2: map dezooms
-    setTimeout(() => setXrayActive(false), 1800);   // Act 3: colours flood in (fill transition 1.5s)
-    setTimeout(() => setShowUI(true), 2400);        // Act 4: UI appears
-    setTimeout(() => setEffectsReady(true), 5000);  // Act 5: glow + pulse (well after fill completes at ~3300ms)
+    setShowLanding(false);                          // Act 1: overlay dissolves (1.2s)
+    setTimeout(() => setMapZoomed(false), 600);     // Act 2: map dezooms (2s transition)
+    setTimeout(() => setXrayActive(false), 2800);   // Act 3: colours appear (after dezoom mostly done)
+    setTimeout(() => setShowUI(true), 3200);        // Act 4: UI appears
+    setTimeout(() => setEffectsReady(true), 4000);  // Act 5: glow + pulse
   }, []);
 
   const handlePanelClose = useCallback(() => {
@@ -176,8 +176,9 @@ export default function Home() {
           <div
             className="w-full max-w-3xl"
             style={{
-              transform: mapZoomed ? "scale(4)" : "scale(1)",
+              transform: mapZoomed ? "scale(2.5)" : "scale(1)",
               transition: "transform 2s cubic-bezier(0.16, 1, 0.3, 1)",
+              willChange: "transform",
             }}
             onClick={(e) => {
               if (e.target === e.currentTarget) {
