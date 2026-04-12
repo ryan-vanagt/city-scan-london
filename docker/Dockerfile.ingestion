@@ -8,5 +8,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY ingestion/ ./ingestion/
 COPY pipeline/ ./pipeline/
 COPY sentiment/ ./sentiment/
+COPY agents/ ./agents/
 
 CMD ["python", "ingestion/scheduler.py"]
