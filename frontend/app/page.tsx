@@ -254,8 +254,7 @@ export default function Home() {
         style={{
           background: "rgba(2,6,23,0.65)",
           opacity: showLanding ? 1 : 0,
-          filter: showLanding ? "blur(0px)" : "blur(6px)",
-          transition: "opacity 1.2s ease-out, filter 1.2s ease-out",
+          transition: "opacity 1.2s ease-out",
           pointerEvents: showLanding ? "auto" : "none",
         }}
       >
