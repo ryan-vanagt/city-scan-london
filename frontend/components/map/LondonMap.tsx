@@ -10,7 +10,6 @@
 import { useState, useCallback, useRef, useMemo } from "react";
 import type { BoroughScore, MetricFilter } from "@/lib/types";
 import { BOROUGH_PATHS, BOROUGH_PATH_MAP, VIEW_BOX_WIDTH, VIEW_BOX_HEIGHT } from "@/lib/geo";
-import { XRAY_BLUE_RGB } from "@/lib/colours";
 import BoroughPath from "./BoroughPath";
 import BoroughTooltip from "./BoroughTooltip";
 
@@ -80,28 +79,9 @@ export default function LondonMap({
         role="group"
         aria-label="Interactive London borough health map"
       >
-        {/* X-ray layer — static blue, fades out when xrayMode is off */}
-        <g style={{
-          opacity: xrayMode ? 0.3 : 0,
-          transition: "opacity 0.8s ease-out",
-          pointerEvents: "none",
-        }}>
-          {BOROUGH_PATHS.map((geo) => (
-            <path
-              key={`xray-${geo.code}`}
-              d={geo.path}
-              fill={XRAY_BLUE_RGB}
-              stroke="#020617"
-              strokeWidth={1.2}
-            />
-          ))}
-        </g>
-
-        {/* Thermal layer — always rendered, fades in when xrayMode is off */}
-        <g style={{
-          opacity: xrayMode ? 0 : 1,
-          transition: "opacity 0.8s ease-out",
-        }}>
+        {/* Thermal map — always rendered with colours, even during landing.
+             The landing overlay hides it; no fill changes needed during transition. */}
+        <g>
           {BOROUGH_PATHS.map((geo) => {
             const borough = scoreMap.get(geo.code);
             if (!borough) return null;
@@ -114,7 +94,7 @@ export default function LondonMap({
                 isSelected={selectedBorough === geo.code}
                 isAnyHovered={isAnyHovered}
                 metricFilter={metricFilter}
-                xrayMode={false}
+                xrayMode={xrayMode}
                 effectsReady={effectsReady}
                 onHover={() => handleHover(geo.code)}
                 onLeave={handleLeave}

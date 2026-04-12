@@ -45,7 +45,6 @@ export default function Home() {
   // --- State ---
   const [showLanding, setShowLanding] = useState(true);   // overlay visibility
   const [mapZoomed, setMapZoomed] = useState(true);       // map scale
-  const [xrayActive, setXrayActive] = useState(true);     // borough colours
   const [effectsReady, setEffectsReady] = useState(false); // glow + pulse (after transition)
   const [showUI, setShowUI] = useState(false);            // header/footer/FABs
   const [boroughs, setBoroughs] = useState<BoroughScore[]>([]);
@@ -130,9 +129,8 @@ export default function Home() {
   const handleEnterLiveMap = useCallback(() => {
     setShowLanding(false);                          // Act 1: overlay dissolves (1.2s)
     setTimeout(() => setMapZoomed(false), 600);     // Act 2: map dezooms (2s transition)
-    setTimeout(() => setXrayActive(false), 2800);   // Act 3: colours appear (after dezoom mostly done)
-    setTimeout(() => setShowUI(true), 3200);        // Act 4: UI appears
-    setTimeout(() => setEffectsReady(true), 4000);  // Act 5: glow + pulse
+    setTimeout(() => setShowUI(true), 2000);        // Act 3: UI appears
+    setTimeout(() => setEffectsReady(true), 3000);  // Act 4: glow + pulse
   }, []);
 
   const handlePanelClose = useCallback(() => {
@@ -191,7 +189,7 @@ export default function Home() {
               boroughs={boroughs}
               metricFilter={metricFilter}
               selectedBorough={null}
-              xrayMode={xrayActive}
+              xrayMode={showLanding}
               effectsReady={effectsReady}
               onBoroughHover={handleBoroughHover}
             />
