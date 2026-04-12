@@ -86,7 +86,7 @@ export default function BoroughPath({
         transform: isElevated ? "scale(1.05)" : "scale(1)",
         transformOrigin: "center",
         transformBox: "fill-box",
-        transition: "fill 1.5s ease-out, opacity 1s ease-out, transform 300ms ease-out, filter 1s ease-out",
+        transition: "fill 1.5s ease-out, opacity 1s ease-out, transform 300ms ease-out",
       } as React.CSSProperties}
       onMouseEnter={xrayMode ? undefined : onHover}
       onMouseLeave={xrayMode ? undefined : onLeave}
