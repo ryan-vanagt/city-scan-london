@@ -19,7 +19,7 @@ DB_PATH = str(PROJECT_ROOT / "data" / "cityscan.duckdb")
 _con: duckdb.DuckDBPyConnection | None = None
 
 # Max time to wait for the ingestion service to create the database
-_DB_WAIT_TIMEOUT = 600  # 10 minutes
+_DB_WAIT_TIMEOUT = 1200  # 20 minutes (first boot: OpenAQ fetch + sentiment model download)
 _DB_POLL_INTERVAL = 5   # check every 5 seconds
 
 
