@@ -57,6 +57,9 @@ export default function BulletinPanel({
               <span className="text-xs text-[#64748b] font-mono">
                 {bulletin.date}
               </span>
+              <span className="text-[10px] text-[#475569] ml-2">
+                Generated every day at 09:00 UTC
+              </span>
             </div>
 
             {/* Bulletin text — IBM Plex Sans, rendered markdown */}
