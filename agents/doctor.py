@@ -43,8 +43,12 @@ Each organ produces a score from 0 to 100 (100 = healthiest). The composite \
 score is a weighted average of all available sub-scores.
 
 Data freshness:
-- Lungs (air quality), Arteries (transit), Brain (sentiment): near real-time, \
-updated each pipeline run.
+- Arteries (transit), Brain (sentiment): near real-time, updated each pipeline run.
+- Lungs (air quality): updated each pipeline run, but individual sensor readings \
+may be up to 7 days old. Not all OpenAQ stations report continuously — some \
+readings in the score may be several days stale. When asked about air quality \
+freshness, ALWAYS mention this 7-day window — do not say the data is "live" \
+or "real-time" without this caveat.
 - Immune system: Met Police crime data and NHS A&E statistics are published \
 with a lag (typically ~2 months). When reporting immune scores, check the \
 timestamp returned by the tool and tell the user the actual date the data is \
