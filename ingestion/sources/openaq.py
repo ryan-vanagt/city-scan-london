@@ -37,6 +37,9 @@ TARGET_PARAMETERS = {"pm25", "no2"}
 _STATION_CACHE_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "bronze" / "openaq" / "_station_cache.json"
 _STATION_CACHE_MAX_AGE_HOURS = 24
 
+# Adaptive throttle: pause when remaining requests drop below this threshold
+_RATE_LIMIT_LOW_THRESHOLD = 5
+
 
 def _get_headers() -> dict[str, str]:
     """Build request headers with API key if available."""
@@ -209,12 +212,34 @@ def _fetch_latest_readings(
 
             readings[location_id] = station_readings
 
+            # Adaptive throttle: read rate-limit headers from OpenAQ
+            remaining = response.headers.get("X-RateLimit-Remaining")
+            reset_secs = response.headers.get("X-RateLimit-Reset")
+            if remaining is not None:
+                try:
+                    remaining_int = int(remaining)
+                    if remaining_int <= _RATE_LIMIT_LOW_THRESHOLD:
+                        pause = 1.1  # default fallback
+                        if reset_secs is not None:
+                            try:
+                                pause = max(float(reset_secs), 1.0)
+                            except (ValueError, TypeError):
+                                pass
+                        pause = min(pause, 120.0)
+                        logger.info(
+                            "OpenAQ: rate limit low (%d remaining) — pausing %.1fs until reset",
+                            remaining_int, pause,
+                        )
+                        time.sleep(pause)
+                        continue  # skip the default sleep below
+                except (ValueError, TypeError):
+                    pass
+
         except requests.RequestException as e:
             logger.warning("OpenAQ: failed for location %d: %s", location_id, e)
             errors += 1
 
-        # OpenAQ free tier: 60 req/min. Sleep 1.1s ≈ 55 req/min — stays
-        # safely under the limit to avoid 429s and account suspensions.
+        # Default throttle: ~55 req/min, well under OpenAQ's 60 req/min limit
         time.sleep(1.1)
 
     logger.info(

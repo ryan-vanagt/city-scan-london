@@ -54,7 +54,7 @@ def _latest_bronze_file(source: str) -> Path | None:
     source_dir = BRONZE_BASE / source
     if not source_dir.exists():
         return None
-    files = sorted(source_dir.glob("*.json"))
+    files = sorted(f for f in source_dir.glob("*.json") if not f.name.startswith("_"))
     return files[-1] if files else None
 
 
