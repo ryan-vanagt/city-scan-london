@@ -54,5 +54,27 @@ Table bulletin_logs {
   latency_ms       integer [note: 'Total wall time in ms']
 }
 
+Table silver_detail {
+  borough_code varchar [not null, note: 'ONS 9-char code']
+  borough_name varchar [not null]
+  timestamp    timestamptz [not null, note: 'UTC']
+  source       varchar [not null, note: 'met_police | tfl | openaq | nhs_ae']
+  category     varchar [not null, note: 'Crime type / tube line id / pollutant / org_code']
+  label        varchar [not null, note: 'Human-readable display name for category']
+  value        double [note: 'Count (1.0 per crime) / severity / reading / pct']
+  detail_text  varchar [note: 'Street name / TfL reason text / NHS period']
+  ingested_at  timestamptz [not null, note: 'UTC pipeline run time']
+}
+
+Table silver_headlines {
+  timestamp       timestamptz [not null, note: 'UTC']
+  source          varchar [not null, note: 'reddit | bbc | guardian']
+  title           varchar [not null, note: 'Headline text (no article body)']
+  url             varchar [note: 'Link to source article (domain-validated)']
+  sentiment_score double [note: 'Per-title sentiment score, -1 to +1']
+  ingested_at     timestamptz [not null, note: 'UTC pipeline run time']
+}
+
 // Relationships: Silver feeds Gold (aggregation, not a FK join)
 // silver_metrics ->> gold_scores via borough_code + timestamp grouping
+// silver_detail + silver_headlines are queryable by agent but do NOT feed into gold scores

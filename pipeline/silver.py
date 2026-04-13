@@ -12,10 +12,12 @@ Transform and load are separated: transform_all() produces rows, load() inserts 
 import json
 import logging
 import math
+import re
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from statistics import mean
+from urllib.parse import urlparse
 
 import duckdb
 
@@ -589,3 +591,309 @@ def transform(con: duckdb.DuckDBPyConnection) -> int:
     """
     rows = transform_all()
     return load(con, rows)
+
+
+# ---------------------------------------------------------------------------
+# Silver detail layer — contextual rows for agent queries
+# ---------------------------------------------------------------------------
+
+_ALLOWED_URL_DOMAINS = {"theguardian.com", "bbc.co.uk", "reddit.com", "bbc.com"}
+
+
+def _sanitise_text(text: str | None, max_len: int = 500) -> str | None:
+    """Sanitise text from external APIs before storing in detail tables."""
+    if text is None:
+        return None
+    text = text[:max_len]
+    # Strip null bytes and control characters (keep \n, \t, \r)
+    text = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f]', '', text)
+    return text
+
+
+def _validate_url(url: str | None) -> str | None:
+    """Only store URLs from known source domains."""
+    if url is None:
+        return None
+    parsed = urlparse(url)
+    domain = parsed.netloc.lower().removeprefix("www.")
+    if not any(domain.endswith(d) for d in _ALLOWED_URL_DOMAINS):
+        return None
+    return url
+
+
+def _detail_met_police(data: dict, timestamp: str) -> list[tuple]:
+    """Extract per-crime detail rows from Met Police bronze data."""
+    rows: list[tuple] = []
+    now = datetime.now(timezone.utc).isoformat()
+    for crime in data.get("results", []):
+        bc = crime.get("borough_code")
+        if not bc or bc not in BOROUGHS:
+            continue
+        category = crime.get("category", "unknown")
+        location = crime.get("location") or {}
+        street = (location.get("street") or {}).get("name") if isinstance(location, dict) else None
+        rows.append((
+            bc,
+            BOROUGHS[bc]["name"],
+            timestamp,
+            "met_police",
+            _sanitise_text(category, 100),
+            _sanitise_text(category.replace("-", " ").title()),
+            1.0,
+            _sanitise_text(street),
+            now,
+        ))
+    logger.info("Silver detail met_police: %d rows", len(rows))
+    return rows
+
+
+def _detail_tfl(data: dict, timestamp: str) -> list[tuple]:
+    """Extract per-line per-borough detail rows from TfL bronze data."""
+    rows: list[tuple] = []
+    now = datetime.now(timezone.utc).isoformat()
+    for line in data.get("results", []):
+        line_id = line.get("id", "")
+        statuses = line.get("lineStatuses", [])
+        if not statuses:
+            continue
+        status = statuses[0]
+        severity = status.get("statusSeverity", 0)
+        description = status.get("statusSeverityDescription", "Unknown")
+        reason = status.get("reason", "")
+        for bc in LINE_TO_BOROUGHS.get(line_id, []):
+            if bc not in BOROUGHS:
+                continue
+            rows.append((
+                bc,
+                BOROUGHS[bc]["name"],
+                timestamp,
+                "tfl",
+                _sanitise_text(line_id, 50),
+                _sanitise_text(description),
+                float(severity),
+                _sanitise_text(reason) if reason else None,
+                now,
+            ))
+    logger.info("Silver detail tfl: %d rows", len(rows))
+    return rows
+
+
+def _detail_openaq(data: dict, timestamp: str) -> list[tuple]:
+    """Extract per-station per-reading detail rows from OpenAQ bronze data."""
+    rows: list[tuple] = []
+    now = datetime.now(timezone.utc).isoformat()
+    cutoff = datetime.now(timezone.utc) - timedelta(days=_MAX_READING_AGE_DAYS)
+
+    # Build station lookup
+    stations = {s["id"]: s for s in data.get("stations", []) if "id" in s}
+
+    for reading in data.get("readings", []):
+        location_id = reading.get("location_id")
+        value = reading.get("value")
+        parameter = reading.get("parameter", "")
+
+        # Skip invalid
+        if value is None or value < 0:
+            continue
+
+        # Skip stale
+        dt_str = reading.get("datetime_utc", "")
+        if dt_str:
+            try:
+                dt = datetime.fromisoformat(dt_str.replace("Z", "+00:00"))
+                if dt < cutoff:
+                    continue
+            except (ValueError, TypeError):
+                continue  # Skip unparseable timestamps (align with main transform)
+
+        # Resolve borough
+        bc = OPENAQ_STATION_BOROUGHS.get(str(location_id))
+        if not bc:
+            station = stations.get(location_id, {})
+            coords = station.get("coordinates", {})
+            lat = coords.get("latitude")
+            lng = coords.get("longitude")
+            if lat is not None and lng is not None:
+                bc = coord_to_borough(lat, lng)
+        if not bc or bc not in BOROUGHS:
+            continue
+
+        station_name = stations.get(location_id, {}).get("name", f"Station {location_id}")
+        rows.append((
+            bc,
+            BOROUGHS[bc]["name"],
+            timestamp,
+            "openaq",
+            _sanitise_text(parameter, 50),
+            _sanitise_text(station_name),
+            float(value),
+            None,
+            now,
+        ))
+    logger.info("Silver detail openaq: %d rows", len(rows))
+    return rows
+
+
+def _detail_nhs_ae(data: dict, timestamp: str) -> list[tuple]:
+    """Extract per-trust per-borough detail rows from NHS A&E bronze data."""
+    rows: list[tuple] = []
+    now = datetime.now(timezone.utc).isoformat()
+    period = data.get("period", "")
+    for trust in data.get("results", []):
+        org_code = trust.get("org_code", "")
+        org_name = trust.get("org_name", "")
+        total = trust.get("total_type1_attendances", 0)
+        over_4hrs = trust.get("over_4hrs_type1", 0)
+        if total <= 0:
+            continue
+        pct = (total - over_4hrs) / total * 100.0
+        for bc in TRUST_TO_BOROUGHS.get(org_code, []):
+            if bc not in BOROUGHS:
+                continue
+            rows.append((
+                bc,
+                BOROUGHS[bc]["name"],
+                timestamp,
+                "nhs_ae",
+                _sanitise_text(org_code, 20),
+                _sanitise_text(org_name),
+                pct,
+                _sanitise_text(period),
+                now,
+            ))
+    logger.info("Silver detail nhs_ae: %d rows", len(rows))
+    return rows
+
+
+def _headlines_detail(
+    data: dict, source_name: str, timestamp: str,
+) -> list[tuple]:
+    """Extract per-headline rows with individual sentiment scores."""
+    now = datetime.now(timezone.utc).isoformat()
+    items = data.get("results", [])
+
+    # Extract titles and URLs per source
+    titles: list[str] = []
+    urls: list[str | None] = []
+    for item in items:
+        if source_name == "guardian":
+            title = item.get("fields", {}).get("headline", item.get("webTitle", ""))
+            url = item.get("webUrl")
+        elif source_name == "bbc":
+            title = item.get("title", "")
+            url = item.get("link")
+        elif source_name == "reddit":
+            title = item.get("title", "")
+            permalink = item.get("permalink")
+            url = f"https://www.reddit.com{permalink}" if permalink else None
+        else:
+            continue
+        if not title or not isinstance(title, str):
+            continue
+        titles.append(title)
+        urls.append(url)
+
+    if not titles:
+        return []
+
+    # Score each title individually
+    scores = score_texts(titles)
+
+    rows: list[tuple] = []
+    for title, url, score in zip(titles, urls, scores):
+        rows.append((
+            timestamp,
+            source_name,
+            _sanitise_text(title, 300),
+            _validate_url(url),
+            float(score),
+            now,
+        ))
+    logger.info("Silver headlines %s: %d rows", source_name, len(rows))
+    return rows
+
+
+def transform_all_detail() -> tuple[list[tuple], list[tuple]]:
+    """Extract contextual detail rows from bronze data for agent queries.
+
+    Returns:
+        Tuple of (detail_rows, headline_rows).
+    """
+    detail_rows: list[tuple] = []
+    headline_rows: list[tuple] = []
+
+    # Borough-scoped detail
+    detail_sources = [
+        ("met_police", _detail_met_police),
+        ("tfl", _detail_tfl),
+        ("openaq", _detail_openaq),
+        ("nhs_ae", _detail_nhs_ae),
+    ]
+    for source_name, extractor in detail_sources:
+        try:
+            loaded = _load_bronze(source_name)
+            if loaded is None:
+                continue
+            data, ts = loaded
+            detail_rows.extend(extractor(data, ts))
+        except Exception:
+            logger.error(
+                "Silver detail extraction failed for %s", source_name, exc_info=True,
+            )
+
+    # Headlines with per-title sentiment
+    for source_name in ("reddit", "bbc", "guardian"):
+        try:
+            loaded = _load_bronze(source_name)
+            if loaded is None:
+                continue
+            data, ts = loaded
+            headline_rows.extend(_headlines_detail(data, source_name, ts))
+        except Exception:
+            logger.error(
+                "Silver headlines extraction failed for %s", source_name, exc_info=True,
+            )
+
+    logger.info(
+        "Silver detail total: %d detail rows, %d headline rows",
+        len(detail_rows), len(headline_rows),
+    )
+    return detail_rows, headline_rows
+
+
+def load_detail(
+    con: duckdb.DuckDBPyConnection,
+    detail_rows: list[tuple],
+    headline_rows: list[tuple],
+) -> tuple[int, int]:
+    """Insert detail and headline rows into DuckDB.
+
+    Args:
+        con: An open DuckDB connection.
+        detail_rows: Rows for silver_detail table.
+        headline_rows: Rows for silver_headlines table.
+
+    Returns:
+        Tuple of (detail_count, headline_count).
+    """
+    d_count = 0
+    h_count = 0
+    if detail_rows:
+        con.executemany(
+            """INSERT INTO silver_detail
+            (borough_code, borough_name, timestamp, source, category, label,
+             value, detail_text, ingested_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            detail_rows,
+        )
+        d_count = len(detail_rows)
+    if headline_rows:
+        con.executemany(
+            """INSERT INTO silver_headlines
+            (timestamp, source, title, url, sentiment_score, ingested_at)
+            VALUES (?, ?, ?, ?, ?, ?)""",
+            headline_rows,
+        )
+        h_count = len(headline_rows)
+    logger.info("Silver detail load: %d detail, %d headlines inserted", d_count, h_count)
+    return d_count, h_count

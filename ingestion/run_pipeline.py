@@ -77,6 +77,11 @@ def run() -> None:
         inserted = silver.load(con, rows)
         logger.info("Silver layer complete: %d rows transformed, %d inserted", len(rows), inserted)
 
+        # Silver detail
+        detail_rows, headline_rows = silver.transform_all_detail()
+        d_count, h_count = silver.load_detail(con, detail_rows, headline_rows)
+        logger.info("Silver detail: %d detail rows, %d headline rows", d_count, h_count)
+
         # Gold
         gold_rows = gold.aggregate(con)
         logger.info("Gold layer complete: %d rows inserted", gold_rows)

@@ -98,8 +98,17 @@ def run_sql_tool(query: str) -> dict:
       - silver_metrics: borough_code, borough_name, timestamp,
         metric_name, raw_value, normalised_score, source, ingested_at,
         pipeline_stage
+      - silver_detail: borough_code, borough_name, timestamp, source,
+        category, label, value, detail_text, ingested_at
+        (Per-item context: crime categories, tube line statuses,
+        AQ station readings, NHS trust performance.
+        Always filter by source and borough_code in WHERE clause.)
+      - silver_headlines: timestamp, source, title, url, sentiment_score,
+        ingested_at
+        (Individual news/reddit headlines with per-title sentiment.
+        Always include a WHERE clause.)
 
-    Results are limited to 100 rows. Write operations are blocked.
+    Results limited to 100 rows (50 for detail tables). Write operations blocked.
 
     Args:
         query: A SELECT SQL query string.

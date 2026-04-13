@@ -143,7 +143,7 @@ export default function VitalSigns({
               </span>
               <EkgLine variant={ekgVariant} colour={XRAY_BLUE} />
               <span
-                className="font-mono text-sm font-bold min-w-[28px] text-right transition-all duration-300"
+                className="font-mono text-sm font-bold w-[3ch] text-right transition-all duration-300"
                 style={{ color: scoreColour }}
               >
                 {formatScore(score)}
@@ -166,7 +166,7 @@ export default function VitalSigns({
           }}
         />
         <span
-          className="font-mono text-lg font-bold transition-all duration-300"
+          className="font-mono text-lg font-bold w-[3ch] text-right transition-all duration-300"
           style={{ color: heartColour }}
         >
           {formatScore(heartScore)}

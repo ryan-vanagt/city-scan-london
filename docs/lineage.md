@@ -24,7 +24,17 @@ flowchart TD
     S --> G[Gold layer\nDuckDB: gold_scores]
     G --> CH[ChromaDB\nembeddings]
 
+    B_OQ --> SD[Silver Detail\nDuckDB: silver_detail]
+    B_TFL --> SD
+    B_MP --> SD
+    B_NHS --> SD
+    B_RD -->|sentiment per title| SH[Silver Headlines\nDuckDB: silver_headlines]
+    B_GD -->|sentiment per title| SH
+    B_BBC -->|sentiment per title| SH
+
     G --> TOOLS[Agent Tools\n4 curated + run_sql\n+ search_scores]
+    SD --> TOOLS
+    SH --> TOOLS
     CH --> TOOLS
 
     %% Access layers — FastAPI and MCP Server both use Agent Tools
@@ -64,7 +74,8 @@ Every Silver and Gold record carries:
 | Layer | Retention | Mechanism |
 |-------|-----------|-----------|
 | Bronze (JSON files) | 1 day | `bronze.cleanup()` after every fetch |
-| Silver (DuckDB) | 90 days | `silver_retention` scheduler job at 03:00 UTC |
+| Silver (DuckDB: silver_metrics) | 90 days | `silver_retention` scheduler job at 03:00 UTC |
+| Silver Detail (DuckDB: silver_detail, silver_headlines) | 90 days | Same retention job |
 | Gold (DuckDB) | Forever | Tiny footprint (~290KB/month), needed for long-term trends |
 | ChromaDB (embeddings) | Forever | One embedding per borough per day |
 
@@ -76,8 +87,9 @@ Every Silver and Gold record carries:
 | ----------- | -------------------- | ---------------------------------------------------------------------------- |
 | Bronze      | `pipeline/bronze.py` | Raw API response saved as timestamped JSON — no transformation               |
 | Silver      | `pipeline/silver.py` | Parsed, validated, normalised to 0–100 score, mapped to ONS borough code     |
+| Silver Detail | `pipeline/silver.py` | Per-item context (crime categories, tube line statuses, AQ station readings, NHS trust data, per-headline sentiment) — does NOT feed into gold scores |
 | Gold        | `pipeline/gold.py`   | Per-borough weighted average across all four signals (48h time-bound on silver data); embedded into ChromaDB |
 | Embed       | `pipeline/embed.py`  | Gold rows converted to text descriptions and upserted into ChromaDB for RAG  |
-| Agent Tools | `agents/tools/`      | 4 curated DuckDB queries + 1 guarded `run_sql` (9-layer security) + 1 RAG `search_scores` |
+| Agent Tools | `agents/tools/`      | 4 curated DuckDB queries + 1 guarded `run_sql` (13-layer security) + 1 RAG `search_scores` |
 
 

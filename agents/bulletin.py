@@ -45,11 +45,14 @@ Rules:
 1. Use ONLY the data provided — do not fabricate scores or statistics.
 2. Present scores rounded to one decimal place.
 3. Frame the bulletin in medical metaphors when natural, but prioritise clarity.
-4. The immune system data (crime + A&E) has a ~2 month lag — mention this \
-when reporting immune scores, and state the approximate data period.
-5. CRITICAL: Every Guardian headline MUST be followed by [(article)](url). \
-Do NOT remove or rewrite the article links. List them as context but do NOT \
-draw causal connections between headlines and scores.
+4. The immune system data (crime + A&E) has a reporting lag. The actual \
+data period is provided in the data below — quote it exactly when reporting \
+immune scores. Do NOT guess or calculate the period yourself.
+5. If Guardian headlines are provided, they are already formatted as markdown \
+links — preserve them exactly as provided. Do NOT rewrite the URLs. List them \
+as context but do NOT draw causal connections between headlines and scores. \
+If NO headlines section is provided, do NOT invent or fabricate any news \
+headlines — simply omit the "In the News" section entirely.
 6. Do not speculate on causes — only report what the data shows. Do not \
 editorialize or suggest policy actions.
 7. Keep the bulletin concise — aim for ~500 words.
@@ -57,19 +60,86 @@ editorialize or suggest policy actions.
 """
 
 
-def _fetch_headlines() -> list[dict]:
-    """Fetch Guardian headlines for the bulletin. Returns [] on failure."""
-    try:
-        from ingestion.sources.guardian import fetch as guardian_fetch
+def _get_immune_data_period() -> str | None:
+    """Read the actual data period from bronze immune source files.
 
-        data = guardian_fetch()
-        articles = data.get("results", [])
+    Checks Met Police (has 'date' field like '2026-02') and NHS A&E
+    (has 'period' field like 'MSitAE-FEBRUARY-2026'). Returns a
+    human-readable string like 'February 2026' or None if unavailable.
+    """
+    bronze_root = PROJECT_ROOT / "data" / "bronze"
+    period = None
+
+    # Try Met Police first — has clean YYYY-MM date
+    met_dir = bronze_root / "met_police"
+    if met_dir.exists():
+        try:
+            files = sorted(met_dir.iterdir())
+            if files:
+                import json as _json
+                data = _json.loads(files[-1].read_text(encoding="utf-8"))
+                raw_date = data.get("date", "")  # e.g. "2026-02"
+                if raw_date:
+                    dt = datetime.strptime(raw_date, "%Y-%m")
+                    period = dt.strftime("%B %Y")  # e.g. "February 2026"
+        except Exception:
+            logger.debug("Could not read Met Police data period from bronze")
+
+    # Fallback: try NHS A&E
+    if not period:
+        nhs_dir = bronze_root / "nhs_ae"
+        if nhs_dir.exists():
+            try:
+                files = sorted(nhs_dir.iterdir())
+                if files:
+                    import json as _json
+                    data = _json.loads(files[-1].read_text(encoding="utf-8"))
+                    raw_period = data.get("period", "")  # e.g. "MSitAE-FEBRUARY-2026"
+                    if raw_period:
+                        parts = raw_period.split("-")
+                        # Extract month name and year
+                        month = parts[1].capitalize() if len(parts) >= 3 else ""
+                        year = parts[2] if len(parts) >= 3 else ""
+                        if month and year:
+                            period = f"{month} {year}"
+            except Exception:
+                logger.debug("Could not read NHS A&E data period from bronze")
+
+    return period
+
+
+def _fetch_headlines() -> list[dict]:
+    """Fetch Guardian headlines for the bulletin. Returns [] on failure.
+
+    Uses a direct requests.get call instead of importing from the ingestion
+    package, because the API container does not include ingestion sources.
+    """
+    import requests
+
+    api_key = os.environ.get("GUARDIAN_API_KEY", "")
+    params = {
+        "q": "london",
+        "tag": "uk/london",
+        "show-fields": "headline",
+        "page-size": 5,
+        "order-by": "newest",
+        "api-key": api_key or "test",
+    }
+
+    try:
+        resp = requests.get(
+            "https://content.guardianapis.com/search",
+            params=params,
+            timeout=15,
+        )
+        resp.raise_for_status()
+        articles = resp.json().get("response", {}).get("results", [])
         return [
             {
                 "headline": a.get("fields", {}).get("headline", a.get("webTitle", "")),
                 "url": a.get("webUrl", ""),
             }
-            for a in articles[:5]
+            for a in articles
             if a.get("webUrl")
         ]
     except Exception:
@@ -84,6 +154,7 @@ def _build_data_prompt(
     trends: list[dict],
     headlines: list[dict],
     date_str: str,
+    immune_period: str | None = None,
 ) -> str:
     """Format all collected data into the LLM prompt."""
     sections = [f"Date: {date_str}\n"]
@@ -95,6 +166,8 @@ def _build_data_prompt(
     sections.append(f"- Transit (Arteries): {london_score.get('transit_score')}")
     sections.append(f"- Sentiment (Brain): {london_score.get('sentiment_score')}")
     sections.append(f"- Crime+A&E (Immune): {london_score.get('immune_score')}")
+    if immune_period:
+        sections.append(f"- Immune data period: {immune_period}")
     sections.append(f"- Borough count: {london_score.get('borough_count')}")
     sections.append(f"- Data timestamp: {london_score.get('timestamp')}\n")
 
@@ -127,7 +200,7 @@ def _build_data_prompt(
     if headlines:
         sections.append("## Recent London Headlines (Guardian)")
         for h in headlines:
-            sections.append(f"- {h['headline']} [(article)]({h['url']})")
+            sections.append(f"- [{h['headline']}]({h['url']})")
         sections.append("")
 
     sections.append(
@@ -183,9 +256,13 @@ def generate_bulletin(trigger: str = "manual") -> dict:
     # 4. Fetch Guardian headlines (fault-tolerant)
     headlines = _fetch_headlines()
 
+    # 4b. Fetch actual immune data period from bronze files
+    immune_period = _get_immune_data_period()
+
     # 5. Build prompt and call LLM
     data_prompt = _build_data_prompt(
-        london_score, best, worst, trends, headlines, date_str
+        london_score, best, worst, trends, headlines, date_str,
+        immune_period=immune_period,
     )
 
     llm = ChatAnthropic(model=MODEL_NAME)

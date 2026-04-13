@@ -5,7 +5,7 @@ Executes a guarded, read-only SQL query against the CityScan DuckDB database.
 Enables the Doctor Agent to answer analytical questions that the four curated
 tools cannot cover (e.g. multi-column filters, correlations, aggregations).
 
-Guardrails (9-layer security model):
+Guardrails (13-layer security model):
   1. Read-only DuckDB connection (engine-enforced — INSERT/UPDATE/DELETE/DROP blocked)
   2. Query length limit — rejects queries longer than 10000 characters
   3. SQL comments stripped before validation (prevents bypass via comments)
@@ -15,8 +15,10 @@ Guardrails (9-layer security model):
   7. Metadata function blocklist — blocks duckdb_*() and other introspection calls
   8. File-read function blocklist — blocks read_csv, read_parquet, read_text, http_get, etc.
   9. File path table reference blocklist — blocks FROM '/path/...' patterns
-  10. Table blocklist + allowlist — only gold_scores and silver_metrics queryable
-  11. Row limit — always wraps query in outer LIMIT 100 regardless of inner LIMIT
+  10. Table blocklist + allowlist — only gold_scores, silver_metrics, silver_detail, silver_headlines queryable
+  11. WHERE clause enforcement — detail tables (silver_detail, silver_headlines) require a WHERE clause
+  12. Row limit — wraps in outer LIMIT 100 (50 for detail tables)
+  13. Text field truncation — detail_text, label, title fields capped at 200 chars in output
 """
 
 import logging
@@ -33,7 +35,10 @@ logger = logging.getLogger(__name__)
 _MAX_QUERY_LENGTH = 10_000
 
 # Tables the agent is allowed to query
-_ALLOWED_TABLES = {"gold_scores", "silver_metrics"}
+_ALLOWED_TABLES = {"gold_scores", "silver_metrics", "silver_detail", "silver_headlines"}
+
+# Detail tables require stricter guardrails (WHERE clause, tighter row limit)
+_DETAIL_TABLES = {"silver_detail", "silver_headlines"}
 
 # Tables that must never appear in agent queries (may contain user questions).
 # Includes all duckdb_* and sqlite_* system tables to prevent metadata leakage.
@@ -93,6 +98,19 @@ _BLOCKED_FILE_PATH = re.compile(
 )
 
 _DEFAULT_ROW_LIMIT = 100
+_DETAIL_ROW_LIMIT = 50
+
+# Text fields to truncate in output (prevents prompt injection via data)
+_TEXT_FIELDS_TO_TRUNCATE = {"detail_text", "label", "title"}
+_MAX_TEXT_FIELD_LEN = 200
+
+
+def _truncate_text_fields(row_dict: dict) -> dict:
+    """Truncate long string values to prevent prompt injection via data."""
+    for key in _TEXT_FIELDS_TO_TRUNCATE:
+        if key in row_dict and isinstance(row_dict[key], str) and len(row_dict[key]) > _MAX_TEXT_FIELD_LEN:
+            row_dict[key] = row_dict[key][:_MAX_TEXT_FIELD_LEN] + "..."
+    return row_dict
 
 
 def _serialize_value(val):
@@ -226,9 +244,21 @@ def run_sql(
             "error": f"Query must reference one of: {', '.join(sorted(_ALLOWED_TABLES))}",
         }
 
+    # --- Guardrail: detail tables require WHERE clause ---
+    hits_detail = any(
+        re.search(rf"\b{re.escape(t)}\b", query_lower)
+        for t in _DETAIL_TABLES
+    )
+    if hits_detail and "where" not in query_lower:
+        return {
+            "success": False,
+            "error": "Queries on detail tables (silver_detail, silver_headlines) must include a WHERE clause",
+        }
+
     # --- Guardrail: enforce row limit via outer wrapper ---
-    # Always wrap to cap at _DEFAULT_ROW_LIMIT regardless of inner LIMIT
-    wrapped_query = f"SELECT * FROM ({query_clean.rstrip(';')}) AS _q LIMIT {_DEFAULT_ROW_LIMIT}"
+    # Tighter limit for detail tables (50 vs 100)
+    row_limit = _DETAIL_ROW_LIMIT if hits_detail else _DEFAULT_ROW_LIMIT
+    wrapped_query = f"SELECT * FROM ({query_clean.rstrip(';')}) AS _q LIMIT {row_limit}"
 
     # --- Execute with timeout ---
     try:
@@ -237,7 +267,10 @@ def run_sql(
         rows = result.fetchall()
 
         # Convert rows to list of dicts for clean JSON serialisation
-        row_dicts = [{k: _serialize_value(v) for k, v in zip(columns, row)} for row in rows]
+        row_dicts = [
+            _truncate_text_fields({k: _serialize_value(v) for k, v in zip(columns, row)})
+            for row in rows
+        ]
 
         return {
             "success": True,

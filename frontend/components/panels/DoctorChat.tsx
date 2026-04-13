@@ -300,6 +300,7 @@ export default function DoctorChat({
             "How is London doing today?",
             "Which boroughs need attention?",
             "Compare air quality across boroughs",
+            "What types of crime are common in Camden?",
           ].map((q) => (
             <button
               key={q}

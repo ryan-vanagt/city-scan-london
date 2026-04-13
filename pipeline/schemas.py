@@ -273,6 +273,32 @@ CREATE TABLE IF NOT EXISTS gold_scores (
 );
 """
 
+_DDL_SILVER_DETAIL = """
+CREATE TABLE IF NOT EXISTS silver_detail (
+    borough_code VARCHAR NOT NULL,
+    borough_name VARCHAR NOT NULL,
+    timestamp    TIMESTAMPTZ NOT NULL,
+    source       VARCHAR NOT NULL,
+    category     VARCHAR NOT NULL,
+    label        VARCHAR NOT NULL,
+    value        DOUBLE,
+    detail_text  VARCHAR,
+    ingested_at  TIMESTAMPTZ NOT NULL
+);
+"""
+
+_DDL_SILVER_HEADLINES = """
+CREATE TABLE IF NOT EXISTS silver_headlines (
+    timestamp       TIMESTAMPTZ NOT NULL,
+    source          VARCHAR NOT NULL,
+    title           VARCHAR NOT NULL,
+    url             VARCHAR,
+    sentiment_score DOUBLE,
+    ingested_at     TIMESTAMPTZ NOT NULL
+);
+"""
+
+
 def init_db(con: duckdb.DuckDBPyConnection) -> None:
     """Create all DuckDB tables if they do not already exist.
 
@@ -282,6 +308,11 @@ def init_db(con: duckdb.DuckDBPyConnection) -> None:
     Args:
         con: An open DuckDB connection.
     """
-    for ddl in (_DDL_SILVER_METRICS, _DDL_GOLD_SCORES):
+    for ddl in (
+        _DDL_SILVER_METRICS,
+        _DDL_GOLD_SCORES,
+        _DDL_SILVER_DETAIL,
+        _DDL_SILVER_HEADLINES,
+    ):
         con.execute(ddl)
     logger.info("DuckDB tables initialised")

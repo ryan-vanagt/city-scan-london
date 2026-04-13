@@ -100,6 +100,11 @@ def _run_pipeline_chain() -> None:
             inserted = silver.load(con, rows)
             logger.info("Silver: %d rows transformed, %d inserted", len(rows), inserted)
 
+            # Silver detail
+            detail_rows, headline_rows = silver.transform_all_detail()
+            d_count, h_count = silver.load_detail(con, detail_rows, headline_rows)
+            logger.info("Silver detail: %d detail, %d headlines", d_count, h_count)
+
             gold_rows = gold.aggregate(con)
             logger.info("Gold: %d rows inserted", gold_rows)
 
@@ -150,7 +155,19 @@ def job_silver_retention() -> None:
                 f"WHERE ingested_at < CURRENT_TIMESTAMP - INTERVAL {int(SILVER_RETENTION_DAYS)} DAY",
             )
             count = result.fetchone()[0]
-            logger.info("Silver retention: deleted %d rows older than %d days", count, SILVER_RETENTION_DAYS)
+            logger.info("Silver retention: deleted %d silver_metrics rows older than %d days", count, SILVER_RETENTION_DAYS)
+            # Detail tables
+            for table in ("silver_detail", "silver_headlines"):
+                try:
+                    r = con.execute(
+                        f"DELETE FROM {table} "
+                        f"WHERE ingested_at < CURRENT_TIMESTAMP - INTERVAL {int(SILVER_RETENTION_DAYS)} DAY",
+                    )
+                    c = r.fetchone()[0]
+                    if c > 0:
+                        logger.info("Silver retention: deleted %d %s rows", c, table)
+                except Exception:
+                    logger.debug("Silver retention: %s table may not exist yet", table)
         except Exception as exc:
             logger.error("Silver retention failed: %s", exc)
         finally:
