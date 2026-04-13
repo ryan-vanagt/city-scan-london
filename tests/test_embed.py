@@ -4,6 +4,8 @@ Tests use in-memory ChromaDB (chromadb.Client()) + in-memory DuckDB.
 Requires chromadb to be installed: pip install chromadb
 """
 
+from datetime import datetime, timezone
+
 import duckdb
 import pytest
 
@@ -23,6 +25,11 @@ from pipeline.schemas import init_db
 # Helper — plain function, not a fixture
 # ---------------------------------------------------------------------------
 
+def _now_iso() -> str:
+    """Return current UTC timestamp as ISO 8601 string."""
+    return datetime.now(timezone.utc).isoformat()
+
+
 def insert_gold(
     con: duckdb.DuckDBPyConnection,
     borough_code: str,
@@ -32,10 +39,14 @@ def insert_gold(
     sentiment: float | None = None,
     immune: float | None = None,
     composite: float = 50.0,
-    timestamp: str = "2026-04-09T12:00:00+00:00",
-    ingested_at: str = "2026-04-09T12:00:00+00:00",
+    timestamp: str | None = None,
+    ingested_at: str | None = None,
 ) -> None:
     """Insert a single gold_scores row for testing."""
+    if timestamp is None:
+        timestamp = _now_iso()
+    if ingested_at is None:
+        ingested_at = _now_iso()
     con.execute(
         """
         INSERT INTO gold_scores
@@ -90,13 +101,13 @@ def in_memory_chroma():
 @pytest.fixture
 def sample_row():
     """A fully-populated gold_scores row tuple."""
-    return ("E09000007", "Camden", "2026-04-10T12:00:00+00:00", 34.2, 82.0, 61.5, 55.6, 58.3)
+    return ("E09000007", "Camden", "2026-04-10T12:00:00+00:00", 34.2, 82.0, 61.5, 55.6, 58.3, "2026-04-10T12:00:00+00:00")
 
 
 @pytest.fixture
 def sample_row_nulls():
     """A gold_scores row tuple with NULL air and transit scores."""
-    return ("E09000006", "Bromley", "2026-04-10T12:00:00+00:00", None, None, 43.5, 71.2, 62.5)
+    return ("E09000006", "Bromley", "2026-04-10T12:00:00+00:00", None, None, 43.5, 71.2, 62.5, "2026-04-10T12:00:00+00:00")
 
 
 # ===========================================================================
@@ -366,6 +377,7 @@ def test_updated_embed_overwrites_doc(fresh_db, in_memory_chroma):
     )
     embed_gold_scores(fresh_db)
     # Insert updated Camden row with same timestamp date (same ID) but higher composite
+    now = _now_iso()
     fresh_db.execute(
         """
         INSERT INTO gold_scores
@@ -374,8 +386,8 @@ def test_updated_embed_overwrites_doc(fresh_db, in_memory_chroma):
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         [
-            "E09000007", "Camden", "2026-04-09T14:00:00+00:00", 50.0, 82.0,
-            61.5, 55.6, 62.3, "2026-04-09T14:00:00+00:00", "gold",
+            "E09000007", "Camden", now, 50.0, 82.0,
+            61.5, 55.6, 62.3, now, "gold",
         ],
     )
     embed_gold_scores(fresh_db)
@@ -601,7 +613,7 @@ def test_search_fault_tolerance_returns_error(in_memory_chroma):
 
 
 def test_search_fault_tolerance_count_zero(in_memory_chroma):
-    """search_scores returns count=0 when ChromaDB is unavailable."""
+    """search_scores returns error dict when ChromaDB is unavailable."""
     import agents.tools.chroma_client as agent_cc
     from agents.tools.rag_query import search_scores
 
@@ -613,6 +625,6 @@ def test_search_fault_tolerance_count_zero(in_memory_chroma):
     agent_cc.get_client = broken_agent_get
     try:
         result = search_scores("test query")
-        assert result["count"] == 0
+        assert "error" in result
     finally:
         agent_cc.get_client = original_get

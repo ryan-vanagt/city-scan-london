@@ -220,7 +220,7 @@ def run_sql(
             logger.warning("run_sql: blocked table '%s' in query", table)
             return {
                 "success": False,
-                "error": "Query references a restricted resource",
+                "error": f"Query references a restricted table: {table}",
             }
 
     # --- Guardrail: catch-all duckdb_*/sqlite_* system table patterns ---
