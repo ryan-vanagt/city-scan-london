@@ -809,6 +809,140 @@ def test_resolve_borough_sql_injection_safe():
     con.close()
 
 
+# ---------------------------------------------------------------------------
+# run_sql: UNION bypass with blocked tables
+# ---------------------------------------------------------------------------
+
+def test_run_sql_union_with_blocked_table(db_with_sql_data):
+    """UNION SELECT from a blocked table must be rejected."""
+    result = run_sql(
+        "SELECT borough_code FROM gold_scores UNION SELECT id FROM agent_logs",
+        con=db_with_sql_data,
+    )
+    assert result["success"] is False, "UNION with blocked table should be rejected"
+
+
+def test_run_sql_subquery_with_blocked_table(db_with_sql_data):
+    """Subquery referencing a blocked table must be rejected."""
+    result = run_sql(
+        "SELECT * FROM gold_scores WHERE borough_code IN (SELECT id FROM agent_logs)",
+        con=db_with_sql_data,
+    )
+    assert result["success"] is False, "subquery with blocked table should be rejected"
+
+
+# ---------------------------------------------------------------------------
+# run_sql: detail table WHERE clause enforcement (guardrail #11)
+# ---------------------------------------------------------------------------
+
+def test_run_sql_detail_table_requires_where(db_with_sql_data):
+    """silver_detail queries without WHERE must be rejected."""
+    result = run_sql("SELECT * FROM silver_detail", con=db_with_sql_data)
+    assert result["success"] is False
+    assert "WHERE" in result["error"]
+
+
+def test_run_sql_headlines_requires_where(db_with_sql_data):
+    """silver_headlines queries without WHERE must be rejected."""
+    result = run_sql("SELECT * FROM silver_headlines", con=db_with_sql_data)
+    assert result["success"] is False
+    assert "WHERE" in result["error"]
+
+
+def test_run_sql_detail_table_with_where_allowed(db_with_sql_data):
+    """silver_detail queries WITH a WHERE clause should succeed."""
+    result = run_sql(
+        "SELECT * FROM silver_detail WHERE borough_code = 'E09000007'",
+        con=db_with_sql_data,
+    )
+    assert result["success"] is True
+
+
+def test_run_sql_headlines_with_where_allowed(db_with_sql_data):
+    """silver_headlines queries WITH a WHERE clause should succeed."""
+    result = run_sql(
+        "SELECT * FROM silver_headlines WHERE source = 'bbc'",
+        con=db_with_sql_data,
+    )
+    assert result["success"] is True
+
+
+# ---------------------------------------------------------------------------
+# run_sql: detail table row limit (50 vs 100, guardrail #12)
+# ---------------------------------------------------------------------------
+
+def test_run_sql_detail_table_limit_50(db_with_sql_data):
+    """Detail tables should be capped at 50 rows, not the default 100."""
+    for i in range(70):
+        db_with_sql_data.execute(
+            """INSERT INTO silver_detail
+            (borough_code, borough_name, timestamp, source, category, label,
+             value, detail_text, ingested_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            [
+                "E09000007", "Camden", "2026-04-10T00:00:00+00",
+                "met_police", "burglary", f"Street {i}",
+                1.0, f"Detail row {i}",
+                "2026-04-10T00:00:00+00",
+            ],
+        )
+    result = run_sql(
+        "SELECT * FROM silver_detail WHERE borough_code = 'E09000007'",
+        con=db_with_sql_data,
+    )
+    assert result["success"] is True
+    assert result["row_count"] == 50, f"expected 50-row limit for detail table, got {result['row_count']}"
+
+
+# ---------------------------------------------------------------------------
+# run_sql: text field truncation (guardrail #13)
+# ---------------------------------------------------------------------------
+
+def test_run_sql_text_truncation(db_with_sql_data):
+    """detail_text, label, and title fields should be truncated at 200 chars."""
+    long_text = "x" * 300
+    db_with_sql_data.execute(
+        """INSERT INTO silver_detail
+        (borough_code, borough_name, timestamp, source, category, label,
+         value, detail_text, ingested_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        [
+            "E09000007", "Camden", "2026-04-10T00:00:00+00",
+            "met_police", "burglary", long_text,
+            1.0, long_text,
+            "2026-04-10T00:00:00+00",
+        ],
+    )
+    result = run_sql(
+        "SELECT label, detail_text FROM silver_detail WHERE borough_code = 'E09000007'",
+        con=db_with_sql_data,
+    )
+    assert result["success"] is True
+    row = result["rows"][0]
+    # Truncation cuts at 200 chars + appends "..." = 203 total
+    assert len(row["label"]) <= 203, f"label not truncated: {len(row['label'])} chars"
+    assert row["label"].endswith("..."), "truncated label should end with '...'"
+    assert len(row["detail_text"]) <= 203, f"detail_text not truncated: {len(row['detail_text'])} chars"
+    assert row["detail_text"].endswith("..."), "truncated detail_text should end with '...'"
+
+
+# ---------------------------------------------------------------------------
+# run_sql: glob function blocked
+# ---------------------------------------------------------------------------
+
+def test_run_sql_glob_function_blocked():
+    """glob() function must be rejected by the file-read blocklist regex.
+
+    NOTE: We test the regex directly rather than calling run_sql because DuckDB
+    may attempt to auto-load a filesystem extension when it encounters 'glob',
+    which can hang in test environments.
+    """
+    import re
+    from agents.tools.sql_query import _BLOCKED_FILE_FUNCTIONS
+    assert _BLOCKED_FILE_FUNCTIONS.search("SELECT glob('/tmp/*') FROM gold_scores"), \
+        "glob() should be matched by _BLOCKED_FILE_FUNCTIONS regex"
+
+
 # ===========================================================================
 # Metric allowlist
 # ===========================================================================

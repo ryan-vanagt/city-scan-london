@@ -565,6 +565,17 @@ def load(con: duckdb.DuckDBPyConnection, rows: list[tuple]) -> int:
             len(stale_sources), sorted(stale_sources),
         )
 
+    # Deduplicate: delete existing rows for the same (source, timestamp) pairs
+    # before inserting — prevents duplicate rows on pipeline re-runs.
+    sources_timestamps: set[tuple[str, str]] = set()
+    for row in rows:
+        sources_timestamps.add((row[6], row[2]))  # (source, timestamp)
+    for source, ts in sources_timestamps:
+        con.execute(
+            "DELETE FROM silver_metrics WHERE source = ? AND timestamp = ?",
+            [source, ts],
+        )
+
     con.executemany(
         """
         INSERT INTO silver_metrics

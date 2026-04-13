@@ -33,10 +33,28 @@ _global_count: int = 0
 _global_day_start: float = 0.0
 
 
+_last_sweep: float = 0.0
+_SWEEP_INTERVAL: float = 3600  # sweep all IPs every hour
+
+
 def _cleanup_ip(ip: str, now: float) -> None:
     """Remove timestamps older than 24h for an IP."""
     cutoff = now - 86400
     _ip_requests[ip] = [t for t in _ip_requests[ip] if t > cutoff]
+
+
+def _sweep_stale_ips(now: float) -> None:
+    """Evict IPs with no requests in the last 24h. Runs at most once per hour."""
+    global _last_sweep
+    if now - _last_sweep < _SWEEP_INTERVAL:
+        return
+    _last_sweep = now
+    cutoff = now - 86400
+    stale = [ip for ip, ts in _ip_requests.items() if not ts or ts[-1] < cutoff]
+    for ip in stale:
+        del _ip_requests[ip]
+    if stale:
+        logger.debug("Rate limiter: swept %d stale IPs", len(stale))
 
 
 def check_rate_limit(ip: str) -> str | None:
@@ -58,6 +76,9 @@ def check_rate_limit(ip: str) -> str | None:
         if _global_count >= AGENT_RATE_LIMIT_GLOBAL_DAY:
             logger.warning("Rate limiter: global daily cap reached (%d)", AGENT_RATE_LIMIT_GLOBAL_DAY)
             return f"Daily query limit reached ({AGENT_RATE_LIMIT_GLOBAL_DAY} queries/day). Try again tomorrow."
+
+        # Periodic sweep of stale IPs to prevent unbounded memory growth
+        _sweep_stale_ips(now)
 
         # Clean up old timestamps for this IP
         _cleanup_ip(ip, now)

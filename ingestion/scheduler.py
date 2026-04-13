@@ -154,7 +154,8 @@ def job_silver_retention() -> None:
                 f"DELETE FROM silver_metrics "
                 f"WHERE ingested_at < CURRENT_TIMESTAMP - INTERVAL {int(SILVER_RETENTION_DAYS)} DAY",
             )
-            count = result.fetchone()[0]
+            row = result.fetchone()
+            count = row[0] if row else 0
             logger.info("Silver retention: deleted %d silver_metrics rows older than %d days", count, SILVER_RETENTION_DAYS)
             # Detail tables
             for table in ("silver_detail", "silver_headlines"):
@@ -264,6 +265,8 @@ def main() -> None:
         minute=0,
         misfire_grace_time=300,
         id="daily_bulletin",
+        max_instances=1,
+        coalesce=True,
     )
 
     # Populate data on first launch as a non-blocking one-shot job so the

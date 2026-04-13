@@ -45,7 +45,7 @@ Table agent_logs {
 }
 
 Table bulletin_logs {
-  id               varchar [not null, note: 'UUID']
+  id               varchar [pk, not null, note: 'UUID']
   timestamp        varchar [not null, note: 'ISO 8601 UTC']
   trigger          varchar [note: '"scheduled" or "manual"']
   scores_used      varchar [note: 'JSON snapshot of Gold scores at generation time']

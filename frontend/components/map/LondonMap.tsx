@@ -81,8 +81,16 @@ export default function LondonMap({
       >
         <g>
           {BOROUGH_PATHS.map((geo) => {
-            const borough = scoreMap.get(geo.code);
-            if (!borough) return null;
+            const borough = scoreMap.get(geo.code) ?? {
+              borough_code: geo.code,
+              borough_name: geo.name,
+              timestamp: null,
+              air_score: null,
+              transit_score: null,
+              sentiment_score: null,
+              immune_score: null,
+              composite_score: null,
+            };
             return (
               <BoroughPath
                 key={geo.code}

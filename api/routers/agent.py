@@ -70,7 +70,8 @@ async def _guarded_sse_stream(question: str, request: Request):
 async def agent_query(body: AgentQuery, request: Request):
     """Stream a Doctor Agent response as Server-Sent Events."""
     # Rate limiting (per-IP + global daily cap)
-    client_ip = request.client.host if request.client else "unknown"
+    forwarded = request.headers.get("X-Forwarded-For")
+    client_ip = forwarded.split(",")[0].strip() if forwarded else (request.client.host if request.client else "unknown")
     limit_msg = check_rate_limit(client_ip)
     if limit_msg:
         raise HTTPException(status_code=429, detail=limit_msg)

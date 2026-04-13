@@ -56,12 +56,7 @@ MCP_HOST = os.environ.get("MCP_HOST", "127.0.0.1")
 
 # Security: MCP server relies on network-level access control (localhost binding).
 # In docker-compose, ports are bound to 127.0.0.1 to prevent external access.
-# For additional security, set MCP_AUTH_TOKEN in .env — validated at startup.
-MCP_AUTH_TOKEN = os.environ.get("MCP_AUTH_TOKEN", "")
-if MCP_AUTH_TOKEN:
-    logger.info("MCP_AUTH_TOKEN is set — token-based auth available for custom clients")
-else:
-    logger.info("MCP_AUTH_TOKEN not set — relying on network-level access control")
+logger.info("MCP security: network-level access control (localhost binding)")
 
 mcp = FastMCP(
     name="CityScan London",
@@ -112,6 +107,7 @@ def tool_compare_boroughs(
 ) -> str:
     """Compare boroughs by metric. Valid metrics: air_score, transit_score, sentiment_score, immune_score, composite_score."""
     try:
+        top_n = max(1, min(top_n, 33))
         return json.dumps(_compare_boroughs(metric, top_n, ascending), default=str)
     except Exception as exc:
         logger.error("MCP compare_boroughs failed: %s", exc)

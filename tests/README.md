@@ -21,6 +21,10 @@ pytest tests/test_schemas.py -v
 pytest tests/ -v
 ```
 
+## Known issues
+
+- `test_pipeline_chain_completes_with_bronze_data` fails when run after other tests due to a DuckDB connection conflict — earlier tests hold a connection to `cityscan.duckdb` and the scheduler test tries to reconnect with different config. Passes in isolation (`pytest tests/test_scheduler.py::test_pipeline_chain_completes_with_bronze_data -x`). Fix requires closing the shared DuckDB connection in test fixture teardown.
+
 ## Markers
 
 | Marker | Meaning |
@@ -56,6 +60,14 @@ pytest tests/ -v
 | `test_doctor.py` | Doctor Agent SSE streaming + `agent_logs` verification |
 | `test_bulletin.py` | Bulletin generation + file saving + `bulletin_logs` |
 | `test_mcp.py` | MCP server JSON-RPC over Streamable HTTP |
+
+### Utility tests
+
+| File | What it tests |
+|---|---|
+| `test_db_singleton.py` | Lazy DuckDB singleton connection (read-only, reuse, close) |
+| `test_logging_db.py` | Agent and bulletin log table creation, insert, serialization |
+| `test_retry.py` | Retry decorator backoff, max attempts, exception propagation |
 
 ### Scheduler tests
 

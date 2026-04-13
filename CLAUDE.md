@@ -132,7 +132,7 @@ Gold-layer scores are embedded into ChromaDB after each pipeline run for RAG ret
 **Collection schema:**
 - Collection name: `gold_scores`
 - Document ID: `{borough_code}_{YYYY-MM-DD}` (enables upsert deduplication)
-- Document text: `"Camden (E09000007) scored 58.30 overall on 2026-04-10. Air: 34.20, Transit: 82.00, Sentiment: 61.50, Immune: N/A"`
+- Document text: `"Camden (E09000007) scored 58.30 overall on 2026-04-10. Air: 34.20, Transit: 82.00, Sentiment: 61.50, Immune: N/A (data from 2026-04-10T06:00:00+00:00)"`
 - Metadata: `{borough_code, borough_name, timestamp, composite_score, air_score?, transit_score?, sentiment_score?, immune_score?}` — NULL scores omitted (ChromaDB metadata can't be None)
 - Embedding model: ChromaDB default (all-MiniLM-L6-v2 via sentence-transformers)
 
@@ -264,6 +264,9 @@ CHROMADB_HOST=localhost
 CHROMADB_PORT=8001
 MCP_PORT=8002
 MCP_HOST=127.0.0.1
+AGENT_RATE_LIMIT_PER_IP_HOUR=15
+AGENT_RATE_LIMIT_PER_IP_DAY=40
+AGENT_RATE_LIMIT_GLOBAL_DAY=150
 ```
 
 > **Docker note:** In the `mcp_server` container, `MCP_HOST` is set to `0.0.0.0` so the server is reachable from other containers and the host machine. For local dev, the default `127.0.0.1` is correct.
@@ -376,7 +379,7 @@ All non-streaming responses are JSON. Scores always 0–100.
 | `mcp_server` | `docker/Dockerfile.mcp` | 8002 |
 | `frontend` | `docker/Dockerfile.frontend` | 3000 |
 | `ingestion` | `docker/Dockerfile.ingestion` | — |
-| `chromadb` | chromadb/chroma:0.6.3 | 8001 |
+| `chromadb` | chromadb/chroma:0.6.3 | 8001 (internal only, not exposed to host) |
 
 Services share Docker volumes — `app_data` for `/data/` is mounted by `ingestion`, `api`, and `mcp_server`; `app_embeddings` for `/embeddings/` is mounted by `ingestion` and `api`. `frontend` has no data volumes. `chromadb` has its own `app_embeddings` mount. MCP server accesses ChromaDB via HTTP, not local files.
 

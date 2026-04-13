@@ -127,7 +127,7 @@ python ingestion/run_pipeline.py   # runs full chain once and exits
   11. WHERE clause enforcement — detail tables require a WHERE clause
   12. Row limit — outer LIMIT 100 (50 for detail tables)
   13. Text field truncation — `detail_text`, `label`, `title` capped at 200 chars in output
-  - Plus: query timeout (30s), input sanitisation on detail writes, sanitised error messages
+  - Plus: input sanitisation on detail writes, sanitised error messages
 
 ### Agent 2 — The Bulletin Agent
 
@@ -288,6 +288,9 @@ CHROMADB_HOST=localhost
 CHROMADB_PORT=8001
 MCP_PORT=8002
 MCP_HOST=127.0.0.1
+AGENT_RATE_LIMIT_PER_IP_HOUR=15
+AGENT_RATE_LIMIT_PER_IP_DAY=40
+AGENT_RATE_LIMIT_GLOBAL_DAY=150
 ```
 
 ### Git

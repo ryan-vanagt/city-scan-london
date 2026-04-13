@@ -29,8 +29,8 @@ function lerp(a: number, b: number, t: number): number {
  * Convert a health score (0-100) to a thermal gradient colour.
  * 100 = healthiest (deep blue/cold), 0 = critical (red/hot).
  */
-export function scoreToColour(score: number | null): string {
-  if (score === null) return "#64748b"; // slate-500 for unknown
+export function scoreToColour(score: number | null | undefined): string {
+  if (score === null || score === undefined || Number.isNaN(score)) return "#64748b"; // slate-500 for unknown
 
   const clamped = Math.max(0, Math.min(100, score));
 

@@ -48,6 +48,7 @@ export default function Home() {
   const [xrayActive, setXrayActive] = useState(true);     // borough colours
   const [effectsReady, setEffectsReady] = useState(false); // glow + pulse (after transition)
   const [showUI, setShowUI] = useState(false);            // header/footer/FABs
+  const [colourReady, setColourReady] = useState(false);  // timer elapsed for colour flood
   const [boroughs, setBoroughs] = useState<BoroughScore[]>([]);
   const [londonScore, setLondonScore] = useState<LondonScore>({
     composite_score: null,
@@ -118,6 +119,13 @@ export default function Home() {
     };
   }, []);
 
+  // Gate colour transition on BOTH timer elapsed AND data loaded
+  useEffect(() => {
+    if (colourReady && boroughs.length > 0) {
+      setXrayActive(false);
+    }
+  }, [colourReady, boroughs.length]);
+
   // --- Handlers ---
   const handleBoroughHover = useCallback((code: string | null) => {
     setHoveredBorough(code);
@@ -130,7 +138,7 @@ export default function Home() {
   const handleEnterLiveMap = useCallback(() => {
     setShowLanding(false);                          // Act 1: overlay dissolves
     setTimeout(() => setMapZoomed(false), 600);     // Act 2: map dezooms
-    setTimeout(() => setXrayActive(false), 1800);   // Act 3: colours flood in
+    setTimeout(() => setColourReady(true), 1800);    // Act 3: ready for colours (gated on data)
     setTimeout(() => setShowUI(true), 2200);        // Act 4: UI appears
     setTimeout(() => setEffectsReady(true), 3500);  // Act 5: glow + pulse enabled
   }, []);

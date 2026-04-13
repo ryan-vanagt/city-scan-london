@@ -68,7 +68,8 @@ def get_london_score(
         return _null_result
 
     # Use MAX(timestamp) for a deterministic timestamp across all boroughs
-    max_ts = max(r[6] for r in rows if r[6] is not None)
+    ts_values = [r[6] for r in rows if r[6] is not None]
+    max_ts = max(ts_values) if ts_values else None
 
     return {
         "composite_score": _avg([r[5] for r in rows]),

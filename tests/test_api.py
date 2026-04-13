@@ -421,7 +421,12 @@ def test_agent_query_too_long_returns_422(api_server):
 
 @pytest.mark.api_key
 def test_bulletin_generate_rate_limit(api_server):
-    """Second rapid bulletin generation should return 429."""
+    """Second rapid bulletin generation should return 429.
+
+    NOTE: This test is best-effort — if the first call fails before setting
+    the cooldown timer (e.g. no data), the second call may also succeed.
+    We assert 429 and skip with a clear message if the rate limit wasn't hit.
+    """
 
     def post_bulletin():
         req = Request(
@@ -440,10 +445,11 @@ def test_bulletin_generate_rate_limit(api_server):
 
     # Second immediate call should be rate-limited
     try:
-        post_bulletin()
-        # If it succeeds, the rate limit might not have been hit
+        resp = post_bulletin()
+        # If it succeeds, the rate limit didn't trigger — skip rather than silently pass
+        pytest.skip(
+            "Rate limit not triggered (first call may not have set cooldown) — "
+            "test is inconclusive, not a failure"
+        )
     except HTTPError as e:
-        if e.code == 429:
-            return  # Expected
-    # If we get here, the test is inconclusive (first call may not have completed)
-    # This is acceptable for a rate-limit integration test
+        assert e.code == 429, f"Expected 429 rate limit, got {e.code}"
