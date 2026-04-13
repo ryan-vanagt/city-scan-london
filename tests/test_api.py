@@ -129,10 +129,11 @@ def test_health_status_ok(api_server):
     assert data.get("status") == "ok"
 
 
-def test_health_database_connected(api_server):
+def test_health_no_database_field(api_server):
+    """Health endpoint must NOT open a DuckDB connection (avoids holding a lock)."""
     data = get("/health")
     assert data is not None
-    assert data.get("database") == "connected"
+    assert "database" not in data
 
 
 def test_health_has_timestamp(api_server):

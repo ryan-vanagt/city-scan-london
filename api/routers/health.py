@@ -12,6 +12,7 @@ from fastapi import APIRouter, Depends, HTTPException
 
 import duckdb
 
+from agents.tools.db import close_connection as close_tools_connection
 from api.db import get_connection, reset_connection
 
 logger = logging.getLogger(__name__)
@@ -43,6 +44,7 @@ def reset_db() -> dict:
     to 127.0.0.1 on the host, and this endpoint is not used by the frontend).
     """
     reset_connection()
+    close_tools_connection()
     return {"status": "reset"}
 
 

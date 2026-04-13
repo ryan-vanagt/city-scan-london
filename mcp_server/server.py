@@ -14,11 +14,11 @@ Tools exposed:
   - search_scores(query, n_results, borough_code)
 """
 
-import atexit
 import json
 import logging
 import os
 import sys
+from contextlib import contextmanager
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -32,18 +32,32 @@ load_dotenv(PROJECT_ROOT / ".env")
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger(__name__)
 
+import duckdb  # noqa: E402
+
 from mcp.server.fastmcp import FastMCP  # noqa: E402
 
 from agents.tools.borough_query import compare_boroughs as _compare_boroughs  # noqa: E402
 from agents.tools.borough_query import get_borough_health as _get_borough_health  # noqa: E402
-from agents.tools.db import close_connection  # noqa: E402
 from agents.tools.health_score import get_london_score as _get_london_score  # noqa: E402
 from agents.tools.rag_query import search_scores as _search_scores  # noqa: E402
 from agents.tools.sql_query import run_sql as _run_sql  # noqa: E402
 from agents.tools.trend_analysis import get_trend as _get_trend  # noqa: E402
 
-# Clean up DuckDB connection on process exit
-atexit.register(close_connection)
+DB_PATH = str(PROJECT_ROOT / "data" / "cityscan.duckdb")
+
+
+@contextmanager
+def _db_connection():
+    """Open a fresh read-only DuckDB connection, closed after use.
+
+    Avoids holding a persistent lock on cityscan.duckdb so the ingestion
+    service can acquire write locks without cross-container contention.
+    """
+    con = duckdb.connect(DB_PATH, read_only=True)
+    try:
+        yield con
+    finally:
+        con.close()
 
 try:
     MCP_PORT = int(os.environ.get("MCP_PORT", "8002"))
@@ -76,7 +90,8 @@ mcp = FastMCP(
 def tool_get_london_score() -> str:
     """Return London-wide composite and sub-scores."""
     try:
-        return json.dumps(_get_london_score(), default=str)
+        with _db_connection() as con:
+            return json.dumps(_get_london_score(con=con), default=str)
     except Exception as exc:
         logger.error("MCP get_london_score failed: %s", exc)
         return json.dumps({"error": "Internal error"})
@@ -90,7 +105,8 @@ def tool_get_borough_health(borough: str) -> str:
     """Return all scores for one borough. Accepts name (e.g. 'Camden') or ONS code (e.g. 'E09000007')."""
     try:
         borough = borough[:100]
-        return json.dumps(_get_borough_health(borough), default=str)
+        with _db_connection() as con:
+            return json.dumps(_get_borough_health(borough, con=con), default=str)
     except Exception as exc:
         logger.error("MCP get_borough_health failed: %s", exc)
         return json.dumps({"error": "Internal error"})
@@ -108,7 +124,8 @@ def tool_compare_boroughs(
     """Compare boroughs by metric. Valid metrics: air_score, transit_score, sentiment_score, immune_score, composite_score."""
     try:
         top_n = max(1, min(top_n, 33))
-        return json.dumps(_compare_boroughs(metric, top_n, ascending), default=str)
+        with _db_connection() as con:
+            return json.dumps(_compare_boroughs(metric, top_n, ascending, con=con), default=str)
     except Exception as exc:
         logger.error("MCP compare_boroughs failed: %s", exc)
         return json.dumps({"error": "Internal error"})
@@ -126,7 +143,8 @@ def tool_get_trend(
     """Trend analysis for a borough. Returns direction (improving/declining/stable) and delta."""
     try:
         borough = borough[:100]
-        return json.dumps(_get_trend(borough, metric, days), default=str)
+        with _db_connection() as con:
+            return json.dumps(_get_trend(borough, metric, days, con=con), default=str)
     except Exception as exc:
         logger.error("MCP get_trend failed: %s", exc)
         return json.dumps({"error": "Internal error"})
@@ -141,7 +159,8 @@ def tool_run_sql(query: str) -> str:
     try:
         if len(query) > 10_000:
             return json.dumps({"error": "Query too long (max 10000 characters)"})
-        return json.dumps(_run_sql(query), default=str)
+        with _db_connection() as con:
+            return json.dumps(_run_sql(query, con=con), default=str)
     except Exception as exc:
         logger.error("MCP run_sql failed: %s", exc)
         return json.dumps({"error": "Internal error"})

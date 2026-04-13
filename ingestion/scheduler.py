@@ -180,8 +180,9 @@ def job_silver_retention() -> None:
     Gold rows are kept forever (tiny footprint, needed for long-term trends).
     """
     logger.info("=== Silver retention: starting ===")
+    _release_api_read_lock()
     with _db_write_lock:
-        con = duckdb.connect(DB_PATH)
+        con = _connect_with_retry(DB_PATH)
         try:
             con.execute("SET memory_limit = '512MB'")
             result = con.execute(
