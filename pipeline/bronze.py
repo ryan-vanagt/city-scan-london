@@ -69,6 +69,9 @@ def cleanup(source: str, days: int = 1) -> None:
     cutoff = datetime.now(timezone.utc) - timedelta(days=days)
 
     for file_path in directory.glob("*.json"):
+        # Skip internal cache files (e.g. _station_cache.json)
+        if file_path.name.startswith("_"):
+            continue
         mtime = datetime.fromtimestamp(file_path.stat().st_mtime, tz=timezone.utc)
         if mtime < cutoff:
             file_path.unlink()

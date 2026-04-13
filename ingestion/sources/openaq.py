@@ -5,13 +5,19 @@ Fetches London air quality station data from the OpenAQ v3 API in two steps:
 1. /locations — discover all stations in the Greater London bounding box
 2. /locations/{id}/sensors — fetch latest PM2.5 and NO2 readings per station
 
+Station discovery is cached for 24 hours to reduce API load. Only sensor
+readings are fetched each hour.
+
 Returns a combined response for bronze layer storage. Borough mapping and
 score normalisation happen in the silver layer.
 """
 
+import json
 import logging
 import os
 import time
+from datetime import datetime, timezone
+from pathlib import Path
 
 import requests
 
@@ -27,6 +33,10 @@ LONDON_BBOX = "-0.51,51.28,0.33,51.69"
 # Only fetch readings for these pollutants (used for air quality scoring)
 TARGET_PARAMETERS = {"pm25", "no2"}
 
+# Station cache: re-discover stations once per day instead of every hour
+_STATION_CACHE_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "bronze" / "openaq" / "_station_cache.json"
+_STATION_CACHE_MAX_AGE_HOURS = 24
+
 
 def _get_headers() -> dict[str, str]:
     """Build request headers with API key if available."""
@@ -37,12 +47,57 @@ def _get_headers() -> dict[str, str]:
     return {"X-API-Key": api_key}
 
 
-def _fetch_locations(headers: dict[str, str]) -> list[dict]:
-    """Fetch all London air quality station metadata from /locations.
+def _load_station_cache() -> list[dict] | None:
+    """Load cached station list if it exists and is fresh enough.
 
     Returns:
-        List of station dicts from the API response.
+        Cached station list, or None if cache is missing/stale/corrupt.
     """
+    if not _STATION_CACHE_PATH.exists():
+        return None
+
+    try:
+        mtime = datetime.fromtimestamp(
+            _STATION_CACHE_PATH.stat().st_mtime, tz=timezone.utc
+        )
+        age_hours = (datetime.now(timezone.utc) - mtime).total_seconds() / 3600
+        if age_hours > _STATION_CACHE_MAX_AGE_HOURS:
+            logger.info("OpenAQ: station cache is %.1f hours old — refreshing", age_hours)
+            return None
+
+        with open(_STATION_CACHE_PATH, encoding="utf-8") as f:
+            stations = json.load(f)
+        logger.info("OpenAQ: using cached station list (%d stations, %.1fh old)", len(stations), age_hours)
+        return stations
+    except (OSError, json.JSONDecodeError, TypeError) as e:
+        logger.warning("OpenAQ: station cache unreadable: %s — refreshing", e)
+        return None
+
+
+def _save_station_cache(stations: list[dict]) -> None:
+    """Persist station list to disk for reuse by future runs."""
+    try:
+        _STATION_CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with open(_STATION_CACHE_PATH, "w", encoding="utf-8") as f:
+            json.dump(stations, f)
+        logger.info("OpenAQ: saved station cache (%d stations)", len(stations))
+    except OSError as e:
+        logger.warning("OpenAQ: failed to save station cache: %s", e)
+
+
+def _fetch_locations(headers: dict[str, str]) -> list[dict]:
+    """Return London air quality station metadata, using a daily cache.
+
+    Checks for a cached station list first (valid for 24 hours). On cache
+    miss, fetches from /locations and saves the result for future runs.
+
+    Returns:
+        List of station dicts from the API response or cache.
+    """
+    cached = _load_station_cache()
+    if cached is not None:
+        return cached
+
     params = {
         "bbox": LONDON_BBOX,
         "limit": 1000,
@@ -70,7 +125,10 @@ def _fetch_locations(headers: dict[str, str]) -> list[dict]:
         logger.error("OpenAQ locations: invalid JSON response: %s", e)
         raise
     stations = data.get("results", [])
-    logger.info("OpenAQ: discovered %d stations", len(stations))
+    logger.info("OpenAQ: discovered %d stations (fresh from API)", len(stations))
+
+    _save_station_cache(stations)
+
     return stations
 
 
@@ -155,9 +213,9 @@ def _fetch_latest_readings(
             logger.warning("OpenAQ: failed for location %d: %s", location_id, e)
             errors += 1
 
-        # OpenAQ free tier: ~10 req/s. Sleep 0.15s ≈ 6.7 req/s — stays safely
-        # under the limit while being 6x faster than the previous 1s sleep.
-        time.sleep(0.15)
+        # OpenAQ free tier: 60 req/min. Sleep 1.1s ≈ 55 req/min — stays
+        # safely under the limit to avoid 429s and account suspensions.
+        time.sleep(1.1)
 
     logger.info(
         "OpenAQ: fetched readings for %d stations (%d errors)",
