@@ -100,7 +100,20 @@ async def bulletin_latest():
     latest = md_files[0]
     date_str = latest.stem  # e.g. "2026-04-11"
     content = latest.read_text(encoding="utf-8")
-    return {"date": date_str, "content": content}
+
+    # Load companion scores JSON if available (generated alongside .md)
+    scores = None
+    json_path = latest.with_suffix(".json")
+    try:
+        if json_path.exists():
+            scores = json.loads(json_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        logger.debug("Could not load bulletin scores sidecar: %s", json_path)
+
+    result: dict = {"date": date_str, "content": content}
+    if scores is not None:
+        result["scores"] = scores
+    return result
 
 
 @router.post("/bulletin/generate")

@@ -58,6 +58,10 @@ export default function BulletinReport({
       })
     : "Unknown date";
 
+  // Prefer the bulletin's own frozen score over the live score
+  const displayScore =
+    bulletin.scores?.london_score?.composite_score ?? overallScore;
+
   return (
     <div
       className="font-mono text-sm border rounded-md overflow-hidden"
@@ -74,13 +78,16 @@ export default function BulletinReport({
         <div className="text-xs text-slate-400">
           Daily Health Scan &mdash; {dateStr}
         </div>
-        {overallScore !== null && (
+        <div className="text-[10px] text-slate-600 mt-0.5">
+          Generated every day at 09:00 UTC
+        </div>
+        {displayScore !== null && displayScore !== undefined && (
           <div className="mt-3 flex items-baseline gap-2">
             <span
               className="text-4xl font-bold"
-              style={{ color: scoreToColour(overallScore) }}
+              style={{ color: scoreToColour(displayScore) }}
             >
-              {Math.round(overallScore)}
+              {Math.round(displayScore)}
             </span>
             <span className="text-sm text-slate-500">/ 100</span>
           </div>

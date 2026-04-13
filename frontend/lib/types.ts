@@ -24,6 +24,10 @@ export interface BoroughScore {
 export interface BulletinResponse {
   date: string;
   content: string;
+  scores?: {
+    london_score?: LondonScore;
+    [key: string]: unknown;
+  };
 }
 
 export interface SSETokenEvent {

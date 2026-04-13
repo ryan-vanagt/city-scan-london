@@ -286,6 +286,28 @@ def generate_bulletin(trigger: str = "manual") -> dict:
     os.replace(temp_path, output_path)
     logger.info("Bulletin saved to %s", output_path)
 
+    # 6b. Save scores JSON sidecar so the frontend can show the bulletin's
+    # own scores instead of mixing in live data that drifts throughout the day.
+    sources_data = {
+        "london_score": london_score,
+        "best_boroughs": best,
+        "worst_boroughs": worst,
+        "trends": [
+            {
+                "borough_name": t["borough_name"],
+                "direction": t.get("direction"),
+                "delta": t.get("delta"),
+            }
+            for t in trends
+        ],
+        "headlines": headlines,
+    }
+    json_path = str(BULLETINS_DIR / f"{date_str}.json")
+    json_tmp = str(Path(json_path).with_suffix(".jtmp"))
+    Path(json_tmp).write_text(json.dumps(sources_data, default=str), encoding="utf-8")
+    os.replace(json_tmp, json_path)
+    logger.info("Bulletin scores saved to %s", json_path)
+
     # 7. Log the run
     elapsed_ms = int((time.monotonic() - start) * 1000)
     try:
@@ -303,18 +325,5 @@ def generate_bulletin(trigger: str = "manual") -> dict:
         "date": date_str,
         "content": content,
         "output_path": output_path,
-        "sources": {
-            "london_score": london_score,
-            "best_boroughs": best,
-            "worst_boroughs": worst,
-            "trends": [
-                {
-                    "borough_name": t["borough_name"],
-                    "direction": t.get("direction"),
-                    "delta": t.get("delta"),
-                }
-                for t in trends
-            ],
-            "headlines": headlines,
-        },
+        "sources": sources_data,
     }
