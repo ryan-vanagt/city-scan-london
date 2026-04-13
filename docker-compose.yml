@@ -9,6 +9,7 @@ services:
     env_file: .env
     environment:
       CHROMADB_HOST: chromadb
+      CHROMADB_PORT: "8000"
     depends_on:
       chromadb:
         condition: service_healthy
@@ -26,6 +27,7 @@ services:
     env_file: .env
     environment:
       CHROMADB_HOST: chromadb
+      CHROMADB_PORT: "8000"
     depends_on:
       chromadb:
         condition: service_healthy
@@ -48,6 +50,7 @@ services:
     env_file: .env
     environment:
       CHROMADB_HOST: chromadb
+      CHROMADB_PORT: "8000"
       MCP_HOST: "0.0.0.0"
     depends_on:
       chromadb:
@@ -68,12 +71,14 @@ services:
     restart: unless-stopped
 
   chromadb:
-    image: chromadb/chroma:0.6.3
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.chromadb
     # No host port exposure — other services reach chromadb via Docker network name
     volumes:
       - app_embeddings:/chroma/chroma
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v2/heartbeat"]
       interval: 10s
       timeout: 5s
       retries: 5

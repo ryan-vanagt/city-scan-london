@@ -17,5 +17,7 @@ RUN mkdir -p /app/data /app/embeddings /app/.cache && \
 USER appuser
 
 ENV HF_HOME=/app/.cache
+ENV SENTENCE_TRANSFORMERS_HOME=/app/.cache/sentence_transformers
+ENV HOME=/app
 
 CMD ["python", "ingestion/scheduler.py"]

@@ -186,6 +186,7 @@ export default function Home() {
             style={{
               transform: mapZoomed ? "scale(4)" : "scale(1)",
               transition: "transform 2s cubic-bezier(0.16, 1, 0.3, 1)",
+              willChange: mapZoomed ? "transform" : "auto",
             }}
             onClick={(e) => {
               if (e.target === e.currentTarget) {
@@ -205,10 +206,12 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Panel container */}
+        {/* Panel container — top below header, bottom above footer */}
         <div
-          className="fixed right-0 top-0 pt-[52px] h-full w-[90%] md:w-[35%] overflow-hidden z-30"
+          className="fixed right-0 w-[90%] md:w-[35%] overflow-hidden z-30"
           style={{
+            top: 52,
+            bottom: 33,
             opacity: isPanelOpen ? 1 : 0,
             transform: isPanelOpen ? "translateX(0)" : "translateX(20px)",
             pointerEvents: isPanelOpen ? "auto" : "none",
@@ -240,11 +243,13 @@ export default function Home() {
         />
       )}
 
-      {/* Footer — always rendered, opacity-controlled */}
+      {/* Footer — always rendered, z-40 so it sits above panels */}
       <div style={{
         opacity: showUI ? 1 : 0,
         pointerEvents: showUI ? "auto" : "none",
         transition: "opacity 0.5s ease-out",
+        position: "relative",
+        zIndex: 40,
       }}>
         <Footer />
       </div>

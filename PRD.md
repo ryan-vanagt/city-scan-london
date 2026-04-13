@@ -270,7 +270,7 @@ Single-page application with panel-based navigation. All interactions happen on 
 | `api`        | FastAPI backend                                                                | 8000 |
 | `mcp_server` | MCP server exposing Doctor agent tools                                         | 8002 |
 | `frontend`   | Next.js app                                                                    | 3000 |
-| `chromadb`   | ChromaDB vector store server                                                   | 8001 |
+| `chromadb`   | ChromaDB vector store server                                                   | 8000 (internal) |
 
 
 Single command to run everything: `docker compose up`
@@ -285,7 +285,7 @@ REDDIT_USER_AGENT=cityscan/1.0
 TFL_APP_KEY=
 SCORE_WEIGHTS=0.25,0.25,0.25,0.25
 CHROMADB_HOST=localhost
-CHROMADB_PORT=8001
+CHROMADB_PORT=8001                        # local dev default; Docker overrides to 8000
 MCP_PORT=8002
 MCP_HOST=127.0.0.1
 AGENT_RATE_LIMIT_PER_IP_HOUR=15
@@ -378,6 +378,8 @@ city-scan-london/
 │   └── server.py                ← MCP server wrapping Doctor agent tools
 ├── api/
 │   ├── main.py
+│   ├── db.py                    ← lazy read-only DuckDB connection + reset for ingestion
+│   ├── rate_limit.py            ← per-IP + global rate limiting for Doctor Agent
 │   └── routers/
 │       ├── health.py
 │       ├── boroughs.py
@@ -393,8 +395,9 @@ city-scan-london/
 │   └── (ChromaDB persistence)
 └── docker/
     ├── Dockerfile.api
+    ├── Dockerfile.chromadb
+    ├── Dockerfile.frontend
     ├── Dockerfile.ingestion
-    ├── Dockerfile.mcp
-    └── Dockerfile.frontend
+    └── Dockerfile.mcp
 ```
 

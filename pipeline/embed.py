@@ -119,28 +119,42 @@ def embed_gold_scores(con: duckdb.DuckDBPyConnection) -> int:
         logger.warning("Embed: no gold_scores rows found — skipping")
         return 0
 
-    try:
-        collection = get_collection()
+    import time
 
-        ids = [_row_to_id(r) for r in rows]
-        documents = [_row_to_document(r) for r in rows]
-        metadatas = [_row_to_metadata(r) for r in rows]
+    ids = [_row_to_id(r) for r in rows]
+    documents = [_row_to_document(r) for r in rows]
+    metadatas = [_row_to_metadata(r) for r in rows]
 
-        collection.upsert(
-            ids=ids,
-            documents=documents,
-            metadatas=metadatas,
-        )
+    # Retry up to 60s — ChromaDB may still be booting on cold start
+    for attempt in range(1, 7):
+        try:
+            collection = get_collection()
+            collection.upsert(
+                ids=ids,
+                documents=documents,
+                metadatas=metadatas,
+            )
+            logger.info(
+                "Embed: %d documents upserted to ChromaDB collection 'gold_scores'",
+                len(rows),
+            )
+            return len(rows)
+        except Exception as exc:
+            if attempt < 6:
+                logger.warning(
+                    "Embed: ChromaDB not ready (attempt %d/6): %s — retrying in 10s",
+                    attempt, exc,
+                )
+                # Reset cached client so next attempt reconnects
+                from pipeline.chroma_client import close_client
+                close_client()
+                time.sleep(10)
+            else:
+                logger.warning(
+                    "Embed: ChromaDB upsert failed after 6 attempts: %s — skipping "
+                    "(gold_scores in DuckDB unaffected)",
+                    exc,
+                )
+                return 0
 
-        logger.info(
-            "Embed: %d documents upserted to ChromaDB collection 'gold_scores'",
-            len(rows),
-        )
-        return len(rows)
-
-    except Exception as exc:
-        logger.warning(
-            "Embed: ChromaDB upsert failed: %s — skipping (gold_scores in DuckDB unaffected)",
-            exc,
-        )
-        return 0
+    return 0  # should not reach here, but safety fallback

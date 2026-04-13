@@ -84,14 +84,48 @@ def _fetch_sources(sources: dict[str, ModuleType]) -> None:
             logger.error("Bronze fetch failed for %s: %s — skipping", name, exc)
 
 
+def _connect_with_retry(path: str, max_attempts: int = 6, base_delay: float = 5.0):
+    """Open a write-mode DuckDB connection, retrying if locked by another process."""
+    for attempt in range(1, max_attempts + 1):
+        try:
+            return duckdb.connect(path)
+        except (duckdb.IOException, duckdb.ConnectionException) as exc:
+            if attempt == max_attempts:
+                raise
+            delay = base_delay * attempt
+            logger.warning(
+                "DuckDB locked (attempt %d/%d): %s — retrying in %.0fs",
+                attempt, max_attempts, exc, delay,
+            )
+            import time
+            time.sleep(delay)
+
+
+def _release_api_read_lock() -> None:
+    """Ask the API service to close its read-only DuckDB connection.
+
+    The API holds a persistent read-only connection that blocks DuckDB
+    write locks. This sends a POST to the API's internal reset endpoint
+    so ingestion can acquire the write lock.
+    """
+    import urllib.request
+    try:
+        req = urllib.request.Request("http://api:8000/internal/reset-db", method="POST")
+        urllib.request.urlopen(req, timeout=5)
+        logger.info("API read-only connection released")
+    except Exception as exc:
+        logger.debug("Could not reset API connection (may not be running yet): %s", exc)
+
+
 def _run_pipeline_chain() -> None:
     """Execute Silver -> Gold -> Embed chain.
 
     Opens a write-mode DuckDB connection, runs all three stages,
     and always closes the connection in finally.
     """
+    _release_api_read_lock()
     with _db_write_lock:
-        con = duckdb.connect(DB_PATH)
+        con = _connect_with_retry(DB_PATH)
         try:
             con.execute("SET memory_limit = '512MB'")
             init_db(con)

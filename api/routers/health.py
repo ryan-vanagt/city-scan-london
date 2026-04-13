@@ -12,7 +12,7 @@ from fastapi import APIRouter, Depends, HTTPException
 
 import duckdb
 
-from api.db import get_connection
+from api.db import get_connection, reset_connection
 
 logger = logging.getLogger(__name__)
 
@@ -20,23 +20,30 @@ router = APIRouter()
 
 
 @router.get("/health")
-def health_check(con: duckdb.DuckDBPyConnection = Depends(get_connection)) -> dict:
-    """Service liveness check. Pings DuckDB to verify the database is reachable."""
-    try:
-        con.execute("SELECT 1").fetchone()
-        db_status = "connected"
-    except Exception as exc:
-        logger.error("Health check: database ping failed: %s", exc)
-        raise HTTPException(
-            status_code=503,
-            detail="Database unavailable",
-        ) from exc
+def health_check() -> dict:
+    """Service liveness check — never touches DuckDB.
 
+    This endpoint is hit every 30s by the Docker health check. It must NOT
+    open a DuckDB connection, because a read-only connection would block the
+    ingestion service from writing. DuckDB connectivity is verified implicitly
+    by the data endpoints instead.
+    """
     return {
         "status": "ok",
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "database": db_status,
     }
+
+
+@router.post("/internal/reset-db")
+def reset_db() -> dict:
+    """Release the read-only DuckDB connection so ingestion can write.
+
+    Called by the ingestion scheduler before each pipeline write cycle.
+    Only reachable from the Docker internal network (port 8000 is bound
+    to 127.0.0.1 on the host, and this endpoint is not used by the frontend).
+    """
+    reset_connection()
+    return {"status": "reset"}
 
 
 @router.get("/london/score")
