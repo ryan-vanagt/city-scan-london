@@ -9,7 +9,7 @@ Output schema per query:
   sources — list of grounded data points used (DuckDB rows + Guardian URLs)
 
 Every interaction is logged to the agent_logs DuckDB table.
-Only Gold-layer aggregated data reaches the LLM — no raw text, no PII.
+Gold-layer scores and silver-layer contextual detail reach the LLM — no raw post body text, no PII.
 """
 
 import json
@@ -82,13 +82,17 @@ news outlets) and synthesise it into health scores.\
 _INJECTION_PATTERNS = ["ignore previous", "ignore all", "system prompt", "you are now", "disregard", "forget your"]
 
 
-def _check_prompt_injection(question: str) -> None:
-    """Log a warning if the question contains potential prompt injection patterns."""
-    q_lower = question.lower()
+def _check_prompt_injection(question: str) -> bool:
+    """Check if question contains potential prompt injection patterns.
+
+    Returns True if injection detected, False otherwise.
+    """
+    lower = question.lower()
     for pattern in _INJECTION_PATTERNS:
-        if pattern in q_lower:
-            logger.warning("Potential prompt injection detected: %r", question[:100])
-            return
+        if pattern in lower:
+            logger.warning("Potential prompt injection detected: '%s' in query", pattern)
+            return True
+    return False
 
 
 _agent = None
@@ -118,7 +122,11 @@ async def stream_doctor_response(question: str) -> AsyncGenerator[str, None]:
 
     Logs the full interaction to agent_logs after streaming completes.
     """
-    _check_prompt_injection(question)
+    if _check_prompt_injection(question):
+        msg = json.dumps({"type": "token", "content": "I'm unable to process that request. Please ask a question about London's health data."})
+        yield f"data: {msg}\n\n"
+        yield "data: [DONE]\n\n"
+        return
     agent = get_doctor_agent()
     start = time.monotonic()
 

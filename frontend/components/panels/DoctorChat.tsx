@@ -13,6 +13,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import rehypeSanitize from "rehype-sanitize";
 import { X, Send, ChevronDown, ChevronRight } from "lucide-react";
 import type { ChatMessage, SSESourcesEvent } from "@/lib/types";
 import { streamDoctorQuery } from "@/lib/api";
@@ -254,6 +255,7 @@ export default function DoctorChat({
               }
             >
               <ReactMarkdown
+                rehypePlugins={[rehypeSanitize]}
                 components={{
                   p: ({ children }) => <p className="mb-1.5">{children}</p>,
                   strong: ({ children }) => <strong className="text-slate-100 font-semibold">{children}</strong>,

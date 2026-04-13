@@ -138,7 +138,7 @@ def tool_get_trend(
 
 @mcp.tool(
     name="run_sql",
-    description="Execute a guarded read-only SQL query against gold_scores or silver_metrics.",
+    description="Execute a guarded read-only SQL query against gold_scores, silver_metrics, silver_detail, or silver_headlines.",
 )
 def tool_run_sql(query: str) -> str:
     """Run a SELECT query. Write operations and metadata tables are blocked."""

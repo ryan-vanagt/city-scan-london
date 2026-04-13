@@ -48,6 +48,14 @@ Each signal is normalised to a 0–100 score (100 = healthy). The composite boro
 - Reddit, Guardian, and BBC text is processed locally by a sentiment model before entering Silver — raw post content never leaves the machine
 - Sentiment model: `cardiffnlp/twitter-roberta-base-sentiment` (runs on CPU)
 
+**Silver Detail layer** — contextual per-item data
+
+- Two tables (`silver_detail` + `silver_headlines`) storing per-item data for agent breakdown queries
+- `silver_detail`: crime categories per borough, tube line statuses, AQ station readings, NHS trust performance
+- `silver_headlines`: individual news/Reddit headlines with per-title sentiment scores
+- These do **not** feed into gold scores — purely additive context for the Doctor Agent
+- Retention: 90 days (same cleanup job as silver_metrics)
+
 **Gold layer** — aggregated health scores
 
 - One row per borough per ingestion cycle:
@@ -61,7 +69,7 @@ Each signal is normalised to a 0–100 score (100 = healthy). The composite boro
 The `ingestion` service owns the full pipeline. APScheduler runs the complete chain on each tick:
 
 ```
-fetch() → bronze.save() → silver.transform() → gold.aggregate() → embed.embed_gold_scores()
+fetch() → bronze.save() → silver.transform() → silver.detail() → gold.aggregate() → embed.embed_gold_scores()
 ```
 
 There is no separate pipeline container. The `pipeline/` directory contains transformation logic as importable functions called by the scheduler. A manual one-shot trigger is available for development:
@@ -97,7 +105,7 @@ python ingestion/run_pipeline.py   # runs full chain once and exits
   - `get_london_score()` — overall city score averaged across all boroughs (curated)
   - `get_trend(borough, metric, days)` — trend direction + delta over N days (curated)
   - `compare_boroughs(metric, top_n, ascending)` — ranks boroughs by a given signal (curated)
-  - `run_sql(query)` — read-only SQL against `gold_scores` / `silver_metrics` for analytical questions the curated tools can't answer (flexible, guarded)
+  - `run_sql(query)` — read-only SQL against `gold_scores` / `silver_metrics` / `silver_detail` / `silver_headlines` for analytical questions the curated tools can't answer (flexible, guarded)
   - `search_scores(query, n_results, borough_code)` — semantic similarity search over ChromaDB gold_scores embeddings for RAG context retrieval
 - **Input:** Natural language question from frontend or API
 - **Output:** Structured JSON with two fields:
@@ -105,16 +113,21 @@ python ingestion/run_pipeline.py   # runs full chain once and exits
   - `sources` — list of grounded data points used to generate the answer, each with `type`, `data`, and optionally `url` (for Guardian headlines). Enables the user to verify any claim against its source.
 - **Streaming:** `POST /agent/query` returns a Server-Sent Events stream. Events: `data: {"type": "token", "content": "..."}` for tokens, `data: {"type": "sources", "sources": [...]}` for sources, `data: [DONE]` as sentinel.
 - **Hallucination mitigation:** Every factual claim in the answer is grounded in a retrieved tool output. The `sources` field makes this verifiable. Tool outputs are stored in `agent_logs` for audit.
-- **`run_sql` guardrails (8-layer security model):**
-  1. Read-only DuckDB connection — engine-enforced, all write/DDL operations blocked regardless of query content
-  2. SQL comments stripped before validation (prevents hiding keywords in `--` or `/* */` comments)
-  3. Table allowlist — only `gold_scores` and `silver_metrics` queryable; `agent_logs`, `bulletin_logs`, all `duckdb_*` and `sqlite_*` system tables blocked
-  4. Keyword blocklist — rejects write/DDL keywords (`INSERT`, `UPDATE`, `DELETE`, `DROP`, `ALTER`, `CREATE`, etc.) as defence in depth
-  5. Metadata function blocklist — blocks all `duckdb_*()` introspection functions
-  6. File-read function blocklist — blocks `read_csv_auto`, `read_parquet`, `read_json_auto`, `glob`, and other DuckDB functions that can read the filesystem
-  7. File path table reference blocklist — blocks `FROM '/path/...'` patterns
-  8. Row limit — query always wrapped in outer `SELECT * FROM (...) LIMIT 100` regardless of any inner LIMIT clause
-  - Plus: query length limit (10,000 characters) and sanitised error messages (no internal details leaked)
+- **`run_sql` guardrails (13-layer security model):**
+  1. Read-only DuckDB connection — engine-enforced, all write/DDL operations blocked
+  2. Query length limit — rejects queries longer than 10,000 characters
+  3. SQL comments stripped before validation (prevents hiding keywords in `--` or `/* */` comments)
+  4. Semicolon rejection — blocks multi-statement payloads
+  5. SELECT-only enforcement — query must start with SELECT
+  6. Keyword blocklist — rejects write/DDL keywords as defence in depth
+  7. Metadata function blocklist — blocks all `duckdb_*()` introspection functions
+  8. File-read function blocklist — blocks `read_csv_auto`, `read_parquet`, `read_json_auto`, `glob`, etc.
+  9. File path table reference blocklist — blocks `FROM '/path/...'` patterns
+  10. Table blocklist + allowlist — only `gold_scores`, `silver_metrics`, `silver_detail`, `silver_headlines` queryable
+  11. WHERE clause enforcement — detail tables require a WHERE clause
+  12. Row limit — outer LIMIT 100 (50 for detail tables)
+  13. Text field truncation — `detail_text`, `label`, `title` capped at 200 chars in output
+  - Plus: query timeout (30s), input sanitisation on detail writes, sanitised error messages
 
 ### Agent 2 — The Bulletin Agent
 
@@ -133,7 +146,7 @@ python ingestion/run_pipeline.py   # runs full chain once and exits
 - **Model:** `claude-haiku-4-5` via Anthropic API
 - **Used for:** Doctor agent reasoning, Bulletin synthesis
 - **Not used for:** Sentiment scoring (handled locally)
-- **Privacy justification:** Only Gold-layer aggregated public data reaches the external model — no PII, no raw post content
+- **Privacy justification:** Gold-layer scores and silver-layer contextual detail (crime categories, tube line statuses, station readings, headline titles) reach the external model — no PII, no raw post body content
 
 ---
 

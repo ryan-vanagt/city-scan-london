@@ -236,6 +236,7 @@ Slide-in panel (35% width desktop, 90% mobile). Fixed position, right-0, top-0, 
 - "How is London doing today?"
 - "Which boroughs need attention?"
 - "Compare air quality across boroughs"
+- "What types of crime are common in Camden?"
 
 **Chat behaviour:**
 - User submits question → POST /agent/query (SSE)

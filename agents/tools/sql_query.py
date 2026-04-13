@@ -185,7 +185,7 @@ def run_sql(
         logger.warning("run_sql: blocked keyword '%s' in query", match.group())
         return {
             "success": False,
-            "error": f"Write/DDL operations are not permitted: {match.group()}",
+            "error": "Write/DDL operations are not permitted",
         }
 
     # --- Guardrail: blocked metadata functions ---
@@ -220,7 +220,7 @@ def run_sql(
             logger.warning("run_sql: blocked table '%s' in query", table)
             return {
                 "success": False,
-                "error": f"Table '{table}' is not queryable by the agent",
+                "error": "Query references a restricted resource",
             }
 
     # --- Guardrail: catch-all duckdb_*/sqlite_* system table patterns ---
@@ -230,7 +230,7 @@ def run_sql(
             logger.warning("run_sql: blocked system table pattern '%s' in query", pat_match.group())
             return {
                 "success": False,
-                "error": "System metadata tables are not queryable by the agent",
+                "error": "Query references a restricted resource",
             }
 
     # Check that at least one allowed table is referenced (word-boundary matching)

@@ -785,7 +785,7 @@ def _headlines_detail(
         elif source_name == "reddit":
             title = item.get("title", "")
             permalink = item.get("permalink")
-            url = f"https://www.reddit.com{permalink}" if permalink else None
+            url = permalink if permalink and permalink.startswith("http") else (f"https://www.reddit.com{permalink}" if permalink else None)
         else:
             continue
         if not title or not isinstance(title, str):
@@ -868,17 +868,19 @@ def load_detail(
 ) -> tuple[int, int]:
     """Insert detail and headline rows into DuckDB.
 
-    Args:
-        con: An open DuckDB connection.
-        detail_rows: Rows for silver_detail table.
-        headline_rows: Rows for silver_headlines table.
-
-    Returns:
-        Tuple of (detail_count, headline_count).
+    Deletes existing rows for the same source+timestamp before inserting
+    to prevent duplication on repeated pipeline runs.
     """
     d_count = 0
     h_count = 0
     if detail_rows:
+        # Deduplicate: collect unique (source, timestamp) pairs and delete old rows
+        seen = {(r[3], r[2]) for r in detail_rows}  # (source, timestamp)
+        for source, ts in seen:
+            con.execute(
+                "DELETE FROM silver_detail WHERE source = ? AND timestamp = ?",
+                [source, ts],
+            )
         con.executemany(
             """INSERT INTO silver_detail
             (borough_code, borough_name, timestamp, source, category, label,
@@ -888,6 +890,12 @@ def load_detail(
         )
         d_count = len(detail_rows)
     if headline_rows:
+        seen = {(r[1], r[0]) for r in headline_rows}  # (source, timestamp)
+        for source, ts in seen:
+            con.execute(
+                "DELETE FROM silver_headlines WHERE source = ? AND timestamp = ?",
+                [source, ts],
+            )
         con.executemany(
             """INSERT INTO silver_headlines
             (timestamp, source, title, url, sentiment_score, ingested_at)

@@ -12,6 +12,7 @@
 import { useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeSanitize from "rehype-sanitize";
 import type { BulletinResponse } from "@/lib/types";
 import { scoreToColour } from "@/lib/colours";
 
@@ -100,6 +101,7 @@ export default function BulletinReport({
       >
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeSanitize]}
           components={{
             h1: ({ children }) => <h1 className="text-sm font-bold text-[#0ea5e9] mt-3 mb-1 uppercase tracking-wider">{children}</h1>,
             h2: ({ children }) => <h2 className="text-xs font-bold text-[#0ea5e9] mt-3 mb-1 uppercase tracking-wider">{children}</h2>,
