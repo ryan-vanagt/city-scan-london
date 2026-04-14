@@ -30,6 +30,7 @@ flowchart TD
     B_TFL --> SD
     B_MP --> SD
     B_NHS --> SD
+    B_GS -->|ward-level detail| SD
     B_RD -->|sentiment per title| SH[Silver Headlines\nDuckDB: silver_headlines]
     B_GD -->|sentiment per title| SH
     B_BBC -->|sentiment per title| SH

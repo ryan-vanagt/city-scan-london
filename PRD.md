@@ -52,7 +52,7 @@ Each signal is normalised to a 0–100 score (100 = healthy). The composite boro
 **Silver Detail layer** — contextual per-item data
 
 - Two tables (`silver_detail` + `silver_headlines`) storing per-item data for agent breakdown queries
-- `silver_detail`: crime categories per borough, tube line statuses, AQ station readings, NHS trust performance
+- `silver_detail`: crime categories per borough, tube line statuses, AQ station readings, NHS trust performance, ward-level green space coverage
 - `silver_headlines`: individual news/Reddit headlines with per-title sentiment scores
 - These do **not** feed into gold scores — purely additive context for the Doctor Agent
 - Retention: 90 days (same cleanup job as silver_metrics)
