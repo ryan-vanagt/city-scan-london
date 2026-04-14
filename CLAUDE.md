@@ -25,13 +25,12 @@ CityScan models London as a human body using live data. Four biological systems 
 - 🫁 **Lungs** → OpenAQ (air quality) — SDG 11.6
 - 🩸 **Arteries** → TfL API (tube line status) — SDG 11.2
 - 🧠 **Brain** → Reddit + Guardian API + BBC News RSS (public sentiment)
-- 🛡️ **Immune system** → Met Police API (crime) + NHS England A&E stats (A&E pressure)
+- 🛡️ **Immune system** → Met Police API (per-capita crime, winsorised at 95th percentile) + NHS England A&E stats (A&E pressure)
 
 **Planned (building now):**
 - 🌿 **Skin** → Green space data (London Datastore) — SDG 11.7
 - **IMD deprivation context** (MHCLG) — not a scored organ, but fuel for targeting interventions at the most vulnerable boroughs (SDG 11.3, 11.9)
 - **Prescriptive policy layer** — evidence-based intervention menu for Doctor Agent and Bulletin
-- **Per-capita crime normalisation** — ONS population data for fairer scoring
 
 Dual purpose: UCL MSc Data Engineering assignment (MSIN0166) + Analytics for Society Awards 2026 competition entry.
 
@@ -361,6 +360,7 @@ pytest tests/test_tools.py -v           # single file, verbose
 - Loops through all 33 borough centroids (loaded from `pipeline.schemas.BOROUGHS`)
 - Each crime record is tagged with the requesting `borough_code` so silver can attribute directly
 - Individual centroid failures are logged and skipped (partial data returned)
+- Silver normalisation: crimes per 1,000 residents (ONS population from `scripts/fetch_population.py`), winsorised at 95th percentile to prevent non-residential boroughs (City of London: 15k residents, 500k daily workers) from distorting the scale
 
 **NHS England A&E** (`/ingestion/sources/nhs_ae.py`)
 - No stable API — scrapes NHS England statistics page with BeautifulSoup to discover the latest CSV URL (URL changes monthly)

@@ -19,14 +19,13 @@ CityScan models London as a human body. Each biological system draws from public
 | 🫁 Lungs | OpenAQ | 11.6 — Air quality | PM2.5, NO2 per station |
 | 🩸 Arteries | TfL API | 11.2 — Transport | Tube line status & severity |
 | 🧠 Brain | Reddit + Guardian + BBC | — | Public sentiment (NLP) |
-| 🛡️ Immune | Met Police + NHS A&E | — | Crime by borough + A&E pressure |
+| 🛡️ Immune | Met Police + NHS A&E | — | Per-capita crime (ONS population, winsorised) + A&E pressure |
 
 ### Building now (target: April 16)
 
 | Organ / Feature | Data Source | SDG 11 Target | What it adds |
 |---|---|---|---|
 | 🌿 Skin | London Datastore | 11.7 — Green spaces | Green space coverage per borough |
-| Per-capita crime | ONS population estimates | — | Fairer normalisation (currently raw counts) |
 | Prescriptive layer | Evidence-based policy menu | 11.9 — Policies for inclusion | Doctor + Bulletin recommend treatments, not just diagnose |
 | Deprivation context | MHCLG IMD data | 11.3 — Inclusive urbanisation | Equity-aware prescriptions targeting vulnerable boroughs |
 

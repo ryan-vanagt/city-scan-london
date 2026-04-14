@@ -28,8 +28,10 @@
 - MCP server for external agent integration
 - Docker deployment (5 services, single `docker compose up`)
 
+**Done:**
+- Per-capita crime normalisation — ONS population data, winsorised at 95th percentile
+
 **Building by April 16:**
-- Per-capita crime normalisation — ONS population data for analytical rigour
 - Green Space organ ("Skin") — London Datastore data (TBC after data spike), SDG 11.7
 - IMD deprivation data + Doctor tool — equity-aware prescriptions (SDG 11.3, 11.9). Not scored, fuels the prescriptive layer.
 - Prescriptive policy layer — Doctor and Bulletin recommend evidence-based "treatments" per borough (co-designed after all organs exist)
@@ -54,14 +56,16 @@ Everything from Stage 1, plus:
 ### Phase 0: Doc Updates (Apr 14) — DONE
 Update README, CLAUDE.md with competition framing. Create skeleton files for competition artifacts.
 
-### Phase 1: Per-Capita Crime Normalisation (Apr 14-15) — ~3h
+### Phase 1: Per-Capita Crime Normalisation (Apr 14) — DONE
 **Impact:** Fixes analytical flaw (Westminster foot traffic != resident danger). Credibility with judges.
 
-| Change | File | Effort |
+| Change | File | Status |
 |--------|------|--------|
-| Borough population data (ONS 2023) | `pipeline/lookups.json` | Low |
-| Export BOROUGH_POPULATIONS | `pipeline/schemas.py` | Low |
-| Normalise by population | `pipeline/silver.py` (`_transform_met_police`) | Medium |
+| Borough population data (ONS Nomis API) | `scripts/fetch_population.py` → `pipeline/lookups.json` | Done |
+| Per-capita rates (crimes per 1,000 residents) | `pipeline/silver.py` (`_transform_met_police`) | Done |
+| Winsorisation at 95th percentile | `pipeline/silver.py` | Done |
+
+City of London (15k residents, 500k daily workers) was capping the scale at 154/1k. Winsorisation at P95 restores full 0-100 spread. Score range verified: 0.0 (Westminster/City of London) to 100.0 (Richmond).
 
 ### Phase 2: Green Space Organ (Apr 15-16) — ~8h
 **Impact:** 5th organ = SDG 11.7 alignment. Pentagon radar becomes possible.
