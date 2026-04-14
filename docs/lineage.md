@@ -11,6 +11,7 @@ flowchart TD
     BBC[BBC News RSS] -->|hourly| B_BBC[bronze/bbc/]
     MP[Met Police API] -->|"daily (data updates monthly)"| B_MP[bronze/met_police/]
     NHS[NHS England A&E CSV] -->|"daily (data updates monthly)"| B_NHS[bronze/nhs_ae/]
+    GS[GLA Green Cover 2024] -->|"daily (static yearly data)"| B_GS[data/static/green_space.json]
 
     B_OQ --> S[Silver layer\nDuckDB: silver_metrics]
     B_TFL --> S
@@ -20,6 +21,7 @@ flowchart TD
     B_BBC -->|sentiment scored locally| SENT
     B_MP --> S
     B_NHS --> S
+    B_GS --> S
 
     S --> G[Gold layer\nDuckDB: gold_scores]
     G --> CH[ChromaDB\nembeddings]
@@ -64,7 +66,7 @@ Every Silver and Gold record carries:
 
 | Field            | Description                                                                       |
 | ---------------- | --------------------------------------------------------------------------------- |
-| `source`         | Origin API (`openaq`, `tfl`, `reddit`, `guardian`, `bbc`, `met_police`, `nhs_ae`) |
+| `source`         | Origin API (`openaq`, `tfl`, `reddit`, `guardian`, `bbc`, `met_police`, `nhs_ae`, `green_space`) |
 | `ingested_at`    | UTC timestamp of when the raw data was fetched                                    |
 | `pipeline_stage` | `bronze`, `silver`, or `gold`                                                     |
 
@@ -88,7 +90,7 @@ Every Silver and Gold record carries:
 | Bronze      | `pipeline/bronze.py` | Raw API response saved as timestamped JSON — no transformation               |
 | Silver      | `pipeline/silver.py` | Parsed, validated, normalised to 0–100 score, mapped to ONS borough code     |
 | Silver Detail | `pipeline/silver.py` | Per-item context (crime categories, tube line statuses, AQ station readings, NHS trust data, per-headline sentiment) — does NOT feed into gold scores |
-| Gold        | `pipeline/gold.py`   | Per-borough weighted average across all four signals (48h time-bound on silver data); embedded into ChromaDB |
+| Gold        | `pipeline/gold.py`   | Per-borough weighted average across all five signals (48h time-bound on silver data); embedded into ChromaDB |
 | Embed       | `pipeline/embed.py`  | Gold rows converted to text descriptions and upserted into ChromaDB for RAG  |
 | Agent Tools | `agents/tools/`      | 4 curated DuckDB queries + 1 guarded `run_sql` (13-layer security) + 1 RAG `search_scores` |
 
