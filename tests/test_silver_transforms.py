@@ -114,13 +114,14 @@ def test_transformer_invariants(source_name, transformer, expected_metric):
 # ---------------------------------------------------------------------------
 
 EXPECTED_COVERAGE = {
-    "nhs_ae":     ("exact", 33),
-    "tfl":        ("exact", 26),
-    "met_police": ("exact", 33),
-    "openaq":     ("min",   15),
-    "reddit":     ("exact", 33),
-    "bbc":        ("exact", 33),
-    "guardian":   ("exact", 33),
+    "nhs_ae":      ("exact", 33),
+    "tfl":         ("exact", 26),
+    "met_police":  ("exact", 33),
+    "openaq":      ("min",   15),
+    "green_space": ("exact", 33),
+    "reddit":      ("exact", 33),
+    "bbc":         ("exact", 33),
+    "guardian":    ("exact", 33),
 }
 
 

@@ -841,6 +841,31 @@ def _detail_nhs_ae(data: dict, timestamp: str) -> list[tuple]:
     return rows
 
 
+def _detail_green_space(data: dict, timestamp: str) -> list[tuple]:
+    """Extract per-ward green cover detail rows from green space bronze data."""
+    rows: list[tuple] = []
+    now = datetime.now(timezone.utc).isoformat()
+
+    for ward in data.get("wards", []):
+        bc = ward.get("borough_code", "")
+        if bc not in BOROUGHS:
+            continue
+        rows.append((
+            bc,
+            BOROUGHS[bc]["name"],
+            timestamp,
+            "green_space",
+            "green_cover",
+            _sanitise_text(ward.get("ward_name", "")),
+            ward.get("green_pct", 0.0),
+            _sanitise_text(ward.get("ward_code", "")),
+            now,
+        ))
+
+    logger.info("Silver detail green_space: %d ward rows", len(rows))
+    return rows
+
+
 def _headlines_detail(
     data: dict, source_name: str, timestamp: str,
 ) -> list[tuple]:
@@ -904,6 +929,7 @@ def transform_all_detail() -> tuple[list[tuple], list[tuple]]:
         ("tfl", _detail_tfl),
         ("openaq", _detail_openaq),
         ("nhs_ae", _detail_nhs_ae),
+        ("green_space", _detail_green_space),
     ]
     for source_name, extractor in detail_sources:
         try:

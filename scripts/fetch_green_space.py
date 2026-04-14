@@ -1,9 +1,9 @@
 """
-Fetch GLA Green Cover 2024 data for London boroughs.
+Fetch GLA Green Cover 2024 data for London boroughs and wards.
 
-Downloads the XLSX from the London Datastore, parses the "Borough" sheet,
-and writes a static JSON file mapping ONS borough codes to green cover
-percentages. Used by the green_space ingestion source.
+Downloads the XLSX from the London Datastore, parses the "Borough" and "Ward"
+sheets, maps ward codes (E05*) to borough codes (E09*) via findthatpostcode.uk,
+and writes a static JSON file. Used by the green_space ingestion source.
 
 Data source:
     GLA Green Cover 2024 — satellite imagery + NDVI classification.
@@ -19,6 +19,7 @@ import json
 import logging
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 import openpyxl
@@ -114,6 +115,102 @@ def parse_borough_sheet(xlsx_path: Path) -> dict[str, dict]:
     return boroughs
 
 
+def parse_ward_sheet(xlsx_path: Path) -> list[dict]:
+    """Parse the Ward sheet and return list of ward dicts.
+
+    Each dict: {ward_name, ward_code, green_pct, area_ha}.
+    Ward codes are E05* format — borough mapping done separately.
+    """
+    wb = openpyxl.load_workbook(xlsx_path, read_only=True)
+    if "Ward" not in wb.sheetnames:
+        logger.warning("No 'Ward' sheet found — skipping ward data")
+        wb.close()
+        return []
+
+    ws = wb["Ward"]
+    wards: list[dict] = []
+
+    for i, row in enumerate(ws.iter_rows(values_only=True)):
+        if i == 0:
+            continue  # header
+
+        name = row[0]
+        code = row[1]
+        area = row[2]
+        pct_fraction = row[4]
+
+        if not code or not name or pct_fraction is None:
+            continue
+
+        wards.append({
+            "name": str(name).strip(),
+            "ward_code": str(code).strip(),
+            "green_pct": round(float(pct_fraction) * 100, 1),
+            "area_ha": round(float(area), 1) if area else 0.0,
+        })
+
+    wb.close()
+    logger.info("Parsed %d wards from Ward sheet", len(wards))
+    return wards
+
+
+def map_wards_to_boroughs(
+    wards: list[dict],
+    borough_codes: set[str],
+) -> dict[str, dict]:
+    """Map ward codes (E05*) to borough codes (E09*) via findthatpostcode.uk.
+
+    Returns dict keyed by ward_code with borough_code added.
+    Only includes wards that map to a London borough (E09*).
+    """
+    logger.info("Mapping %d wards to boroughs via findthatpostcode.uk...", len(wards))
+
+    result: dict[str, dict] = {}
+    mapped = 0
+    failed = 0
+
+    for i, ward in enumerate(wards):
+        wc = ward["ward_code"]
+        try:
+            resp = requests.get(
+                f"https://findthatpostcode.uk/areas/{wc}.json",
+                timeout=10,
+            )
+            resp.raise_for_status()
+            data = resp.json().get("data", {})
+            parent = data.get("relationships", {}).get("parent", {}).get("data", {})
+            borough_code = parent.get("id", "")
+
+            if borough_code in borough_codes:
+                result[wc] = {
+                    "name": ward["name"],
+                    "borough_code": borough_code,
+                    "green_pct": ward["green_pct"],
+                    "area_ha": ward["area_ha"],
+                }
+                mapped += 1
+            else:
+                # Ward not in a London borough (could be City of London sub-area etc.)
+                failed += 1
+        except Exception as e:
+            logger.warning("Failed to map ward %s (%s): %s", wc, ward["name"], e)
+            failed += 1
+
+        # Rate limit: 0.1s between calls
+        if i < len(wards) - 1:
+            time.sleep(0.1)
+
+        # Progress log every 100 wards
+        if (i + 1) % 100 == 0:
+            logger.info("Ward mapping progress: %d/%d", i + 1, len(wards))
+
+    logger.info(
+        "Ward mapping complete: %d mapped, %d failed/non-London out of %d total",
+        mapped, failed, len(wards),
+    )
+    return result
+
+
 def main() -> None:
     """Download XLSX, parse, validate, and write JSON."""
     # Try downloading; fall back to local copy if available
@@ -165,6 +262,12 @@ def main() -> None:
         sum(pcts) / len(pcts),
     )
 
+    # Parse ward data and map to boroughs
+    raw_wards = parse_ward_sheet(xlsx_path)
+    wards: dict[str, dict] = {}
+    if raw_wards:
+        wards = map_wards_to_boroughs(raw_wards, EXPECTED_CODES)
+
     # Write output
     output = {
         "_metadata": {
@@ -174,13 +277,14 @@ def main() -> None:
             "updated": "2024",
         },
         "boroughs": boroughs,
+        "wards": wards,
     }
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
 
-    logger.info("Wrote %s (%d boroughs)", OUTPUT_PATH, len(boroughs))
+    logger.info("Wrote %s (%d boroughs, %d wards)", OUTPUT_PATH, len(boroughs), len(wards))
 
 
 if __name__ == "__main__":

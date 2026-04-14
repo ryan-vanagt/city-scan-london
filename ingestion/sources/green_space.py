@@ -47,9 +47,25 @@ def fetch() -> dict:
             "green_pct": info["green_pct"],
         })
 
-    logger.info("Green space fetch: %d boroughs loaded from static file", len(results))
+    # Ward-level detail (if available)
+    wards_raw = data.get("wards", {})
+    wards = []
+    for ward_code, info in wards_raw.items():
+        wards.append({
+            "ward_code": ward_code,
+            "ward_name": info["name"],
+            "borough_code": info["borough_code"],
+            "green_pct": info["green_pct"],
+            "area_ha": info.get("area_ha", 0.0),
+        })
+
+    logger.info(
+        "Green space fetch: %d boroughs, %d wards from static file",
+        len(results), len(wards),
+    )
 
     return {
         "results": results,
+        "wards": wards,
         "fetched_at": datetime.now(timezone.utc).isoformat(),
     }

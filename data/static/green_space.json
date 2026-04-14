@@ -138,5 +138,4231 @@
       "name": "Lambeth",
       "green_pct": 31.1
     }
+  },
+  "wards": {
+    "E05013973": {
+      "name": "Harold Wood",
+      "borough_code": "E09000016",
+      "green_pct": 70.8,
+      "area_ha": 907.7
+    },
+    "E05013991": {
+      "name": "Bromley Town",
+      "borough_code": "E09000006",
+      "green_pct": 48.0,
+      "area_ha": 334.3
+    },
+    "E05011248": {
+      "name": "Mayfield",
+      "borough_code": "E09000026",
+      "green_pct": 32.2,
+      "area_ha": 186.2
+    },
+    "E05013968": {
+      "name": "Cranham",
+      "borough_code": "E09000016",
+      "green_pct": 62.0,
+      "area_ha": 528.7
+    },
+    "E05014119": {
+      "name": "West Dulwich",
+      "borough_code": "E09000022",
+      "green_pct": 43.6,
+      "area_ha": 148.4
+    },
+    "E05013752": {
+      "name": "White City",
+      "borough_code": "E09000013",
+      "green_pct": 31.0,
+      "area_ha": 58.2
+    },
+    "E05011249": {
+      "name": "Monkhams",
+      "borough_code": "E09000026",
+      "green_pct": 53.5,
+      "area_ha": 279.6
+    },
+    "E05013679": {
+      "name": "Edmonton Green",
+      "borough_code": "E09000010",
+      "green_pct": 33.9,
+      "area_ha": 294.1
+    },
+    "E05014019": {
+      "name": "Shaftesbury & Queenstown",
+      "borough_code": "E09000032",
+      "green_pct": 17.2,
+      "area_ha": 142.9
+    },
+    "E05011485": {
+      "name": "South Norwood",
+      "borough_code": "E09000008",
+      "green_pct": 28.3,
+      "area_ha": 214.2
+    },
+    "E05011480": {
+      "name": "Selsdon & Addington Village",
+      "borough_code": "E09000008",
+      "green_pct": 68.8,
+      "area_ha": 521.2
+    },
+    "E05013802": {
+      "name": "Pimlico North",
+      "borough_code": "E09000033",
+      "green_pct": 12.6,
+      "area_ha": 59.5
+    },
+    "E05013530": {
+      "name": "Northfield",
+      "borough_code": "E09000009",
+      "green_pct": 37.0,
+      "area_ha": 167.5
+    },
+    "E05013601": {
+      "name": "Tottenham Central",
+      "borough_code": "E09000014",
+      "green_pct": 19.7,
+      "area_ha": 100.3
+    },
+    "E05013772": {
+      "name": "Worcester Park North",
+      "borough_code": "E09000029",
+      "green_pct": 41.8,
+      "area_ha": 131.2
+    },
+    "E05011109": {
+      "name": "Old Kent Road",
+      "borough_code": "E09000028",
+      "green_pct": 24.3,
+      "area_ha": 166.0
+    },
+    "E05011231": {
+      "name": "Slade Green & Northend",
+      "borough_code": "E09000004",
+      "green_pct": 49.3,
+      "area_ha": 554.5
+    },
+    "E05013615": {
+      "name": "Hanworth Park",
+      "borough_code": "E09000018",
+      "green_pct": 53.9,
+      "area_ha": 303.2
+    },
+    "E05013809": {
+      "name": "Westbourne",
+      "borough_code": "E09000033",
+      "green_pct": 33.2,
+      "area_ha": 64.1
+    },
+    "E05013520": {
+      "name": "Ealing Broadway",
+      "borough_code": "E09000009",
+      "green_pct": 40.1,
+      "area_ha": 175.1
+    },
+    "E05013894": {
+      "name": "Larkswood",
+      "borough_code": "E09000031",
+      "green_pct": 45.4,
+      "area_ha": 217.2
+    },
+    "E05009396": {
+      "name": "Golborne",
+      "borough_code": "E09000020",
+      "green_pct": 25.2,
+      "area_ha": 55.9
+    },
+    "E05013607": {
+      "name": "Brentford East",
+      "borough_code": "E09000018",
+      "green_pct": 35.9,
+      "area_ha": 85.9
+    },
+    "E05014064": {
+      "name": "Longbridge",
+      "borough_code": "E09000002",
+      "green_pct": 35.8,
+      "area_ha": 164.9
+    },
+    "E05013986": {
+      "name": "Upminster",
+      "borough_code": "E09000016",
+      "green_pct": 84.8,
+      "area_ha": 2254.3
+    },
+    "E05013550": {
+      "name": "Headstone",
+      "borough_code": "E09000015",
+      "green_pct": 59.4,
+      "area_ha": 316.8
+    },
+    "E05011251": {
+      "name": "Seven Kings",
+      "borough_code": "E09000026",
+      "green_pct": 33.8,
+      "area_ha": 181.7
+    },
+    "E05013620": {
+      "name": "Hounslow Central",
+      "borough_code": "E09000018",
+      "green_pct": 25.5,
+      "area_ha": 85.1
+    },
+    "E05013981": {
+      "name": "St Alban's",
+      "borough_code": "E09000016",
+      "green_pct": 17.8,
+      "area_ha": 109.0
+    },
+    "E05013654": {
+      "name": "Camden Square",
+      "borough_code": "E09000007",
+      "green_pct": 28.4,
+      "area_ha": 46.7
+    },
+    "E05014024": {
+      "name": "Tooting Broadway",
+      "borough_code": "E09000032",
+      "green_pct": 31.4,
+      "area_ha": 163.1
+    },
+    "E05009395": {
+      "name": "Earl's Court",
+      "borough_code": "E09000020",
+      "green_pct": 20.9,
+      "area_ha": 48.3
+    },
+    "E05014005": {
+      "name": "Shortlands & Park Langley",
+      "borough_code": "E09000006",
+      "green_pct": 54.3,
+      "area_ha": 455.6
+    },
+    "E05011111": {
+      "name": "Peckham Rye",
+      "borough_code": "E09000028",
+      "green_pct": 64.8,
+      "area_ha": 189.3
+    },
+    "E05011233": {
+      "name": "West Heath",
+      "borough_code": "E09000004",
+      "green_pct": 38.2,
+      "area_ha": 237.8
+    },
+    "E05009378": {
+      "name": "Hoxton West",
+      "borough_code": "E09000012",
+      "green_pct": 22.5,
+      "area_ha": 64.8
+    },
+    "E05011095": {
+      "name": "Borough & Bankside",
+      "borough_code": "E09000028",
+      "green_pct": 9.1,
+      "area_ha": 119.6
+    },
+    "E05013682": {
+      "name": "Haselbury",
+      "borough_code": "E09000010",
+      "green_pct": 37.0,
+      "area_ha": 199.5
+    },
+    "E05013544": {
+      "name": "Centenary",
+      "borough_code": "E09000015",
+      "green_pct": 40.2,
+      "area_ha": 198.0
+    },
+    "E05013631": {
+      "name": "Childs Hill",
+      "borough_code": "E09000003",
+      "green_pct": 38.4,
+      "area_ha": 293.4
+    },
+    "E05013559": {
+      "name": "Roxeth",
+      "borough_code": "E09000015",
+      "green_pct": 38.6,
+      "area_ha": 188.4
+    },
+    "E05013928": {
+      "name": "Alexandra",
+      "borough_code": "E09000021",
+      "green_pct": 47.1,
+      "area_ha": 128.6
+    },
+    "E05009386": {
+      "name": "Victoria",
+      "borough_code": "E09000012",
+      "green_pct": 32.0,
+      "area_ha": 76.0
+    },
+    "E05013972": {
+      "name": "Hacton",
+      "borough_code": "E09000016",
+      "green_pct": 34.1,
+      "area_ha": 180.1
+    },
+    "E05011465": {
+      "name": "Broad Green",
+      "borough_code": "E09000008",
+      "green_pct": 14.4,
+      "area_ha": 195.3
+    },
+    "E05013888": {
+      "name": "Grove Green",
+      "borough_code": "E09000031",
+      "green_pct": 13.4,
+      "area_ha": 91.2
+    },
+    "E05013511": {
+      "name": "Sudbury",
+      "borough_code": "E09000005",
+      "green_pct": 48.0,
+      "area_ha": 165.7
+    },
+    "E05013815": {
+      "name": "Graveney",
+      "borough_code": "E09000024",
+      "green_pct": 19.4,
+      "area_ha": 98.3
+    },
+    "E05013786": {
+      "name": "South Richmond",
+      "borough_code": "E09000027",
+      "green_pct": 60.3,
+      "area_ha": 256.0
+    },
+    "E05011482": {
+      "name": "Shirley North",
+      "borough_code": "E09000008",
+      "green_pct": 42.9,
+      "area_ha": 311.0
+    },
+    "E05014007": {
+      "name": "St Paul's Cray",
+      "borough_code": "E09000006",
+      "green_pct": 77.3,
+      "area_ha": 865.0
+    },
+    "E05013659": {
+      "name": "Hampstead Town",
+      "borough_code": "E09000007",
+      "green_pct": 70.3,
+      "area_ha": 220.9
+    },
+    "E05013690": {
+      "name": "Ridgeway",
+      "borough_code": "E09000010",
+      "green_pct": 85.0,
+      "area_ha": 1110.1
+    },
+    "E05013818": {
+      "name": "Longthornton",
+      "borough_code": "E09000024",
+      "green_pct": 39.7,
+      "area_ha": 151.6
+    },
+    "E05013683": {
+      "name": "Highfield",
+      "borough_code": "E09000010",
+      "green_pct": 45.9,
+      "area_ha": 165.6
+    },
+    "E05013822": {
+      "name": "Ravensbury",
+      "borough_code": "E09000024",
+      "green_pct": 45.1,
+      "area_ha": 159.8
+    },
+    "E05009400": {
+      "name": "Pembridge",
+      "borough_code": "E09000020",
+      "green_pct": 31.8,
+      "area_ha": 38.7
+    },
+    "E05013800": {
+      "name": "Maida Vale",
+      "borough_code": "E09000033",
+      "green_pct": 42.3,
+      "area_ha": 68.7
+    },
+    "E05013539": {
+      "name": "Southall West",
+      "borough_code": "E09000009",
+      "green_pct": 11.3,
+      "area_ha": 83.1
+    },
+    "E05013606": {
+      "name": "Bedfont",
+      "borough_code": "E09000018",
+      "green_pct": 57.2,
+      "area_ha": 541.1
+    },
+    "E05013778": {
+      "name": "Hampton",
+      "borough_code": "E09000027",
+      "green_pct": 72.3,
+      "area_ha": 682.1
+    },
+    "E05013725": {
+      "name": "Ladywell",
+      "borough_code": "E09000023",
+      "green_pct": 46.6,
+      "area_ha": 204.3
+    },
+    "E05013927": {
+      "name": "West Ham",
+      "borough_code": "E09000025",
+      "green_pct": 33.5,
+      "area_ha": 133.7
+    },
+    "E05014107": {
+      "name": "Myatt's Fields",
+      "borough_code": "E09000022",
+      "green_pct": 31.5,
+      "area_ha": 81.9
+    },
+    "E05013737": {
+      "name": "Coningham",
+      "borough_code": "E09000013",
+      "green_pct": 22.0,
+      "area_ha": 58.0
+    },
+    "E05013542": {
+      "name": "Belmont",
+      "borough_code": "E09000015",
+      "green_pct": 55.6,
+      "area_ha": 185.1
+    },
+    "E05013906": {
+      "name": "Canning Town North",
+      "borough_code": "E09000025",
+      "green_pct": 25.6,
+      "area_ha": 191.0
+    },
+    "E05013794": {
+      "name": "Church Street",
+      "borough_code": "E09000033",
+      "green_pct": 21.9,
+      "area_ha": 44.1
+    },
+    "E05013545": {
+      "name": "Edgware",
+      "borough_code": "E09000015",
+      "green_pct": 32.6,
+      "area_ha": 168.9
+    },
+    "E05013599": {
+      "name": "South Tottenham",
+      "borough_code": "E09000014",
+      "green_pct": 22.3,
+      "area_ha": 128.9
+    },
+    "E05013704": {
+      "name": "Highbury",
+      "borough_code": "E09000019",
+      "green_pct": 38.0,
+      "area_ha": 108.4
+    },
+    "E05011098": {
+      "name": "Chaucer",
+      "borough_code": "E09000028",
+      "green_pct": 29.7,
+      "area_ha": 75.1
+    },
+    "E05011250": {
+      "name": "Newbury",
+      "borough_code": "E09000026",
+      "green_pct": 38.0,
+      "area_ha": 174.4
+    },
+    "E05013680": {
+      "name": "Enfield Lock",
+      "borough_code": "E09000010",
+      "green_pct": 46.6,
+      "area_ha": 326.5
+    },
+    "E05014106": {
+      "name": "Knight's Hill",
+      "borough_code": "E09000022",
+      "green_pct": 30.3,
+      "area_ha": 165.5
+    },
+    "E05013760": {
+      "name": "North Cheam",
+      "borough_code": "E09000029",
+      "green_pct": 22.1,
+      "area_ha": 163.0
+    },
+    "E05011096": {
+      "name": "Camberwell Green",
+      "borough_code": "E09000028",
+      "green_pct": 25.2,
+      "area_ha": 92.9
+    },
+    "E05013633": {
+      "name": "Colindale South",
+      "borough_code": "E09000003",
+      "green_pct": 28.5,
+      "area_ha": 153.1
+    },
+    "E05013597": {
+      "name": "St Ann's",
+      "borough_code": "E09000014",
+      "green_pct": 20.6,
+      "area_ha": 66.4
+    },
+    "E05013540": {
+      "name": "Southfield",
+      "borough_code": "E09000009",
+      "green_pct": 28.7,
+      "area_ha": 151.5
+    },
+    "E05013575": {
+      "name": "Northwood Hills",
+      "borough_code": "E09000017",
+      "green_pct": 54.3,
+      "area_ha": 287.5
+    },
+    "E05011242": {
+      "name": "Fairlop",
+      "borough_code": "E09000026",
+      "green_pct": 44.3,
+      "area_ha": 287.1
+    },
+    "E05013535": {
+      "name": "Pitshanger",
+      "borough_code": "E09000009",
+      "green_pct": 53.3,
+      "area_ha": 220.3
+    },
+    "E05011253": {
+      "name": "Valentines",
+      "borough_code": "E09000026",
+      "green_pct": 36.8,
+      "area_ha": 180.2
+    },
+    "E05014114": {
+      "name": "Streatham Hill West & Thornton",
+      "borough_code": "E09000022",
+      "green_pct": 21.6,
+      "area_ha": 91.6
+    },
+    "E05009394": {
+      "name": "Dalgarno",
+      "borough_code": "E09000020",
+      "green_pct": 42.1,
+      "area_ha": 89.0
+    },
+    "E05013581": {
+      "name": "West Drayton",
+      "borough_code": "E09000017",
+      "green_pct": 46.6,
+      "area_ha": 349.7
+    },
+    "E05014022": {
+      "name": "Thamesfield",
+      "borough_code": "E09000032",
+      "green_pct": 34.6,
+      "area_ha": 185.8
+    },
+    "E05013770": {
+      "name": "Wallington North",
+      "borough_code": "E09000029",
+      "green_pct": 34.8,
+      "area_ha": 161.7
+    },
+    "E05014009": {
+      "name": "Balham",
+      "borough_code": "E09000032",
+      "green_pct": 22.3,
+      "area_ha": 144.8
+    },
+    "E05013814": {
+      "name": "Figge's Marsh",
+      "borough_code": "E09000024",
+      "green_pct": 29.6,
+      "area_ha": 107.0
+    },
+    "E05009326": {
+      "name": "Limehouse",
+      "borough_code": "E09000030",
+      "green_pct": 18.5,
+      "area_ha": 49.6
+    },
+    "E05009318": {
+      "name": "Blackwall & Cubitt Town",
+      "borough_code": "E09000030",
+      "green_pct": 13.8,
+      "area_ha": 188.0
+    },
+    "E05009335": {
+      "name": "Weavers",
+      "borough_code": "E09000030",
+      "green_pct": 26.7,
+      "area_ha": 67.7
+    },
+    "E05014100": {
+      "name": "Clapham East",
+      "borough_code": "E09000022",
+      "green_pct": 24.9,
+      "area_ha": 63.0
+    },
+    "E05009377": {
+      "name": "Hoxton East & Shoreditch",
+      "borough_code": "E09000012",
+      "green_pct": 20.0,
+      "area_ha": 102.2
+    },
+    "E05009374": {
+      "name": "Hackney Wick",
+      "borough_code": "E09000012",
+      "green_pct": 43.8,
+      "area_ha": 163.5
+    },
+    "E05014010": {
+      "name": "Battersea Park",
+      "borough_code": "E09000032",
+      "green_pct": 46.2,
+      "area_ha": 200.9
+    },
+    "E05014083": {
+      "name": "Kidbrooke Park",
+      "borough_code": "E09000011",
+      "green_pct": 51.5,
+      "area_ha": 183.0
+    },
+    "E05009331": {
+      "name": "St Peter's",
+      "borough_code": "E09000030",
+      "green_pct": 24.2,
+      "area_ha": 108.4
+    },
+    "E05009323": {
+      "name": "Canary Wharf",
+      "borough_code": "E09000030",
+      "green_pct": 11.0,
+      "area_ha": 164.3
+    },
+    "E05014102": {
+      "name": "Clapham Town",
+      "borough_code": "E09000022",
+      "green_pct": 29.1,
+      "area_ha": 124.7
+    },
+    "E05014002": {
+      "name": "Penge & Cator",
+      "borough_code": "E09000006",
+      "green_pct": 42.2,
+      "area_ha": 305.6
+    },
+    "E05013731": {
+      "name": "Sydenham",
+      "borough_code": "E09000023",
+      "green_pct": 36.5,
+      "area_ha": 183.8
+    },
+    "E05013498": {
+      "name": "Brondesbury Park",
+      "borough_code": "E09000005",
+      "green_pct": 43.6,
+      "area_ha": 173.1
+    },
+    "E05013942": {
+      "name": "Old Malden",
+      "borough_code": "E09000021",
+      "green_pct": 52.6,
+      "area_ha": 171.9
+    },
+    "E05014075": {
+      "name": "Charlton Village & Riverside",
+      "borough_code": "E09000011",
+      "green_pct": 45.0,
+      "area_ha": 240.5
+    },
+    "E05013817": {
+      "name": "Lavender Fields",
+      "borough_code": "E09000024",
+      "green_pct": 29.9,
+      "area_ha": 121.6
+    },
+    "E05013642": {
+      "name": "Golders Green",
+      "borough_code": "E09000003",
+      "green_pct": 28.4,
+      "area_ha": 164.1
+    },
+    "E05014115": {
+      "name": "Streatham St Leonard's",
+      "borough_code": "E09000022",
+      "green_pct": 24.9,
+      "area_ha": 146.9
+    },
+    "E05013767": {
+      "name": "Sutton South",
+      "borough_code": "E09000029",
+      "green_pct": 31.8,
+      "area_ha": 139.8
+    },
+    "E05011244": {
+      "name": "Goodmayes",
+      "borough_code": "E09000026",
+      "green_pct": 31.7,
+      "area_ha": 181.3
+    },
+    "E05009403": {
+      "name": "Royal Hospital",
+      "borough_code": "E09000020",
+      "green_pct": 32.1,
+      "area_ha": 101.3
+    },
+    "E05013889": {
+      "name": "Hale End & Highams Park South",
+      "borough_code": "E09000031",
+      "green_pct": 60.3,
+      "area_ha": 179.2
+    },
+    "E05009322": {
+      "name": "Bromley South",
+      "borough_code": "E09000030",
+      "green_pct": 22.3,
+      "area_ha": 68.8
+    },
+    "E05013572": {
+      "name": "Hillingdon West",
+      "borough_code": "E09000017",
+      "green_pct": 53.3,
+      "area_ha": 200.0
+    },
+    "E05014072": {
+      "name": "Abbey Wood",
+      "borough_code": "E09000011",
+      "green_pct": 57.6,
+      "area_ha": 271.1
+    },
+    "E05014028": {
+      "name": "Wandsworth Town",
+      "borough_code": "E09000032",
+      "green_pct": 25.9,
+      "area_ha": 157.7
+    },
+    "E05011471": {
+      "name": "New Addington South",
+      "borough_code": "E09000008",
+      "green_pct": 48.1,
+      "area_ha": 248.9
+    },
+    "E05011484": {
+      "name": "South Croydon",
+      "borough_code": "E09000008",
+      "green_pct": 52.5,
+      "area_ha": 394.5
+    },
+    "E05013702": {
+      "name": "Clerkenwell",
+      "borough_code": "E09000019",
+      "green_pct": 24.5,
+      "area_ha": 93.4
+    },
+    "E05011472": {
+      "name": "Norbury & Pollards Hill",
+      "borough_code": "E09000008",
+      "green_pct": 29.7,
+      "area_ha": 134.1
+    },
+    "E05013720": {
+      "name": "Downham",
+      "borough_code": "E09000023",
+      "green_pct": 46.0,
+      "area_ha": 267.3
+    },
+    "E05011463": {
+      "name": "Addiscombe West",
+      "borough_code": "E09000008",
+      "green_pct": 20.5,
+      "area_ha": 134.4
+    },
+    "E05013497": {
+      "name": "Barnhill",
+      "borough_code": "E09000005",
+      "green_pct": 53.8,
+      "area_ha": 214.6
+    },
+    "E05013524": {
+      "name": "Hanger Hill",
+      "borough_code": "E09000009",
+      "green_pct": 50.0,
+      "area_ha": 342.5
+    },
+    "E05014053": {
+      "name": "Abbey",
+      "borough_code": "E09000002",
+      "green_pct": 23.1,
+      "area_ha": 46.8
+    },
+    "E05014116": {
+      "name": "Streatham Wells",
+      "borough_code": "E09000022",
+      "green_pct": 32.4,
+      "area_ha": 95.0
+    },
+    "E05013829": {
+      "name": "Wimbledon Town & Dundonald",
+      "borough_code": "E09000024",
+      "green_pct": 26.0,
+      "area_ha": 146.9
+    },
+    "E05011097": {
+      "name": "Champion Hill",
+      "borough_code": "E09000028",
+      "green_pct": 50.5,
+      "area_ha": 105.2
+    },
+    "E05009298": {
+      "name": "Cheap",
+      "borough_code": "E09000001",
+      "green_pct": 1.5,
+      "area_ha": 9.2
+    },
+    "E05009370": {
+      "name": "Dalston",
+      "borough_code": "E09000012",
+      "green_pct": 20.0,
+      "area_ha": 53.5
+    },
+    "E05011234": {
+      "name": "Aldborough",
+      "borough_code": "E09000026",
+      "green_pct": 77.6,
+      "area_ha": 850.1
+    },
+    "E05013600": {
+      "name": "Stroud Green",
+      "borough_code": "E09000014",
+      "green_pct": 34.3,
+      "area_ha": 100.1
+    },
+    "E05011481": {
+      "name": "Selsdon Vale & Forestdale",
+      "borough_code": "E09000008",
+      "green_pct": 76.3,
+      "area_ha": 491.1
+    },
+    "E05013896": {
+      "name": "Leyton",
+      "borough_code": "E09000031",
+      "green_pct": 28.4,
+      "area_ha": 196.3
+    },
+    "E05011255": {
+      "name": "Wanstead Village",
+      "borough_code": "E09000026",
+      "green_pct": 45.3,
+      "area_ha": 230.3
+    },
+    "E05013722": {
+      "name": "Forest Hill",
+      "borough_code": "E09000023",
+      "green_pct": 42.0,
+      "area_ha": 183.3
+    },
+    "E05013902": {
+      "name": "William Morris",
+      "borough_code": "E09000031",
+      "green_pct": 20.8,
+      "area_ha": 94.7
+    },
+    "E05009306": {
+      "name": "Langbourn",
+      "borough_code": "E09000001",
+      "green_pct": 0.8,
+      "area_ha": 5.2
+    },
+    "E05013891": {
+      "name": "High Street",
+      "borough_code": "E09000031",
+      "green_pct": 16.4,
+      "area_ha": 82.0
+    },
+    "E05009309": {
+      "name": "Queenhithe",
+      "borough_code": "E09000001",
+      "green_pct": 1.7,
+      "area_ha": 7.9
+    },
+    "E05013636": {
+      "name": "East Finchley",
+      "borough_code": "E09000003",
+      "green_pct": 53.4,
+      "area_ha": 245.8
+    },
+    "E05009304": {
+      "name": "Farringdon Within",
+      "borough_code": "E09000001",
+      "green_pct": 4.3,
+      "area_ha": 24.4
+    },
+    "E05009328": {
+      "name": "Poplar",
+      "borough_code": "E09000030",
+      "green_pct": 22.8,
+      "area_ha": 71.0
+    },
+    "E05009404": {
+      "name": "St. Helen's",
+      "borough_code": "E09000020",
+      "green_pct": 32.9,
+      "area_ha": 47.8
+    },
+    "E05011241": {
+      "name": "Cranbrook",
+      "borough_code": "E09000026",
+      "green_pct": 24.0,
+      "area_ha": 149.1
+    },
+    "E05013650": {
+      "name": "Whetstone",
+      "borough_code": "E09000003",
+      "green_pct": 47.5,
+      "area_ha": 238.8
+    },
+    "E05011107": {
+      "name": "North Walworth",
+      "borough_code": "E09000028",
+      "green_pct": 24.1,
+      "area_ha": 79.6
+    },
+    "E05013806": {
+      "name": "St James's",
+      "borough_code": "E09000033",
+      "green_pct": 26.9,
+      "area_ha": 343.4
+    },
+    "E05013734": {
+      "name": "Avonmore",
+      "borough_code": "E09000013",
+      "green_pct": 29.5,
+      "area_ha": 47.5
+    },
+    "E05013904": {
+      "name": "Beckton",
+      "borough_code": "E09000025",
+      "green_pct": 43.3,
+      "area_ha": 596.3
+    },
+    "E05013747": {
+      "name": "Sands End",
+      "borough_code": "E09000013",
+      "green_pct": 15.1,
+      "area_ha": 85.4
+    },
+    "E05013672": {
+      "name": "Arnos Grove",
+      "borough_code": "E09000010",
+      "green_pct": 45.6,
+      "area_ha": 177.6
+    },
+    "E05013580": {
+      "name": "Uxbridge",
+      "borough_code": "E09000017",
+      "green_pct": 45.9,
+      "area_ha": 425.4
+    },
+    "E05013547": {
+      "name": "Harrow on the Hill",
+      "borough_code": "E09000015",
+      "green_pct": 70.2,
+      "area_ha": 340.9
+    },
+    "E05014077": {
+      "name": "Eltham Page",
+      "borough_code": "E09000011",
+      "green_pct": 39.4,
+      "area_ha": 152.1
+    },
+    "E05013920": {
+      "name": "Plaistow West & Canning Town East",
+      "borough_code": "E09000025",
+      "green_pct": 35.2,
+      "area_ha": 124.0
+    },
+    "E05013793": {
+      "name": "Bayswater",
+      "borough_code": "E09000033",
+      "green_pct": 21.0,
+      "area_ha": 65.7
+    },
+    "E05013900": {
+      "name": "Upper Walthamstow",
+      "borough_code": "E09000031",
+      "green_pct": 61.5,
+      "area_ha": 167.3
+    },
+    "E05013707": {
+      "name": "Junction",
+      "borough_code": "E09000019",
+      "green_pct": 28.1,
+      "area_ha": 105.9
+    },
+    "E05013781": {
+      "name": "Heathfield",
+      "borough_code": "E09000027",
+      "green_pct": 42.7,
+      "area_ha": 183.9
+    },
+    "E05013649": {
+      "name": "West Hendon",
+      "borough_code": "E09000003",
+      "green_pct": 36.8,
+      "area_ha": 315.2
+    },
+    "E05014058": {
+      "name": "Chadwell Heath",
+      "borough_code": "E09000002",
+      "green_pct": 62.7,
+      "area_ha": 353.3
+    },
+    "E05013796": {
+      "name": "Hyde Park",
+      "borough_code": "E09000033",
+      "green_pct": 54.1,
+      "area_ha": 177.7
+    },
+    "E05013755": {
+      "name": "Belmont",
+      "borough_code": "E09000029",
+      "green_pct": 38.7,
+      "area_ha": 238.8
+    },
+    "E05014068": {
+      "name": "Thames View",
+      "borough_code": "E09000002",
+      "green_pct": 29.4,
+      "area_ha": 160.8
+    },
+    "E05011228": {
+      "name": "Northumberland Heath",
+      "borough_code": "E09000004",
+      "green_pct": 41.2,
+      "area_ha": 171.4
+    },
+    "E05013923": {
+      "name": "Royal Victoria",
+      "borough_code": "E09000025",
+      "green_pct": 14.7,
+      "area_ha": 275.8
+    },
+    "E05013585": {
+      "name": "Alexandra Park",
+      "borough_code": "E09000014",
+      "green_pct": 63.1,
+      "area_ha": 242.2
+    },
+    "E05014027": {
+      "name": "Wandsworth Common",
+      "borough_code": "E09000032",
+      "green_pct": 44.0,
+      "area_ha": 279.2
+    },
+    "E05013883": {
+      "name": "Cathall",
+      "borough_code": "E09000031",
+      "green_pct": 32.1,
+      "area_ha": 89.6
+    },
+    "E05013824": {
+      "name": "St Helier",
+      "borough_code": "E09000024",
+      "green_pct": 38.0,
+      "area_ha": 140.5
+    },
+    "E05013612": {
+      "name": "Cranford",
+      "borough_code": "E09000018",
+      "green_pct": 44.1,
+      "area_ha": 315.3
+    },
+    "E05011476": {
+      "name": "Purley & Woodcote",
+      "borough_code": "E09000008",
+      "green_pct": 46.0,
+      "area_ha": 509.9
+    },
+    "E05014063": {
+      "name": "Heath",
+      "borough_code": "E09000002",
+      "green_pct": 28.2,
+      "area_ha": 108.1
+    },
+    "E05013557": {
+      "name": "Rayners Lane",
+      "borough_code": "E09000015",
+      "green_pct": 31.8,
+      "area_ha": 113.1
+    },
+    "E05011470": {
+      "name": "New Addington North",
+      "borough_code": "E09000008",
+      "green_pct": 40.4,
+      "area_ha": 141.5
+    },
+    "E05013579": {
+      "name": "South Ruislip",
+      "borough_code": "E09000017",
+      "green_pct": 56.1,
+      "area_ha": 674.4
+    },
+    "E05013589": {
+      "name": "Fortis Green",
+      "borough_code": "E09000014",
+      "green_pct": 48.8,
+      "area_ha": 193.1
+    },
+    "E05013699": {
+      "name": "Bunhill",
+      "borough_code": "E09000019",
+      "green_pct": 20.7,
+      "area_ha": 84.6
+    },
+    "E05009293": {
+      "name": "Bread Street",
+      "borough_code": "E09000001",
+      "green_pct": 10.6,
+      "area_ha": 8.8
+    },
+    "E05013895": {
+      "name": "Lea Bridge",
+      "borough_code": "E09000031",
+      "green_pct": 42.6,
+      "area_ha": 248.9
+    },
+    "E05013583": {
+      "name": "Yeading",
+      "borough_code": "E09000017",
+      "green_pct": 58.0,
+      "area_ha": 251.0
+    },
+    "E05013568": {
+      "name": "Harefield Village",
+      "borough_code": "E09000017",
+      "green_pct": 84.6,
+      "area_ha": 871.6
+    },
+    "E05013674": {
+      "name": "Brimsdown",
+      "borough_code": "E09000010",
+      "green_pct": 29.6,
+      "area_ha": 461.4
+    },
+    "E05009381": {
+      "name": "London Fields",
+      "borough_code": "E09000012",
+      "green_pct": 33.1,
+      "area_ha": 101.8
+    },
+    "E05013513": {
+      "name": "Welsh Harp",
+      "borough_code": "E09000005",
+      "green_pct": 48.9,
+      "area_ha": 357.8
+    },
+    "E05011487": {
+      "name": "Waddon",
+      "borough_code": "E09000008",
+      "green_pct": 39.3,
+      "area_ha": 392.1
+    },
+    "E05009294": {
+      "name": "Bridge",
+      "borough_code": "E09000001",
+      "green_pct": 1.9,
+      "area_ha": 9.4
+    },
+    "E05013623": {
+      "name": "Hounslow South",
+      "borough_code": "E09000018",
+      "green_pct": 37.1,
+      "area_ha": 202.4
+    },
+    "E05013574": {
+      "name": "Northwood",
+      "borough_code": "E09000017",
+      "green_pct": 75.0,
+      "area_ha": 644.5
+    },
+    "E05013499": {
+      "name": "Cricklewood & Mapesbury",
+      "borough_code": "E09000005",
+      "green_pct": 35.2,
+      "area_ha": 124.4
+    },
+    "E05013792": {
+      "name": "Abbey Road",
+      "borough_code": "E09000033",
+      "green_pct": 40.4,
+      "area_ha": 120.8
+    },
+    "E05013645": {
+      "name": "Mill Hill",
+      "borough_code": "E09000003",
+      "green_pct": 69.1,
+      "area_ha": 788.1
+    },
+    "E05013538": {
+      "name": "Southall Green",
+      "borough_code": "E09000009",
+      "green_pct": 17.4,
+      "area_ha": 155.8
+    },
+    "E05013691": {
+      "name": "Southbury",
+      "borough_code": "E09000010",
+      "green_pct": 43.9,
+      "area_ha": 209.1
+    },
+    "E05014060": {
+      "name": "Eastbury",
+      "borough_code": "E09000002",
+      "green_pct": 29.8,
+      "area_ha": 213.1
+    },
+    "E05013898": {
+      "name": "Markhouse",
+      "borough_code": "E09000031",
+      "green_pct": 23.3,
+      "area_ha": 75.2
+    },
+    "E05014091": {
+      "name": "West Thamesmead",
+      "borough_code": "E09000011",
+      "green_pct": 32.8,
+      "area_ha": 242.4
+    },
+    "E05013905": {
+      "name": "Boleyn",
+      "borough_code": "E09000025",
+      "green_pct": 22.4,
+      "area_ha": 75.8
+    },
+    "E05013916": {
+      "name": "Manor Park",
+      "borough_code": "E09000025",
+      "green_pct": 38.7,
+      "area_ha": 132.8
+    },
+    "E05013913": {
+      "name": "Green Street East",
+      "borough_code": "E09000025",
+      "green_pct": 10.4,
+      "area_ha": 76.4
+    },
+    "E05011223": {
+      "name": "Crook Log",
+      "borough_code": "E09000004",
+      "green_pct": 34.1,
+      "area_ha": 267.8
+    },
+    "E05009291": {
+      "name": "Billingsgate",
+      "borough_code": "E09000001",
+      "green_pct": 4.0,
+      "area_ha": 12.2
+    },
+    "E05013788": {
+      "name": "Teddington",
+      "borough_code": "E09000027",
+      "green_pct": 73.6,
+      "area_ha": 429.6
+    },
+    "E05014086": {
+      "name": "Mottingham, Coldharbour & New Eltham",
+      "borough_code": "E09000011",
+      "green_pct": 45.8,
+      "area_ha": 278.1
+    },
+    "E05009301": {
+      "name": "Cornhill",
+      "borough_code": "E09000001",
+      "green_pct": 1.7,
+      "area_ha": 6.5
+    },
+    "E05013647": {
+      "name": "Underhill",
+      "borough_code": "E09000003",
+      "green_pct": 54.4,
+      "area_ha": 254.4
+    },
+    "E05014069": {
+      "name": "Valence",
+      "borough_code": "E09000002",
+      "green_pct": 27.7,
+      "area_ha": 150.8
+    },
+    "E05011239": {
+      "name": "Clayhall",
+      "borough_code": "E09000026",
+      "green_pct": 40.6,
+      "area_ha": 253.4
+    },
+    "E05014011": {
+      "name": "East Putney",
+      "borough_code": "E09000032",
+      "green_pct": 37.2,
+      "area_ha": 164.1
+    },
+    "E05013693": {
+      "name": "Town",
+      "borough_code": "E09000010",
+      "green_pct": 35.1,
+      "area_ha": 207.7
+    },
+    "E05013617": {
+      "name": "Heston Central",
+      "borough_code": "E09000018",
+      "green_pct": 27.6,
+      "area_ha": 168.4
+    },
+    "E05013718": {
+      "name": "Crofton Park",
+      "borough_code": "E09000023",
+      "green_pct": 33.8,
+      "area_ha": 172.5
+    },
+    "E05009375": {
+      "name": "Haggerston",
+      "borough_code": "E09000012",
+      "green_pct": 29.7,
+      "area_ha": 86.7
+    },
+    "E05011462": {
+      "name": "Addiscombe East",
+      "borough_code": "E09000008",
+      "green_pct": 34.1,
+      "area_ha": 154.1
+    },
+    "E05013553": {
+      "name": "Marlborough",
+      "borough_code": "E09000015",
+      "green_pct": 23.4,
+      "area_ha": 127.2
+    },
+    "E05013748": {
+      "name": "Shepherd's Bush Green",
+      "borough_code": "E09000013",
+      "green_pct": 18.4,
+      "area_ha": 60.2
+    },
+    "E05013825": {
+      "name": "Village",
+      "borough_code": "E09000024",
+      "green_pct": 72.1,
+      "area_ha": 667.0
+    },
+    "E05013812": {
+      "name": "Colliers Wood",
+      "borough_code": "E09000024",
+      "green_pct": 23.7,
+      "area_ha": 110.8
+    },
+    "E05011226": {
+      "name": "Falconwood & Welling",
+      "borough_code": "E09000004",
+      "green_pct": 43.5,
+      "area_ha": 326.1
+    },
+    "E05013754": {
+      "name": "Beddington",
+      "borough_code": "E09000029",
+      "green_pct": 43.7,
+      "area_ha": 510.3
+    },
+    "E05013666": {
+      "name": "King's Cross",
+      "borough_code": "E09000007",
+      "green_pct": 20.5,
+      "area_ha": 107.8
+    },
+    "E05013761": {
+      "name": "St Helier East",
+      "borough_code": "E09000029",
+      "green_pct": 43.4,
+      "area_ha": 111.5
+    },
+    "E05013971": {
+      "name": "Gooshays",
+      "borough_code": "E09000016",
+      "green_pct": 70.5,
+      "area_ha": 778.8
+    },
+    "E05013742": {
+      "name": "Lillie",
+      "borough_code": "E09000013",
+      "green_pct": 21.7,
+      "area_ha": 42.1
+    },
+    "E05013608": {
+      "name": "Brentford West",
+      "borough_code": "E09000018",
+      "green_pct": 44.5,
+      "area_ha": 143.5
+    },
+    "E05013759": {
+      "name": "Hackbridge",
+      "borough_code": "E09000029",
+      "green_pct": 46.3,
+      "area_ha": 107.5
+    },
+    "E05009384": {
+      "name": "Stamford Hill West",
+      "borough_code": "E09000012",
+      "green_pct": 25.4,
+      "area_ha": 67.0
+    },
+    "E05009319": {
+      "name": "Bow East",
+      "borough_code": "E09000030",
+      "green_pct": 38.4,
+      "area_ha": 186.5
+    },
+    "E05013698": {
+      "name": "Barnsbury",
+      "borough_code": "E09000019",
+      "green_pct": 31.9,
+      "area_ha": 90.0
+    },
+    "E05013703": {
+      "name": "Finsbury Park",
+      "borough_code": "E09000019",
+      "green_pct": 18.4,
+      "area_ha": 84.2
+    },
+    "E05013630": {
+      "name": "Burnt Oak",
+      "borough_code": "E09000003",
+      "green_pct": 43.8,
+      "area_ha": 254.2
+    },
+    "E05013678": {
+      "name": "Cockfosters",
+      "borough_code": "E09000010",
+      "green_pct": 80.7,
+      "area_ha": 973.0
+    },
+    "E05013563": {
+      "name": "West Harrow",
+      "borough_code": "E09000015",
+      "green_pct": 39.4,
+      "area_ha": 117.8
+    },
+    "E05013741": {
+      "name": "Hammersmith Broadway",
+      "borough_code": "E09000013",
+      "green_pct": 15.5,
+      "area_ha": 76.1
+    },
+    "E05013990": {
+      "name": "Bromley Common & Holwood",
+      "borough_code": "E09000006",
+      "green_pct": 70.4,
+      "area_ha": 698.4
+    },
+    "E05013578": {
+      "name": "Ruislip Manor",
+      "borough_code": "E09000017",
+      "green_pct": 39.1,
+      "area_ha": 176.0
+    },
+    "E05013684": {
+      "name": "Jubilee",
+      "borough_code": "E09000010",
+      "green_pct": 34.4,
+      "area_ha": 401.5
+    },
+    "E05011104": {
+      "name": "London Bridge & West Bermondsey",
+      "borough_code": "E09000028",
+      "green_pct": 15.9,
+      "area_ha": 127.1
+    },
+    "E05013885": {
+      "name": "Chingford Green",
+      "borough_code": "E09000031",
+      "green_pct": 65.6,
+      "area_ha": 382.8
+    },
+    "E05014096": {
+      "name": "Brixton North",
+      "borough_code": "E09000022",
+      "green_pct": 28.0,
+      "area_ha": 91.7
+    },
+    "E05013570": {
+      "name": "Heathrow Villages",
+      "borough_code": "E09000017",
+      "green_pct": 48.1,
+      "area_ha": 2352.8
+    },
+    "E05014066": {
+      "name": "Northbury",
+      "borough_code": "E09000002",
+      "green_pct": 22.9,
+      "area_ha": 101.8
+    },
+    "E05009312": {
+      "name": "Walbrook",
+      "borough_code": "E09000001",
+      "green_pct": 1.7,
+      "area_ha": 7.5
+    },
+    "E05013773": {
+      "name": "Worcester Park South",
+      "borough_code": "E09000029",
+      "green_pct": 36.4,
+      "area_ha": 134.1
+    },
+    "E05013508": {
+      "name": "Queensbury",
+      "borough_code": "E09000005",
+      "green_pct": 37.8,
+      "area_ha": 215.5
+    },
+    "E05009336": {
+      "name": "Whitechapel",
+      "borough_code": "E09000030",
+      "green_pct": 14.2,
+      "area_ha": 96.1
+    },
+    "E05014020": {
+      "name": "South Balham",
+      "borough_code": "E09000032",
+      "green_pct": 53.3,
+      "area_ha": 153.2
+    },
+    "E05011235": {
+      "name": "Barkingside",
+      "borough_code": "E09000026",
+      "green_pct": 23.6,
+      "area_ha": 163.0
+    },
+    "E05009300": {
+      "name": "Cordwainer",
+      "borough_code": "E09000001",
+      "green_pct": 3.1,
+      "area_ha": 6.0
+    },
+    "E05013549": {
+      "name": "Hatch End",
+      "borough_code": "E09000015",
+      "green_pct": 62.5,
+      "area_ha": 289.1
+    },
+    "E05009385": {
+      "name": "Stoke Newington",
+      "borough_code": "E09000012",
+      "green_pct": 30.0,
+      "area_ha": 96.2
+    },
+    "E05013823": {
+      "name": "Raynes Park",
+      "borough_code": "E09000024",
+      "green_pct": 38.6,
+      "area_ha": 186.6
+    },
+    "E05009389": {
+      "name": "Brompton & Hans Town",
+      "borough_code": "E09000020",
+      "green_pct": 21.1,
+      "area_ha": 106.9
+    },
+    "E05013644": {
+      "name": "High Barnet",
+      "borough_code": "E09000003",
+      "green_pct": 79.0,
+      "area_ha": 812.0
+    },
+    "E05013521": {
+      "name": "Ealing Common",
+      "borough_code": "E09000009",
+      "green_pct": 44.6,
+      "area_ha": 238.7
+    },
+    "E05013536": {
+      "name": "South Acton",
+      "borough_code": "E09000009",
+      "green_pct": 28.1,
+      "area_ha": 131.4
+    },
+    "E05013929": {
+      "name": "Berrylands",
+      "borough_code": "E09000021",
+      "green_pct": 46.0,
+      "area_ha": 121.6
+    },
+    "E05013662": {
+      "name": "Holborn & Covent Garden",
+      "borough_code": "E09000007",
+      "green_pct": 15.4,
+      "area_ha": 110.9
+    },
+    "E05013901": {
+      "name": "Valley",
+      "borough_code": "E09000031",
+      "green_pct": 32.9,
+      "area_ha": 220.2
+    },
+    "E05013632": {
+      "name": "Colindale North",
+      "borough_code": "E09000003",
+      "green_pct": 35.3,
+      "area_ha": 104.8
+    },
+    "E05013546": {
+      "name": "Greenhill",
+      "borough_code": "E09000015",
+      "green_pct": 25.5,
+      "area_ha": 115.8
+    },
+    "E05013995": {
+      "name": "Crystal Palace & Anerley",
+      "borough_code": "E09000006",
+      "green_pct": 56.1,
+      "area_ha": 202.4
+    },
+    "E05011479": {
+      "name": "Selhurst",
+      "borough_code": "E09000008",
+      "green_pct": 26.6,
+      "area_ha": 130.8
+    },
+    "E05013596": {
+      "name": "Northumberland Park",
+      "borough_code": "E09000014",
+      "green_pct": 33.2,
+      "area_ha": 211.2
+    },
+    "E05013967": {
+      "name": "Beam Park",
+      "borough_code": "E09000016",
+      "green_pct": 37.1,
+      "area_ha": 203.5
+    },
+    "E05013560": {
+      "name": "Stanmore",
+      "borough_code": "E09000015",
+      "green_pct": 76.5,
+      "area_ha": 725.5
+    },
+    "E05013937": {
+      "name": "Kingston Gate",
+      "borough_code": "E09000021",
+      "green_pct": 34.8,
+      "area_ha": 108.6
+    },
+    "E05014006": {
+      "name": "St Mary Cray",
+      "borough_code": "E09000006",
+      "green_pct": 77.0,
+      "area_ha": 883.7
+    },
+    "E05013919": {
+      "name": "Plaistow South",
+      "borough_code": "E09000025",
+      "green_pct": 34.5,
+      "area_ha": 116.9
+    },
+    "E05013562": {
+      "name": "Wealdstone South",
+      "borough_code": "E09000015",
+      "green_pct": 31.4,
+      "area_ha": 83.3
+    },
+    "E05014093": {
+      "name": "Woolwich Common",
+      "borough_code": "E09000011",
+      "green_pct": 58.9,
+      "area_ha": 206.8
+    },
+    "E05013564": {
+      "name": "Belmore",
+      "borough_code": "E09000017",
+      "green_pct": 40.3,
+      "area_ha": 224.9
+    },
+    "E05013681": {
+      "name": "Grange Park",
+      "borough_code": "E09000010",
+      "green_pct": 56.1,
+      "area_ha": 245.3
+    },
+    "E05013931": {
+      "name": "Chessington South & Malden Rushett",
+      "borough_code": "E09000021",
+      "green_pct": 78.2,
+      "area_ha": 746.3
+    },
+    "E05013769": {
+      "name": "The Wrythe",
+      "borough_code": "E09000029",
+      "green_pct": 28.9,
+      "area_ha": 138.8
+    },
+    "E05013798": {
+      "name": "Lancaster Gate",
+      "borough_code": "E09000033",
+      "green_pct": 62.5,
+      "area_ha": 162.7
+    },
+    "E05013736": {
+      "name": "College Park & Old Oak",
+      "borough_code": "E09000013",
+      "green_pct": 45.4,
+      "area_ha": 343.6
+    },
+    "E05014054": {
+      "name": "Alibon",
+      "borough_code": "E09000002",
+      "green_pct": 19.9,
+      "area_ha": 143.5
+    },
+    "E05013903": {
+      "name": "Wood Street",
+      "borough_code": "E09000031",
+      "green_pct": 18.3,
+      "area_ha": 71.1
+    },
+    "E05013803": {
+      "name": "Pimlico South",
+      "borough_code": "E09000033",
+      "green_pct": 22.2,
+      "area_ha": 64.9
+    },
+    "E05013945": {
+      "name": "Tolworth",
+      "borough_code": "E09000021",
+      "green_pct": 30.9,
+      "area_ha": 142.7
+    },
+    "E05013627": {
+      "name": "Syon & Brentford Lock",
+      "borough_code": "E09000018",
+      "green_pct": 54.3,
+      "area_ha": 240.3
+    },
+    "E05013594": {
+      "name": "Muswell Hill",
+      "borough_code": "E09000014",
+      "green_pct": 47.3,
+      "area_ha": 127.7
+    },
+    "E05013624": {
+      "name": "Hounslow West",
+      "borough_code": "E09000018",
+      "green_pct": 22.2,
+      "area_ha": 159.5
+    },
+    "E05014016": {
+      "name": "Northcote",
+      "borough_code": "E09000032",
+      "green_pct": 43.8,
+      "area_ha": 143.1
+    },
+    "E05009288": {
+      "name": "Aldersgate",
+      "borough_code": "E09000001",
+      "green_pct": 24.0,
+      "area_ha": 9.8
+    },
+    "E05013733": {
+      "name": "Addison",
+      "borough_code": "E09000013",
+      "green_pct": 18.2,
+      "area_ha": 37.5
+    },
+    "E05013686": {
+      "name": "New Southgate",
+      "borough_code": "E09000010",
+      "green_pct": 26.8,
+      "area_ha": 108.6
+    },
+    "E05013821": {
+      "name": "Pollards Hill",
+      "borough_code": "E09000024",
+      "green_pct": 57.4,
+      "area_ha": 214.7
+    },
+    "E05009387": {
+      "name": "Woodberry Down",
+      "borough_code": "E09000012",
+      "green_pct": 29.7,
+      "area_ha": 88.1
+    },
+    "E05013921": {
+      "name": "Plashet",
+      "borough_code": "E09000025",
+      "green_pct": 22.1,
+      "area_ha": 70.7
+    },
+    "E05011236": {
+      "name": "Bridge",
+      "borough_code": "E09000026",
+      "green_pct": 56.5,
+      "area_ha": 345.3
+    },
+    "E05009297": {
+      "name": "Castle Baynard",
+      "borough_code": "E09000001",
+      "green_pct": 3.6,
+      "area_ha": 35.6
+    },
+    "E05013622": {
+      "name": "Hounslow Heath",
+      "borough_code": "E09000018",
+      "green_pct": 58.2,
+      "area_ha": 278.4
+    },
+    "E05013711": {
+      "name": "St Peter's & Canalside",
+      "borough_code": "E09000019",
+      "green_pct": 22.0,
+      "area_ha": 65.1
+    },
+    "E05013634": {
+      "name": "Cricklewood",
+      "borough_code": "E09000003",
+      "green_pct": 30.2,
+      "area_ha": 200.0
+    },
+    "E05011105": {
+      "name": "Newington",
+      "borough_code": "E09000028",
+      "green_pct": 34.9,
+      "area_ha": 77.9
+    },
+    "E05013988": {
+      "name": "Bickley & Sundridge",
+      "borough_code": "E09000006",
+      "green_pct": 67.4,
+      "area_ha": 645.4
+    },
+    "E05013543": {
+      "name": "Canons",
+      "borough_code": "E09000015",
+      "green_pct": 52.3,
+      "area_ha": 201.0
+    },
+    "E05013978": {
+      "name": "Mawneys",
+      "borough_code": "E09000016",
+      "green_pct": 44.7,
+      "area_ha": 301.9
+    },
+    "E05013979": {
+      "name": "Rainham & Wennington",
+      "borough_code": "E09000016",
+      "green_pct": 59.1,
+      "area_ha": 1876.7
+    },
+    "E05014090": {
+      "name": "Thamesmead Moorings",
+      "borough_code": "E09000011",
+      "green_pct": 46.8,
+      "area_ha": 291.2
+    },
+    "E05009382": {
+      "name": "Shacklewell",
+      "borough_code": "E09000012",
+      "green_pct": 19.7,
+      "area_ha": 43.2
+    },
+    "E05013777": {
+      "name": "Ham, Petersham & Richmond Riverside",
+      "borough_code": "E09000027",
+      "green_pct": 84.6,
+      "area_ha": 944.1
+    },
+    "E05013819": {
+      "name": "Lower Morden",
+      "borough_code": "E09000024",
+      "green_pct": 49.2,
+      "area_ha": 248.5
+    },
+    "E05013985": {
+      "name": "Squirrels Heath",
+      "borough_code": "E09000016",
+      "green_pct": 32.4,
+      "area_ha": 298.5
+    },
+    "E05013510": {
+      "name": "Stonebridge",
+      "borough_code": "E09000005",
+      "green_pct": 27.2,
+      "area_ha": 400.4
+    },
+    "E05009317": {
+      "name": "Bethnal Green",
+      "borough_code": "E09000030",
+      "green_pct": 29.9,
+      "area_ha": 121.4
+    },
+    "E05013587": {
+      "name": "Bruce Castle",
+      "borough_code": "E09000014",
+      "green_pct": 39.4,
+      "area_ha": 143.6
+    },
+    "E05013685": {
+      "name": "Lower Edmonton",
+      "borough_code": "E09000010",
+      "green_pct": 27.6,
+      "area_ha": 217.5
+    },
+    "E05013746": {
+      "name": "Ravenscourt",
+      "borough_code": "E09000013",
+      "green_pct": 33.7,
+      "area_ha": 85.1
+    },
+    "E05013750": {
+      "name": "Wendell Park",
+      "borough_code": "E09000013",
+      "green_pct": 33.7,
+      "area_ha": 56.7
+    },
+    "E05013804": {
+      "name": "Queen's Park",
+      "borough_code": "E09000033",
+      "green_pct": 15.0,
+      "area_ha": 58.4
+    },
+    "E05013980": {
+      "name": "Rush Green & Crowlands",
+      "borough_code": "E09000016",
+      "green_pct": 53.2,
+      "area_ha": 375.2
+    },
+    "E05014017": {
+      "name": "Roehampton",
+      "borough_code": "E09000032",
+      "green_pct": 71.7,
+      "area_ha": 410.5
+    },
+    "E05013713": {
+      "name": "Tufnell Park",
+      "borough_code": "E09000019",
+      "green_pct": 32.7,
+      "area_ha": 84.7
+    },
+    "E05013982": {
+      "name": "St Andrew's",
+      "borough_code": "E09000016",
+      "green_pct": 32.5,
+      "area_ha": 288.3
+    },
+    "E05013637": {
+      "name": "Edgware",
+      "borough_code": "E09000003",
+      "green_pct": 41.8,
+      "area_ha": 334.5
+    },
+    "E05013828": {
+      "name": "Wimbledon Park",
+      "borough_code": "E09000024",
+      "green_pct": 37.6,
+      "area_ha": 201.6
+    },
+    "E05014062": {
+      "name": "Goresbrook",
+      "borough_code": "E09000002",
+      "green_pct": 31.8,
+      "area_ha": 160.9
+    },
+    "E05013723": {
+      "name": "Grove Park",
+      "borough_code": "E09000023",
+      "green_pct": 44.0,
+      "area_ha": 242.7
+    },
+    "E05014013": {
+      "name": "Furzedown",
+      "borough_code": "E09000032",
+      "green_pct": 30.4,
+      "area_ha": 155.2
+    },
+    "E05013668": {
+      "name": "Regent's Park",
+      "borough_code": "E09000007",
+      "green_pct": 36.9,
+      "area_ha": 135.0
+    },
+    "E05013709": {
+      "name": "Mildmay",
+      "borough_code": "E09000019",
+      "green_pct": 39.9,
+      "area_ha": 90.4
+    },
+    "E05013501": {
+      "name": "Harlesden & Kensal Green",
+      "borough_code": "E09000005",
+      "green_pct": 25.2,
+      "area_ha": 154.6
+    },
+    "E05013561": {
+      "name": "Wealdstone North",
+      "borough_code": "E09000015",
+      "green_pct": 30.0,
+      "area_ha": 95.5
+    },
+    "E05013696": {
+      "name": "Winchmore Hill",
+      "borough_code": "E09000010",
+      "green_pct": 48.1,
+      "area_ha": 212.9
+    },
+    "E05013507": {
+      "name": "Queens Park",
+      "borough_code": "E09000005",
+      "green_pct": 33.2,
+      "area_ha": 164.7
+    },
+    "E05014108": {
+      "name": "Oval",
+      "borough_code": "E09000022",
+      "green_pct": 24.5,
+      "area_ha": 79.1
+    },
+    "E05013651": {
+      "name": "Woodhouse",
+      "borough_code": "E09000003",
+      "green_pct": 44.2,
+      "area_ha": 220.2
+    },
+    "E05013626": {
+      "name": "Osterley & Spring Grove",
+      "borough_code": "E09000018",
+      "green_pct": 66.0,
+      "area_ha": 630.2
+    },
+    "E05009390": {
+      "name": "Campden",
+      "borough_code": "E09000020",
+      "green_pct": 42.3,
+      "area_ha": 102.4
+    },
+    "E05013820": {
+      "name": "Merton Park",
+      "borough_code": "E09000024",
+      "green_pct": 41.0,
+      "area_ha": 170.5
+    },
+    "E05013827": {
+      "name": "West Barnes",
+      "borough_code": "E09000024",
+      "green_pct": 41.6,
+      "area_ha": 193.8
+    },
+    "E05013669": {
+      "name": "St Pancras & Somers Town",
+      "borough_code": "E09000007",
+      "green_pct": 26.7,
+      "area_ha": 82.5
+    },
+    "E05009302": {
+      "name": "Cripplegate",
+      "borough_code": "E09000001",
+      "green_pct": 14.1,
+      "area_ha": 12.7
+    },
+    "E05014117": {
+      "name": "Vauxhall",
+      "borough_code": "E09000022",
+      "green_pct": 21.8,
+      "area_ha": 80.7
+    },
+    "E05013910": {
+      "name": "East Ham South",
+      "borough_code": "E09000025",
+      "green_pct": 46.1,
+      "area_ha": 186.4
+    },
+    "E05011474": {
+      "name": "Old Coulsdon",
+      "borough_code": "E09000008",
+      "green_pct": 73.6,
+      "area_ha": 693.7
+    },
+    "E05013935": {
+      "name": "Hook & Chessington North",
+      "borough_code": "E09000021",
+      "green_pct": 40.1,
+      "area_ha": 205.2
+    },
+    "E05013735": {
+      "name": "Brook Green",
+      "borough_code": "E09000013",
+      "green_pct": 23.2,
+      "area_ha": 69.7
+    },
+    "E05011100": {
+      "name": "Dulwich Village",
+      "borough_code": "E09000028",
+      "green_pct": 57.5,
+      "area_ha": 262.2
+    },
+    "E05014071": {
+      "name": "Whalebone",
+      "borough_code": "E09000002",
+      "green_pct": 20.4,
+      "area_ha": 169.3
+    },
+    "E05014018": {
+      "name": "St Mary's",
+      "borough_code": "E09000032",
+      "green_pct": 15.3,
+      "area_ha": 128.5
+    },
+    "E05013887": {
+      "name": "Forest",
+      "borough_code": "E09000031",
+      "green_pct": 44.1,
+      "area_ha": 214.1
+    },
+    "E05014059": {
+      "name": "Eastbrook & Rush Green",
+      "borough_code": "E09000002",
+      "green_pct": 64.5,
+      "area_ha": 337.1
+    },
+    "E05013970": {
+      "name": "Emerson Park",
+      "borough_code": "E09000016",
+      "green_pct": 48.7,
+      "area_ha": 351.2
+    },
+    "E05013665": {
+      "name": "Kilburn",
+      "borough_code": "E09000007",
+      "green_pct": 31.9,
+      "area_ha": 65.7
+    },
+    "E05013523": {
+      "name": "Greenford Broadway",
+      "borough_code": "E09000009",
+      "green_pct": 46.2,
+      "area_ha": 235.1
+    },
+    "E05013526": {
+      "name": "Lady Margaret",
+      "borough_code": "E09000009",
+      "green_pct": 34.1,
+      "area_ha": 173.0
+    },
+    "E05011221": {
+      "name": "Blendon & Penhill",
+      "borough_code": "E09000004",
+      "green_pct": 45.7,
+      "area_ha": 337.5
+    },
+    "E05014099": {
+      "name": "Clapham Common & Abbeville",
+      "borough_code": "E09000022",
+      "green_pct": 41.6,
+      "area_ha": 108.1
+    },
+    "E05014079": {
+      "name": "Eltham Town & Avery Hill",
+      "borough_code": "E09000011",
+      "green_pct": 64.0,
+      "area_ha": 525.5
+    },
+    "E05009380": {
+      "name": "Lea Bridge",
+      "borough_code": "E09000012",
+      "green_pct": 35.7,
+      "area_ha": 106.0
+    },
+    "E05011238": {
+      "name": "Churchfields",
+      "borough_code": "E09000026",
+      "green_pct": 37.2,
+      "area_ha": 201.7
+    },
+    "E05011477": {
+      "name": "Purley Oaks & Riddlesdown",
+      "borough_code": "E09000008",
+      "green_pct": 44.3,
+      "area_ha": 245.2
+    },
+    "E05011478": {
+      "name": "Sanderstead",
+      "borough_code": "E09000008",
+      "green_pct": 67.7,
+      "area_ha": 753.9
+    },
+    "E05013541": {
+      "name": "Walpole",
+      "borough_code": "E09000009",
+      "green_pct": 38.2,
+      "area_ha": 156.1
+    },
+    "E05013708": {
+      "name": "Laycock",
+      "borough_code": "E09000019",
+      "green_pct": 26.9,
+      "area_ha": 86.5
+    },
+    "E05013533": {
+      "name": "Norwood Green",
+      "borough_code": "E09000009",
+      "green_pct": 54.5,
+      "area_ha": 366.2
+    },
+    "E05013496": {
+      "name": "Alperton",
+      "borough_code": "E09000005",
+      "green_pct": 27.7,
+      "area_ha": 184.4
+    },
+    "E05013663": {
+      "name": "Kentish Town North",
+      "borough_code": "E09000007",
+      "green_pct": 21.1,
+      "area_ha": 55.4
+    },
+    "E05011102": {
+      "name": "Faraday",
+      "borough_code": "E09000028",
+      "green_pct": 50.0,
+      "area_ha": 110.2
+    },
+    "E05009401": {
+      "name": "Queen's Gate",
+      "borough_code": "E09000020",
+      "green_pct": 17.9,
+      "area_ha": 58.2
+    },
+    "E05013504": {
+      "name": "Kingsbury",
+      "borough_code": "E09000005",
+      "green_pct": 29.6,
+      "area_ha": 135.2
+    },
+    "E05013518": {
+      "name": "Central Greenford",
+      "borough_code": "E09000009",
+      "green_pct": 36.2,
+      "area_ha": 319.4
+    },
+    "E05013764": {
+      "name": "Stonecot",
+      "borough_code": "E09000029",
+      "green_pct": 32.9,
+      "area_ha": 156.3
+    },
+    "E05014001": {
+      "name": "Orpington",
+      "borough_code": "E09000006",
+      "green_pct": 59.3,
+      "area_ha": 330.3
+    },
+    "E05013732": {
+      "name": "Telegraph Hill",
+      "borough_code": "E09000023",
+      "green_pct": 37.5,
+      "area_ha": 154.5
+    },
+    "E05013721": {
+      "name": "Evelyn",
+      "borough_code": "E09000023",
+      "green_pct": 29.1,
+      "area_ha": 130.6
+    },
+    "E05014098": {
+      "name": "Brixton Windrush",
+      "borough_code": "E09000022",
+      "green_pct": 21.3,
+      "area_ha": 62.1
+    },
+    "E05011220": {
+      "name": "Blackfen & Lamorbey",
+      "borough_code": "E09000004",
+      "green_pct": 39.3,
+      "area_ha": 290.6
+    },
+    "E05013771": {
+      "name": "Wallington South",
+      "borough_code": "E09000029",
+      "green_pct": 30.7,
+      "area_ha": 174.7
+    },
+    "E05009311": {
+      "name": "Vintry",
+      "borough_code": "E09000001",
+      "green_pct": 2.1,
+      "area_ha": 10.6
+    },
+    "E05013729": {
+      "name": "Perry Vale",
+      "borough_code": "E09000023",
+      "green_pct": 33.9,
+      "area_ha": 198.6
+    },
+    "E05013514": {
+      "name": "Wembley Central",
+      "borough_code": "E09000005",
+      "green_pct": 38.4,
+      "area_ha": 170.1
+    },
+    "E05013768": {
+      "name": "Sutton West & East Cheam",
+      "borough_code": "E09000029",
+      "green_pct": 31.3,
+      "area_ha": 157.9
+    },
+    "E05013739": {
+      "name": "Fulham Town",
+      "borough_code": "E09000013",
+      "green_pct": 11.7,
+      "area_ha": 46.1
+    },
+    "E05013522": {
+      "name": "East Acton",
+      "borough_code": "E09000009",
+      "green_pct": 41.4,
+      "area_ha": 175.9
+    },
+    "E05013727": {
+      "name": "Lewisham Central",
+      "borough_code": "E09000023",
+      "green_pct": 22.4,
+      "area_ha": 66.2
+    },
+    "E05009310": {
+      "name": "Tower",
+      "borough_code": "E09000001",
+      "green_pct": 3.6,
+      "area_ha": 19.8
+    },
+    "E05013936": {
+      "name": "King George's & Sunray",
+      "borough_code": "E09000021",
+      "green_pct": 54.7,
+      "area_ha": 233.9
+    },
+    "E05014026": {
+      "name": "Wandle",
+      "borough_code": "E09000032",
+      "green_pct": 21.6,
+      "area_ha": 83.2
+    },
+    "E05014081": {
+      "name": "Greenwich Park",
+      "borough_code": "E09000011",
+      "green_pct": 56.1,
+      "area_ha": 210.7
+    },
+    "E05013710": {
+      "name": "St Mary's & St James'",
+      "borough_code": "E09000019",
+      "green_pct": 24.1,
+      "area_ha": 75.3
+    },
+    "E05011224": {
+      "name": "East Wickham",
+      "borough_code": "E09000004",
+      "green_pct": 44.0,
+      "area_ha": 281.8
+    },
+    "E05013738": {
+      "name": "Fulham Reach",
+      "borough_code": "E09000013",
+      "green_pct": 23.1,
+      "area_ha": 91.4
+    },
+    "E05013715": {
+      "name": "Blackheath",
+      "borough_code": "E09000023",
+      "green_pct": 54.8,
+      "area_ha": 244.0
+    },
+    "E05011113": {
+      "name": "Rye Lane",
+      "borough_code": "E09000028",
+      "green_pct": 22.9,
+      "area_ha": 127.2
+    },
+    "E05009334": {
+      "name": "Stepney Green",
+      "borough_code": "E09000030",
+      "green_pct": 34.4,
+      "area_ha": 64.8
+    },
+    "E05013882": {
+      "name": "Cann Hall",
+      "borough_code": "E09000031",
+      "green_pct": 16.6,
+      "area_ha": 99.6
+    },
+    "E05009296": {
+      "name": "Candlewick",
+      "borough_code": "E09000001",
+      "green_pct": 0.9,
+      "area_ha": 5.2
+    },
+    "E05013641": {
+      "name": "Garden Suburb",
+      "borough_code": "E09000003",
+      "green_pct": 61.1,
+      "area_ha": 427.4
+    },
+    "E05013566": {
+      "name": "Colham & Cowley",
+      "borough_code": "E09000017",
+      "green_pct": 55.7,
+      "area_ha": 460.5
+    },
+    "E05011115": {
+      "name": "St Giles",
+      "borough_code": "E09000028",
+      "green_pct": 29.5,
+      "area_ha": 112.2
+    },
+    "E05013635": {
+      "name": "East Barnet",
+      "borough_code": "E09000003",
+      "green_pct": 52.9,
+      "area_ha": 387.4
+    },
+    "E05011254": {
+      "name": "Wanstead Park",
+      "borough_code": "E09000026",
+      "green_pct": 78.4,
+      "area_ha": 474.3
+    },
+    "E05013884": {
+      "name": "Chapel End",
+      "borough_code": "E09000031",
+      "green_pct": 40.1,
+      "area_ha": 161.5
+    },
+    "E05009299": {
+      "name": "Coleman Street",
+      "borough_code": "E09000001",
+      "green_pct": 7.5,
+      "area_ha": 15.1
+    },
+    "E05013943": {
+      "name": "St Mark's & Seething Wells",
+      "borough_code": "E09000021",
+      "green_pct": 41.6,
+      "area_ha": 181.6
+    },
+    "E05013977": {
+      "name": "Marshalls & Rise Park",
+      "borough_code": "E09000016",
+      "green_pct": 49.8,
+      "area_ha": 396.3
+    },
+    "E05013716": {
+      "name": "Brockley",
+      "borough_code": "E09000023",
+      "green_pct": 36.4,
+      "area_ha": 169.0
+    },
+    "E05014110": {
+      "name": "Stockwell East",
+      "borough_code": "E09000022",
+      "green_pct": 30.5,
+      "area_ha": 61.9
+    },
+    "E05013525": {
+      "name": "Hanwell Broadway",
+      "borough_code": "E09000009",
+      "green_pct": 46.0,
+      "area_ha": 185.6
+    },
+    "E05013944": {
+      "name": "Surbiton Hill",
+      "borough_code": "E09000021",
+      "green_pct": 46.0,
+      "area_ha": 168.1
+    },
+    "E05013751": {
+      "name": "West Kensington",
+      "borough_code": "E09000013",
+      "green_pct": 17.8,
+      "area_ha": 55.5
+    },
+    "E05013912": {
+      "name": "Forest Gate South",
+      "borough_code": "E09000025",
+      "green_pct": 20.9,
+      "area_ha": 124.2
+    },
+    "E05013908": {
+      "name": "Custom House",
+      "borough_code": "E09000025",
+      "green_pct": 42.5,
+      "area_ha": 155.2
+    },
+    "E05014113": {
+      "name": "Streatham Hill East",
+      "borough_code": "E09000022",
+      "green_pct": 30.7,
+      "area_ha": 84.2
+    },
+    "E05009402": {
+      "name": "Redcliffe",
+      "borough_code": "E09000020",
+      "green_pct": 43.0,
+      "area_ha": 71.9
+    },
+    "E05011112": {
+      "name": "Rotherhithe",
+      "borough_code": "E09000028",
+      "green_pct": 38.5,
+      "area_ha": 152.6
+    },
+    "E05013505": {
+      "name": "Northwick Park",
+      "borough_code": "E09000005",
+      "green_pct": 49.5,
+      "area_ha": 252.5
+    },
+    "E05014084": {
+      "name": "Kidbrooke Village & Sutcliffe",
+      "borough_code": "E09000011",
+      "green_pct": 55.0,
+      "area_ha": 128.9
+    },
+    "E05013677": {
+      "name": "Carterhatch",
+      "borough_code": "E09000010",
+      "green_pct": 30.5,
+      "area_ha": 183.1
+    },
+    "E05011099": {
+      "name": "Dulwich Hill",
+      "borough_code": "E09000028",
+      "green_pct": 39.7,
+      "area_ha": 99.9
+    },
+    "E05013646": {
+      "name": "Totteridge & Woodside",
+      "borough_code": "E09000003",
+      "green_pct": 78.8,
+      "area_ha": 956.3
+    },
+    "E05014021": {
+      "name": "Southfields",
+      "borough_code": "E09000032",
+      "green_pct": 27.5,
+      "area_ha": 114.3
+    },
+    "E05009290": {
+      "name": "Bassishaw",
+      "borough_code": "E09000001",
+      "green_pct": 8.4,
+      "area_ha": 10.7
+    },
+    "E05013528": {
+      "name": "North Greenford",
+      "borough_code": "E09000009",
+      "green_pct": 64.0,
+      "area_ha": 328.8
+    },
+    "E05013586": {
+      "name": "Bounds Green",
+      "borough_code": "E09000014",
+      "green_pct": 35.1,
+      "area_ha": 110.8
+    },
+    "E05013610": {
+      "name": "Chiswick Homefields",
+      "borough_code": "E09000018",
+      "green_pct": 55.1,
+      "area_ha": 326.4
+    },
+    "E05013692": {
+      "name": "Southgate",
+      "borough_code": "E09000010",
+      "green_pct": 39.1,
+      "area_ha": 236.1
+    },
+    "E05011473": {
+      "name": "Norbury Park",
+      "borough_code": "E09000008",
+      "green_pct": 48.0,
+      "area_ha": 226.0
+    },
+    "E05009307": {
+      "name": "Lime Street",
+      "borough_code": "E09000001",
+      "green_pct": 2.6,
+      "area_ha": 5.1
+    },
+    "E05009369": {
+      "name": "Clissold",
+      "borough_code": "E09000012",
+      "green_pct": 38.5,
+      "area_ha": 101.1
+    },
+    "E05013614": {
+      "name": "Feltham West",
+      "borough_code": "E09000018",
+      "green_pct": 53.5,
+      "area_ha": 318.2
+    },
+    "E05013924": {
+      "name": "Stratford",
+      "borough_code": "E09000025",
+      "green_pct": 21.8,
+      "area_ha": 200.2
+    },
+    "E05014030": {
+      "name": "West Putney",
+      "borough_code": "E09000032",
+      "green_pct": 56.8,
+      "area_ha": 253.0
+    },
+    "E05011117": {
+      "name": "Surrey Docks",
+      "borough_code": "E09000028",
+      "green_pct": 25.8,
+      "area_ha": 171.1
+    },
+    "E05011222": {
+      "name": "Crayford",
+      "borough_code": "E09000004",
+      "green_pct": 52.7,
+      "area_ha": 511.5
+    },
+    "E05013598": {
+      "name": "Seven Sisters",
+      "borough_code": "E09000014",
+      "green_pct": 27.4,
+      "area_ha": 68.4
+    },
+    "E05009376": {
+      "name": "Homerton",
+      "borough_code": "E09000012",
+      "green_pct": 26.8,
+      "area_ha": 80.5
+    },
+    "E05013621": {
+      "name": "Hounslow East",
+      "borough_code": "E09000018",
+      "green_pct": 37.2,
+      "area_ha": 86.3
+    },
+    "E05013609": {
+      "name": "Chiswick Gunnersbury",
+      "borough_code": "E09000018",
+      "green_pct": 52.8,
+      "area_ha": 272.0
+    },
+    "E05011110": {
+      "name": "Peckham",
+      "borough_code": "E09000028",
+      "green_pct": 24.7,
+      "area_ha": 85.6
+    },
+    "E05011116": {
+      "name": "South Bermondsey",
+      "borough_code": "E09000028",
+      "green_pct": 27.1,
+      "area_ha": 120.1
+    },
+    "E05013790": {
+      "name": "West Twickenham",
+      "borough_code": "E09000027",
+      "green_pct": 40.8,
+      "area_ha": 154.7
+    },
+    "E05009379": {
+      "name": "King's Park",
+      "borough_code": "E09000012",
+      "green_pct": 66.4,
+      "area_ha": 191.6
+    },
+    "E05011230": {
+      "name": "Sidcup",
+      "borough_code": "E09000004",
+      "green_pct": 48.9,
+      "area_ha": 399.2
+    },
+    "E05009329": {
+      "name": "St Dunstan's",
+      "borough_code": "E09000030",
+      "green_pct": 26.2,
+      "area_ha": 67.9
+    },
+    "E05011237": {
+      "name": "Chadwell",
+      "borough_code": "E09000026",
+      "green_pct": 22.8,
+      "area_ha": 155.6
+    },
+    "E05013775": {
+      "name": "East Sheen",
+      "borough_code": "E09000027",
+      "green_pct": 83.0,
+      "area_ha": 597.1
+    },
+    "E05013994": {
+      "name": "Clock House",
+      "borough_code": "E09000006",
+      "green_pct": 36.7,
+      "area_ha": 244.0
+    },
+    "E05013974": {
+      "name": "Havering-atte-Bower",
+      "borough_code": "E09000016",
+      "green_pct": 80.6,
+      "area_ha": 1087.6
+    },
+    "E05013893": {
+      "name": "Hoe Street",
+      "borough_code": "E09000031",
+      "green_pct": 24.8,
+      "area_ha": 107.0
+    },
+    "E05014061": {
+      "name": "Gascoigne",
+      "borough_code": "E09000002",
+      "green_pct": 24.2,
+      "area_ha": 95.6
+    },
+    "E05009324": {
+      "name": "Island Gardens",
+      "borough_code": "E09000030",
+      "green_pct": 27.1,
+      "area_ha": 150.8
+    },
+    "E05013529": {
+      "name": "North Hanwell",
+      "borough_code": "E09000009",
+      "green_pct": 57.2,
+      "area_ha": 221.1
+    },
+    "E05013667": {
+      "name": "Primrose Hill",
+      "borough_code": "E09000007",
+      "green_pct": 47.9,
+      "area_ha": 133.3
+    },
+    "E05013925": {
+      "name": "Stratford Olympic Park",
+      "borough_code": "E09000025",
+      "green_pct": 26.9,
+      "area_ha": 182.0
+    },
+    "E05013946": {
+      "name": "Tudor",
+      "borough_code": "E09000021",
+      "green_pct": 40.0,
+      "area_ha": 115.3
+    },
+    "E05013909": {
+      "name": "East Ham",
+      "borough_code": "E09000025",
+      "green_pct": 24.7,
+      "area_ha": 97.5
+    },
+    "E05013897": {
+      "name": "Leytonstone",
+      "borough_code": "E09000031",
+      "green_pct": 25.0,
+      "area_ha": 131.1
+    },
+    "E05013932": {
+      "name": "Coombe Hill",
+      "borough_code": "E09000021",
+      "green_pct": 70.3,
+      "area_ha": 419.3
+    },
+    "E05014029": {
+      "name": "West Hill",
+      "borough_code": "E09000032",
+      "green_pct": 50.5,
+      "area_ha": 168.6
+    },
+    "E05013603": {
+      "name": "West Green",
+      "borough_code": "E09000014",
+      "green_pct": 40.3,
+      "area_ha": 150.3
+    },
+    "E05013753": {
+      "name": "Wormholt",
+      "borough_code": "E09000013",
+      "green_pct": 33.8,
+      "area_ha": 64.7
+    },
+    "E05011466": {
+      "name": "Coulsdon Town",
+      "borough_code": "E09000008",
+      "green_pct": 43.3,
+      "area_ha": 452.3
+    },
+    "E05014109": {
+      "name": "St Martin's",
+      "borough_code": "E09000022",
+      "green_pct": 30.4,
+      "area_ha": 87.3
+    },
+    "E05013915": {
+      "name": "Little Ilford",
+      "borough_code": "E09000025",
+      "green_pct": 51.1,
+      "area_ha": 196.4
+    },
+    "E05013700": {
+      "name": "Caledonian",
+      "borough_code": "E09000019",
+      "green_pct": 25.6,
+      "area_ha": 88.1
+    },
+    "E05013517": {
+      "name": "Willesden Green",
+      "borough_code": "E09000005",
+      "green_pct": 26.4,
+      "area_ha": 147.3
+    },
+    "E05013811": {
+      "name": "Cannon Hill",
+      "borough_code": "E09000024",
+      "green_pct": 53.3,
+      "area_ha": 224.3
+    },
+    "E05013826": {
+      "name": "Wandle",
+      "borough_code": "E09000024",
+      "green_pct": 26.3,
+      "area_ha": 81.2
+    },
+    "E05013655": {
+      "name": "Camden Town",
+      "borough_code": "E09000007",
+      "green_pct": 15.5,
+      "area_ha": 60.5
+    },
+    "E05013917": {
+      "name": "Maryland",
+      "borough_code": "E09000025",
+      "green_pct": 27.2,
+      "area_ha": 93.9
+    },
+    "E05013740": {
+      "name": "Grove",
+      "borough_code": "E09000013",
+      "green_pct": 21.4,
+      "area_ha": 51.2
+    },
+    "E05013576": {
+      "name": "Pinkwell",
+      "borough_code": "E09000017",
+      "green_pct": 37.9,
+      "area_ha": 320.0
+    },
+    "E05009399": {
+      "name": "Notting Dale",
+      "borough_code": "E09000020",
+      "green_pct": 28.6,
+      "area_ha": 55.7
+    },
+    "E05009308": {
+      "name": "Portsoken",
+      "borough_code": "E09000001",
+      "green_pct": 12.2,
+      "area_ha": 6.2
+    },
+    "E05011486": {
+      "name": "Thornton Heath",
+      "borough_code": "E09000008",
+      "green_pct": 26.8,
+      "area_ha": 172.5
+    },
+    "E05009320": {
+      "name": "Bow West",
+      "borough_code": "E09000030",
+      "green_pct": 50.6,
+      "area_ha": 134.4
+    },
+    "E05014105": {
+      "name": "Kennington",
+      "borough_code": "E09000022",
+      "green_pct": 38.0,
+      "area_ha": 102.3
+    },
+    "E05013728": {
+      "name": "New Cross Gate",
+      "borough_code": "E09000023",
+      "green_pct": 25.6,
+      "area_ha": 109.2
+    },
+    "E05009371": {
+      "name": "De Beauvoir",
+      "borough_code": "E09000012",
+      "green_pct": 25.5,
+      "area_ha": 59.4
+    },
+    "E05013582": {
+      "name": "Wood End",
+      "borough_code": "E09000017",
+      "green_pct": 44.7,
+      "area_ha": 356.4
+    },
+    "E05013551": {
+      "name": "Kenton East",
+      "borough_code": "E09000015",
+      "green_pct": 32.3,
+      "area_ha": 165.2
+    },
+    "E05013619": {
+      "name": "Heston West",
+      "borough_code": "E09000018",
+      "green_pct": 49.9,
+      "area_ha": 368.5
+    },
+    "E05013558": {
+      "name": "Roxbourne",
+      "borough_code": "E09000015",
+      "green_pct": 39.1,
+      "area_ha": 109.1
+    },
+    "E05013763": {
+      "name": "South Beddington & Roundshaw",
+      "borough_code": "E09000029",
+      "green_pct": 52.4,
+      "area_ha": 289.2
+    },
+    "E05013914": {
+      "name": "Green Street West",
+      "borough_code": "E09000025",
+      "green_pct": 13.8,
+      "area_ha": 81.4
+    },
+    "E05013756": {
+      "name": "Carshalton Central",
+      "borough_code": "E09000029",
+      "green_pct": 40.6,
+      "area_ha": 217.4
+    },
+    "E05013628": {
+      "name": "Barnet Vale",
+      "borough_code": "E09000003",
+      "green_pct": 51.5,
+      "area_ha": 351.9
+    },
+    "E05011247": {
+      "name": "Loxford",
+      "borough_code": "E09000026",
+      "green_pct": 27.9,
+      "area_ha": 109.3
+    },
+    "E05013813": {
+      "name": "Cricket Green",
+      "borough_code": "E09000024",
+      "green_pct": 53.2,
+      "area_ha": 291.9
+    },
+    "E05013571": {
+      "name": "Hillingdon East",
+      "borough_code": "E09000017",
+      "green_pct": 65.4,
+      "area_ha": 458.2
+    },
+    "E05013602": {
+      "name": "Tottenham Hale",
+      "borough_code": "E09000014",
+      "green_pct": 26.1,
+      "area_ha": 103.0
+    },
+    "E05013719": {
+      "name": "Deptford",
+      "borough_code": "E09000023",
+      "green_pct": 29.3,
+      "area_ha": 129.8
+    },
+    "E05009332": {
+      "name": "Shadwell",
+      "borough_code": "E09000030",
+      "green_pct": 22.1,
+      "area_ha": 64.3
+    },
+    "E05009405": {
+      "name": "Stanley",
+      "borough_code": "E09000020",
+      "green_pct": 22.6,
+      "area_ha": 72.5
+    },
+    "E05009289": {
+      "name": "Aldgate",
+      "borough_code": "E09000001",
+      "green_pct": 1.2,
+      "area_ha": 11.2
+    },
+    "E05013689": {
+      "name": "Ponders End",
+      "borough_code": "E09000010",
+      "green_pct": 23.5,
+      "area_ha": 342.1
+    },
+    "E05013941": {
+      "name": "Norbiton",
+      "borough_code": "E09000021",
+      "green_pct": 40.2,
+      "area_ha": 135.1
+    },
+    "E05009393": {
+      "name": "Courtfield",
+      "borough_code": "E09000020",
+      "green_pct": 25.1,
+      "area_ha": 61.5
+    },
+    "E05013993": {
+      "name": "Chislehurst",
+      "borough_code": "E09000006",
+      "green_pct": 80.7,
+      "area_ha": 1003.1
+    },
+    "E05013934": {
+      "name": "Green Lane & St James",
+      "borough_code": "E09000021",
+      "green_pct": 43.7,
+      "area_ha": 132.2
+    },
+    "E05014015": {
+      "name": "Nine Elms",
+      "borough_code": "E09000032",
+      "green_pct": 5.5,
+      "area_ha": 97.3
+    },
+    "E05013688": {
+      "name": "Palmers Green",
+      "borough_code": "E09000010",
+      "green_pct": 39.1,
+      "area_ha": 147.7
+    },
+    "E05014003": {
+      "name": "Petts Wood & Knoll",
+      "borough_code": "E09000006",
+      "green_pct": 58.1,
+      "area_ha": 480.3
+    },
+    "E05013638": {
+      "name": "Edgwarebury",
+      "borough_code": "E09000003",
+      "green_pct": 76.0,
+      "area_ha": 718.3
+    },
+    "E05011217": {
+      "name": "Barnehurst",
+      "borough_code": "E09000004",
+      "green_pct": 41.0,
+      "area_ha": 213.1
+    },
+    "E05013639": {
+      "name": "Finchley Church End",
+      "borough_code": "E09000003",
+      "green_pct": 42.2,
+      "area_ha": 300.0
+    },
+    "E05013992": {
+      "name": "Chelsfield",
+      "borough_code": "E09000006",
+      "green_pct": 83.0,
+      "area_ha": 900.3
+    },
+    "E05011225": {
+      "name": "Erith",
+      "borough_code": "E09000004",
+      "green_pct": 29.2,
+      "area_ha": 322.7
+    },
+    "E05009330": {
+      "name": "St Katharine's & Wapping",
+      "borough_code": "E09000030",
+      "green_pct": 16.9,
+      "area_ha": 149.2
+    },
+    "E05011229": {
+      "name": "St Mary's & St James",
+      "borough_code": "E09000004",
+      "green_pct": 80.3,
+      "area_ha": 874.8
+    },
+    "E05014056": {
+      "name": "Beam",
+      "borough_code": "E09000002",
+      "green_pct": 16.6,
+      "area_ha": 319.0
+    },
+    "E05013783": {
+      "name": "Mortlake & Barnes Common",
+      "borough_code": "E09000027",
+      "green_pct": 50.9,
+      "area_ha": 191.7
+    },
+    "E05013706": {
+      "name": "Holloway",
+      "borough_code": "E09000019",
+      "green_pct": 32.4,
+      "area_ha": 78.1
+    },
+    "E05013592": {
+      "name": "Highgate",
+      "borough_code": "E09000014",
+      "green_pct": 58.8,
+      "area_ha": 276.7
+    },
+    "E05013757": {
+      "name": "Carshalton South & Clockhouse",
+      "borough_code": "E09000029",
+      "green_pct": 75.7,
+      "area_ha": 702.1
+    },
+    "E05013519": {
+      "name": "Dormers Wells",
+      "borough_code": "E09000009",
+      "green_pct": 55.5,
+      "area_ha": 232.1
+    },
+    "E05011240": {
+      "name": "Clementswood",
+      "borough_code": "E09000026",
+      "green_pct": 13.0,
+      "area_ha": 90.0
+    },
+    "E05013983": {
+      "name": "St Edward's",
+      "borough_code": "E09000016",
+      "green_pct": 18.5,
+      "area_ha": 183.3
+    },
+    "E05013534": {
+      "name": "Perivale",
+      "borough_code": "E09000009",
+      "green_pct": 48.7,
+      "area_ha": 340.9
+    },
+    "E05014073": {
+      "name": "Blackheath Westcombe",
+      "borough_code": "E09000011",
+      "green_pct": 54.9,
+      "area_ha": 268.3
+    },
+    "E05013593": {
+      "name": "Hornsey",
+      "borough_code": "E09000014",
+      "green_pct": 26.6,
+      "area_ha": 137.1
+    },
+    "E05011252": {
+      "name": "South Woodford",
+      "borough_code": "E09000026",
+      "green_pct": 38.1,
+      "area_ha": 204.1
+    },
+    "E05014078": {
+      "name": "Eltham Park & Progress",
+      "borough_code": "E09000011",
+      "green_pct": 62.9,
+      "area_ha": 255.4
+    },
+    "E05013643": {
+      "name": "Hendon",
+      "borough_code": "E09000003",
+      "green_pct": 39.2,
+      "area_ha": 335.2
+    },
+    "E05009327": {
+      "name": "Mile End",
+      "borough_code": "E09000030",
+      "green_pct": 38.8,
+      "area_ha": 121.5
+    },
+    "E05013675": {
+      "name": "Bullsmoor",
+      "borough_code": "E09000010",
+      "green_pct": 44.7,
+      "area_ha": 180.8
+    },
+    "E05013591": {
+      "name": "Hermitage & Gardens",
+      "borough_code": "E09000014",
+      "green_pct": 25.2,
+      "area_ha": 85.0
+    },
+    "E05013975": {
+      "name": "Heaton",
+      "borough_code": "E09000016",
+      "green_pct": 39.6,
+      "area_ha": 323.5
+    },
+    "E05014076": {
+      "name": "East Greenwich",
+      "borough_code": "E09000011",
+      "green_pct": 15.0,
+      "area_ha": 131.1
+    },
+    "E05013787": {
+      "name": "South Twickenham",
+      "borough_code": "E09000027",
+      "green_pct": 42.6,
+      "area_ha": 175.3
+    },
+    "E05013509": {
+      "name": "Roundwood",
+      "borough_code": "E09000005",
+      "green_pct": 42.7,
+      "area_ha": 184.1
+    },
+    "E05013569": {
+      "name": "Hayes Town",
+      "borough_code": "E09000017",
+      "green_pct": 38.9,
+      "area_ha": 384.1
+    },
+    "E05013502": {
+      "name": "Kenton",
+      "borough_code": "E09000005",
+      "green_pct": 42.9,
+      "area_ha": 309.2
+    },
+    "E05014057": {
+      "name": "Becontree",
+      "borough_code": "E09000002",
+      "green_pct": 20.3,
+      "area_ha": 91.9
+    },
+    "E05013537": {
+      "name": "Southall Broadway",
+      "borough_code": "E09000009",
+      "green_pct": 21.0,
+      "area_ha": 98.1
+    },
+    "E05013595": {
+      "name": "Noel Park",
+      "borough_code": "E09000014",
+      "green_pct": 17.5,
+      "area_ha": 120.0
+    },
+    "E05013940": {
+      "name": "New Malden Village",
+      "borough_code": "E09000021",
+      "green_pct": 41.6,
+      "area_ha": 167.5
+    },
+    "E05013604": {
+      "name": "White Hart Lane",
+      "borough_code": "E09000014",
+      "green_pct": 29.1,
+      "area_ha": 130.9
+    },
+    "E05013805": {
+      "name": "Regent's Park",
+      "borough_code": "E09000033",
+      "green_pct": 57.5,
+      "area_ha": 244.1
+    },
+    "E05013976": {
+      "name": "Hylands & Harrow Lodge",
+      "borough_code": "E09000016",
+      "green_pct": 38.0,
+      "area_ha": 295.4
+    },
+    "E05013989": {
+      "name": "Biggin Hill",
+      "borough_code": "E09000006",
+      "green_pct": 74.1,
+      "area_ha": 867.0
+    },
+    "E05013745": {
+      "name": "Parsons Green & Sandford",
+      "borough_code": "E09000013",
+      "green_pct": 24.3,
+      "area_ha": 73.4
+    },
+    "E05013516": {
+      "name": "Wembley Park",
+      "borough_code": "E09000005",
+      "green_pct": 12.6,
+      "area_ha": 99.7
+    },
+    "E05013782": {
+      "name": "Kew",
+      "borough_code": "E09000027",
+      "green_pct": 61.1,
+      "area_ha": 357.6
+    },
+    "E05013555": {
+      "name": "Pinner",
+      "borough_code": "E09000015",
+      "green_pct": 64.4,
+      "area_ha": 420.5
+    },
+    "E05013584": {
+      "name": "Yiewsley",
+      "borough_code": "E09000017",
+      "green_pct": 47.1,
+      "area_ha": 322.6
+    },
+    "E05013694": {
+      "name": "Upper Edmonton",
+      "borough_code": "E09000010",
+      "green_pct": 24.9,
+      "area_ha": 229.7
+    },
+    "E05013573": {
+      "name": "Ickenham & South Harefield",
+      "borough_code": "E09000017",
+      "green_pct": 65.7,
+      "area_ha": 1322.5
+    },
+    "E05013922": {
+      "name": "Royal Albert",
+      "borough_code": "E09000025",
+      "green_pct": 14.8,
+      "area_ha": 355.3
+    },
+    "E05009321": {
+      "name": "Bromley North",
+      "borough_code": "E09000030",
+      "green_pct": 20.9,
+      "area_ha": 60.7
+    },
+    "E05013918": {
+      "name": "Plaistow North",
+      "borough_code": "E09000025",
+      "green_pct": 22.5,
+      "area_ha": 99.1
+    },
+    "E05011245": {
+      "name": "Hainault",
+      "borough_code": "E09000026",
+      "green_pct": 67.0,
+      "area_ha": 565.5
+    },
+    "E05011219": {
+      "name": "Bexleyheath",
+      "borough_code": "E09000004",
+      "green_pct": 41.5,
+      "area_ha": 362.6
+    },
+    "E05013776": {
+      "name": "Fulwell & Hampton Hill",
+      "borough_code": "E09000027",
+      "green_pct": 65.0,
+      "area_ha": 280.3
+    },
+    "E05013996": {
+      "name": "Darwin",
+      "borough_code": "E09000006",
+      "green_pct": 94.3,
+      "area_ha": 3365.6
+    },
+    "E05009303": {
+      "name": "Dowgate",
+      "borough_code": "E09000001",
+      "green_pct": 5.4,
+      "area_ha": 9.5
+    },
+    "E05011464": {
+      "name": "Bensham Manor",
+      "borough_code": "E09000008",
+      "green_pct": 22.5,
+      "area_ha": 144.2
+    },
+    "E05011489": {
+      "name": "Woodside",
+      "borough_code": "E09000008",
+      "green_pct": 40.5,
+      "area_ha": 215.1
+    },
+    "E05013795": {
+      "name": "Harrow Road",
+      "borough_code": "E09000033",
+      "green_pct": 17.6,
+      "area_ha": 49.4
+    },
+    "E05013697": {
+      "name": "Arsenal",
+      "borough_code": "E09000019",
+      "green_pct": 24.9,
+      "area_ha": 81.6
+    },
+    "E05013567": {
+      "name": "Eastcote",
+      "borough_code": "E09000017",
+      "green_pct": 48.3,
+      "area_ha": 362.1
+    },
+    "E05013527": {
+      "name": "North Acton",
+      "borough_code": "E09000009",
+      "green_pct": 28.2,
+      "area_ha": 426.3
+    },
+    "E05013616": {
+      "name": "Hanworth Village",
+      "borough_code": "E09000018",
+      "green_pct": 52.1,
+      "area_ha": 385.2
+    },
+    "E05014112": {
+      "name": "Streatham Common & Vale",
+      "borough_code": "E09000022",
+      "green_pct": 35.4,
+      "area_ha": 194.5
+    },
+    "E05013997": {
+      "name": "Farnborough & Crofton",
+      "borough_code": "E09000006",
+      "green_pct": 60.6,
+      "area_ha": 554.0
+    },
+    "E05013998": {
+      "name": "Hayes & Coney Hall",
+      "borough_code": "E09000006",
+      "green_pct": 81.6,
+      "area_ha": 1185.0
+    },
+    "E05013653": {
+      "name": "Bloomsbury",
+      "borough_code": "E09000007",
+      "green_pct": 17.6,
+      "area_ha": 123.7
+    },
+    "E05014118": {
+      "name": "Waterloo & South Bank",
+      "borough_code": "E09000022",
+      "green_pct": 17.2,
+      "area_ha": 148.8
+    },
+    "E05014004": {
+      "name": "Plaistow",
+      "borough_code": "E09000006",
+      "green_pct": 49.4,
+      "area_ha": 225.7
+    },
+    "E05014092": {
+      "name": "Woolwich Arsenal",
+      "borough_code": "E09000011",
+      "green_pct": 18.1,
+      "area_ha": 119.8
+    },
+    "E05013656": {
+      "name": "Fortune Green",
+      "borough_code": "E09000007",
+      "green_pct": 38.9,
+      "area_ha": 101.9
+    },
+    "E05014012": {
+      "name": "Falconbrook",
+      "borough_code": "E09000032",
+      "green_pct": 32.6,
+      "area_ha": 85.5
+    },
+    "E05013987": {
+      "name": "Beckenham Town & Copers Cope",
+      "borough_code": "E09000006",
+      "green_pct": 47.3,
+      "area_ha": 300.9
+    },
+    "E05013640": {
+      "name": "Friern Barnet",
+      "borough_code": "E09000003",
+      "green_pct": 46.8,
+      "area_ha": 275.9
+    },
+    "E05013766": {
+      "name": "Sutton North",
+      "borough_code": "E09000029",
+      "green_pct": 42.2,
+      "area_ha": 199.4
+    },
+    "E05013588": {
+      "name": "Crouch End",
+      "borough_code": "E09000014",
+      "green_pct": 43.1,
+      "area_ha": 157.8
+    },
+    "E05013726": {
+      "name": "Lee Green",
+      "borough_code": "E09000023",
+      "green_pct": 33.5,
+      "area_ha": 179.8
+    },
+    "E05013548": {
+      "name": "Harrow Weald",
+      "borough_code": "E09000015",
+      "green_pct": 72.2,
+      "area_ha": 488.2
+    },
+    "E05014095": {
+      "name": "Brixton Acre Lane",
+      "borough_code": "E09000022",
+      "green_pct": 20.0,
+      "area_ha": 105.5
+    },
+    "E05014074": {
+      "name": "Charlton Hornfair",
+      "borough_code": "E09000011",
+      "green_pct": 44.9,
+      "area_ha": 133.7
+    },
+    "E05009305": {
+      "name": "Farringdon Without",
+      "borough_code": "E09000001",
+      "green_pct": 14.3,
+      "area_ha": 33.0
+    },
+    "E05013797": {
+      "name": "Knightsbridge & Belgravia",
+      "borough_code": "E09000033",
+      "green_pct": 29.6,
+      "area_ha": 207.3
+    },
+    "E05011475": {
+      "name": "Park Hill & Whitgift",
+      "borough_code": "E09000008",
+      "green_pct": 63.4,
+      "area_ha": 198.8
+    },
+    "E05014111": {
+      "name": "Stockwell West & Larkhall",
+      "borough_code": "E09000022",
+      "green_pct": 33.0,
+      "area_ha": 97.4
+    },
+    "E05013611": {
+      "name": "Chiswick Riverside",
+      "borough_code": "E09000018",
+      "green_pct": 33.0,
+      "area_ha": 119.6
+    },
+    "E05011467": {
+      "name": "Crystal Palace & Upper Norwood",
+      "borough_code": "E09000008",
+      "green_pct": 48.5,
+      "area_ha": 258.5
+    },
+    "E05013799": {
+      "name": "Little Venice",
+      "borough_code": "E09000033",
+      "green_pct": 37.5,
+      "area_ha": 63.7
+    },
+    "E05013785": {
+      "name": "St Margarets & North Twickenham",
+      "borough_code": "E09000027",
+      "green_pct": 39.1,
+      "area_ha": 194.9
+    },
+    "E05013664": {
+      "name": "Kentish Town South",
+      "borough_code": "E09000007",
+      "green_pct": 23.4,
+      "area_ha": 82.2
+    },
+    "E05014082": {
+      "name": "Greenwich Peninsula",
+      "borough_code": "E09000011",
+      "green_pct": 12.2,
+      "area_ha": 315.6
+    },
+    "E05013789": {
+      "name": "Twickenham Riverside",
+      "borough_code": "E09000027",
+      "green_pct": 48.8,
+      "area_ha": 202.0
+    },
+    "E05014055": {
+      "name": "Barking Riverside",
+      "borough_code": "E09000002",
+      "green_pct": 26.9,
+      "area_ha": 555.0
+    },
+    "E05013618": {
+      "name": "Heston East",
+      "borough_code": "E09000018",
+      "green_pct": 44.2,
+      "area_ha": 180.3
+    },
+    "E05013695": {
+      "name": "Whitewebbs",
+      "borough_code": "E09000010",
+      "green_pct": 79.3,
+      "area_ha": 1043.8
+    },
+    "E05011218": {
+      "name": "Belvedere",
+      "borough_code": "E09000004",
+      "green_pct": 42.1,
+      "area_ha": 576.1
+    },
+    "E05013762": {
+      "name": "St Helier West",
+      "borough_code": "E09000029",
+      "green_pct": 30.7,
+      "area_ha": 145.0
+    },
+    "E05014008": {
+      "name": "West Wickham",
+      "borough_code": "E09000006",
+      "green_pct": 47.0,
+      "area_ha": 373.2
+    },
+    "E05013717": {
+      "name": "Catford South",
+      "borough_code": "E09000023",
+      "green_pct": 33.1,
+      "area_ha": 237.4
+    },
+    "E05009373": {
+      "name": "Hackney Downs",
+      "borough_code": "E09000012",
+      "green_pct": 38.9,
+      "area_ha": 101.9
+    },
+    "E05013933": {
+      "name": "Coombe Vale",
+      "borough_code": "E09000021",
+      "green_pct": 40.7,
+      "area_ha": 168.8
+    },
+    "E05013926": {
+      "name": "Wall End",
+      "borough_code": "E09000025",
+      "green_pct": 37.2,
+      "area_ha": 142.6
+    },
+    "E05013657": {
+      "name": "Frognal",
+      "borough_code": "E09000007",
+      "green_pct": 45.9,
+      "area_ha": 115.5
+    },
+    "E05013774": {
+      "name": "Barnes",
+      "borough_code": "E09000027",
+      "green_pct": 50.6,
+      "area_ha": 310.5
+    },
+    "E05013744": {
+      "name": "Palace & Hurlingham",
+      "borough_code": "E09000013",
+      "green_pct": 39.2,
+      "area_ha": 189.9
+    },
+    "E05013911": {
+      "name": "Forest Gate North",
+      "borough_code": "E09000025",
+      "green_pct": 22.6,
+      "area_ha": 80.9
+    },
+    "E05013816": {
+      "name": "Hillside",
+      "borough_code": "E09000024",
+      "green_pct": 27.2,
+      "area_ha": 111.6
+    },
+    "E05011108": {
+      "name": "Nunhead & Queen's Road",
+      "borough_code": "E09000028",
+      "green_pct": 36.3,
+      "area_ha": 131.8
+    },
+    "E05011488": {
+      "name": "West Thornton",
+      "borough_code": "E09000008",
+      "green_pct": 28.8,
+      "area_ha": 197.2
+    },
+    "E05014094": {
+      "name": "Woolwich Dockyard",
+      "borough_code": "E09000011",
+      "green_pct": 26.9,
+      "area_ha": 125.3
+    },
+    "E05013687": {
+      "name": "Oakwood",
+      "borough_code": "E09000010",
+      "green_pct": 52.6,
+      "area_ha": 192.7
+    },
+    "E05014080": {
+      "name": "Greenwich Creekside",
+      "borough_code": "E09000011",
+      "green_pct": 21.1,
+      "area_ha": 68.4
+    },
+    "E05014023": {
+      "name": "Tooting Bec",
+      "borough_code": "E09000032",
+      "green_pct": 17.0,
+      "area_ha": 114.6
+    },
+    "E05009397": {
+      "name": "Holland",
+      "borough_code": "E09000020",
+      "green_pct": 50.1,
+      "area_ha": 98.3
+    },
+    "E05013625": {
+      "name": "Isleworth",
+      "borough_code": "E09000018",
+      "green_pct": 40.5,
+      "area_ha": 207.3
+    },
+    "E05013791": {
+      "name": "Whitton",
+      "borough_code": "E09000027",
+      "green_pct": 40.1,
+      "area_ha": 169.7
+    },
+    "E05013779": {
+      "name": "Hampton North",
+      "borough_code": "E09000027",
+      "green_pct": 49.2,
+      "area_ha": 200.9
+    },
+    "E05013730": {
+      "name": "Rushey Green",
+      "borough_code": "E09000023",
+      "green_pct": 36.8,
+      "area_ha": 200.0
+    },
+    "E05013714": {
+      "name": "Bellingham",
+      "borough_code": "E09000023",
+      "green_pct": 54.7,
+      "area_ha": 244.5
+    },
+    "E05013673": {
+      "name": "Bowes",
+      "borough_code": "E09000010",
+      "green_pct": 38.6,
+      "area_ha": 128.7
+    },
+    "E05013670": {
+      "name": "South Hampstead",
+      "borough_code": "E09000007",
+      "green_pct": 38.5,
+      "area_ha": 80.4
+    },
+    "E05014025": {
+      "name": "Trinity",
+      "borough_code": "E09000032",
+      "green_pct": 26.9,
+      "area_ha": 99.6
+    },
+    "E05013605": {
+      "name": "Woodside",
+      "borough_code": "E09000014",
+      "green_pct": 38.9,
+      "area_ha": 148.7
+    },
+    "E05009392": {
+      "name": "Colville",
+      "borough_code": "E09000020",
+      "green_pct": 25.5,
+      "area_ha": 49.0
+    },
+    "E05013807": {
+      "name": "Vincent Square",
+      "borough_code": "E09000033",
+      "green_pct": 17.4,
+      "area_ha": 71.6
+    },
+    "E05013577": {
+      "name": "Ruislip",
+      "borough_code": "E09000017",
+      "green_pct": 73.0,
+      "area_ha": 865.5
+    },
+    "E05013907": {
+      "name": "Canning Town South",
+      "borough_code": "E09000025",
+      "green_pct": 23.0,
+      "area_ha": 70.7
+    },
+    "E05013552": {
+      "name": "Kenton West",
+      "borough_code": "E09000015",
+      "green_pct": 40.0,
+      "area_ha": 151.8
+    },
+    "E05013701": {
+      "name": "Canonbury",
+      "borough_code": "E09000019",
+      "green_pct": 40.1,
+      "area_ha": 86.5
+    },
+    "E05009333": {
+      "name": "Spitalfields & Banglatown",
+      "borough_code": "E09000030",
+      "green_pct": 14.6,
+      "area_ha": 91.1
+    },
+    "E05013629": {
+      "name": "Brunswick Park",
+      "borough_code": "E09000003",
+      "green_pct": 45.3,
+      "area_ha": 303.2
+    },
+    "E05013515": {
+      "name": "Wembley Hill",
+      "borough_code": "E09000005",
+      "green_pct": 36.7,
+      "area_ha": 155.9
+    },
+    "E05009398": {
+      "name": "Norland",
+      "borough_code": "E09000020",
+      "green_pct": 40.0,
+      "area_ha": 52.0
+    },
+    "E05013556": {
+      "name": "Pinner South",
+      "borough_code": "E09000015",
+      "green_pct": 49.4,
+      "area_ha": 306.3
+    },
+    "E05013652": {
+      "name": "Belsize",
+      "borough_code": "E09000007",
+      "green_pct": 38.5,
+      "area_ha": 100.3
+    },
+    "E05013784": {
+      "name": "North Richmond",
+      "borough_code": "E09000027",
+      "green_pct": 65.6,
+      "area_ha": 273.0
+    },
+    "E05013712": {
+      "name": "Tollington",
+      "borough_code": "E09000019",
+      "green_pct": 21.8,
+      "area_ha": 81.9
+    },
+    "E05009368": {
+      "name": "Cazenove",
+      "borough_code": "E09000012",
+      "green_pct": 21.4,
+      "area_ha": 74.2
+    },
+    "E05009372": {
+      "name": "Hackney Central",
+      "borough_code": "E09000012",
+      "green_pct": 28.1,
+      "area_ha": 77.9
+    },
+    "E05009292": {
+      "name": "Bishopsgate",
+      "borough_code": "E09000001",
+      "green_pct": 2.6,
+      "area_ha": 25.3
+    },
+    "E05014085": {
+      "name": "Middle Park & Horn Park",
+      "borough_code": "E09000011",
+      "green_pct": 55.9,
+      "area_ha": 221.5
+    },
+    "E05013890": {
+      "name": "Hatch Lane & Highams Park North",
+      "borough_code": "E09000031",
+      "green_pct": 50.8,
+      "area_ha": 273.3
+    },
+    "E05011227": {
+      "name": "Longlands",
+      "borough_code": "E09000004",
+      "green_pct": 44.9,
+      "area_ha": 189.0
+    },
+    "E05011469": {
+      "name": "Kenley",
+      "borough_code": "E09000008",
+      "green_pct": 58.1,
+      "area_ha": 519.9
+    },
+    "E05014067": {
+      "name": "Parsloes",
+      "borough_code": "E09000002",
+      "green_pct": 40.7,
+      "area_ha": 215.4
+    },
+    "E05011468": {
+      "name": "Fairfield",
+      "borough_code": "E09000008",
+      "green_pct": 12.4,
+      "area_ha": 146.8
+    },
+    "E05011246": {
+      "name": "Ilford Town",
+      "borough_code": "E09000026",
+      "green_pct": 14.9,
+      "area_ha": 106.3
+    },
+    "E05013565": {
+      "name": "Charville",
+      "borough_code": "E09000017",
+      "green_pct": 59.5,
+      "area_ha": 266.3
+    },
+    "E05013810": {
+      "name": "Abbey",
+      "borough_code": "E09000024",
+      "green_pct": 23.6,
+      "area_ha": 135.9
+    },
+    "E05009383": {
+      "name": "Springfield",
+      "borough_code": "E09000012",
+      "green_pct": 33.7,
+      "area_ha": 121.4
+    },
+    "E05013676": {
+      "name": "Bush Hill Park",
+      "borough_code": "E09000010",
+      "green_pct": 41.7,
+      "area_ha": 227.5
+    },
+    "E05014103": {
+      "name": "Gipsy Hill",
+      "borough_code": "E09000022",
+      "green_pct": 36.9,
+      "area_ha": 104.7
+    },
+    "E05014088": {
+      "name": "Plumstead Common",
+      "borough_code": "E09000011",
+      "green_pct": 59.3,
+      "area_ha": 245.4
+    },
+    "E05014104": {
+      "name": "Herne Hill & Loughborough Junction",
+      "borough_code": "E09000022",
+      "green_pct": 44.0,
+      "area_ha": 207.7
+    },
+    "E05013613": {
+      "name": "Feltham North",
+      "borough_code": "E09000018",
+      "green_pct": 38.2,
+      "area_ha": 243.9
+    },
+    "E05013671": {
+      "name": "West Hampstead",
+      "borough_code": "E09000007",
+      "green_pct": 22.8,
+      "area_ha": 81.1
+    },
+    "E05011106": {
+      "name": "North Bermondsey",
+      "borough_code": "E09000028",
+      "green_pct": 22.2,
+      "area_ha": 112.5
+    },
+    "E05014070": {
+      "name": "Village",
+      "borough_code": "E09000002",
+      "green_pct": 50.7,
+      "area_ha": 223.7
+    },
+    "E05013658": {
+      "name": "Gospel Oak",
+      "borough_code": "E09000007",
+      "green_pct": 29.6,
+      "area_ha": 80.5
+    },
+    "E05013500": {
+      "name": "Dollis Hill",
+      "borough_code": "E09000005",
+      "green_pct": 31.6,
+      "area_ha": 302.2
+    },
+    "E05014087": {
+      "name": "Plumstead & Glyndon",
+      "borough_code": "E09000011",
+      "green_pct": 33.2,
+      "area_ha": 179.5
+    },
+    "E05013765": {
+      "name": "Sutton Central",
+      "borough_code": "E09000029",
+      "green_pct": 19.9,
+      "area_ha": 114.1
+    },
+    "E05013899": {
+      "name": "St James",
+      "borough_code": "E09000031",
+      "green_pct": 40.7,
+      "area_ha": 310.9
+    },
+    "E05013886": {
+      "name": "Endlebury",
+      "borough_code": "E09000031",
+      "green_pct": 42.8,
+      "area_ha": 163.6
+    },
+    "E05013660": {
+      "name": "Haverstock",
+      "borough_code": "E09000007",
+      "green_pct": 33.7,
+      "area_ha": 73.2
+    },
+    "E05013506": {
+      "name": "Preston",
+      "borough_code": "E09000005",
+      "green_pct": 35.8,
+      "area_ha": 173.8
+    },
+    "E05013661": {
+      "name": "Highgate",
+      "borough_code": "E09000007",
+      "green_pct": 71.9,
+      "area_ha": 322.4
+    },
+    "E05013999": {
+      "name": "Kelsey & Eden Park",
+      "borough_code": "E09000006",
+      "green_pct": 54.3,
+      "area_ha": 497.2
+    },
+    "E05011114": {
+      "name": "St George's",
+      "borough_code": "E09000028",
+      "green_pct": 26.6,
+      "area_ha": 57.4
+    },
+    "E05009325": {
+      "name": "Lansbury",
+      "borough_code": "E09000030",
+      "green_pct": 23.7,
+      "area_ha": 131.6
+    },
+    "E05011232": {
+      "name": "Thamesmead East",
+      "borough_code": "E09000004",
+      "green_pct": 51.8,
+      "area_ha": 516.1
+    },
+    "E05013503": {
+      "name": "Kilburn",
+      "borough_code": "E09000005",
+      "green_pct": 25.2,
+      "area_ha": 94.3
+    },
+    "E05013749": {
+      "name": "Walham Green",
+      "borough_code": "E09000013",
+      "green_pct": 16.0,
+      "area_ha": 48.2
+    },
+    "E05009367": {
+      "name": "Brownswood",
+      "borough_code": "E09000012",
+      "green_pct": 20.7,
+      "area_ha": 48.3
+    },
+    "E05013930": {
+      "name": "Canbury Gardens",
+      "borough_code": "E09000021",
+      "green_pct": 30.9,
+      "area_ha": 77.4
+    },
+    "E05014101": {
+      "name": "Clapham Park",
+      "borough_code": "E09000022",
+      "green_pct": 31.2,
+      "area_ha": 94.4
+    },
+    "E05014089": {
+      "name": "Shooters Hill",
+      "borough_code": "E09000011",
+      "green_pct": 67.3,
+      "area_ha": 251.0
+    },
+    "E05011483": {
+      "name": "Shirley South",
+      "borough_code": "E09000008",
+      "green_pct": 67.7,
+      "area_ha": 455.2
+    },
+    "E05013969": {
+      "name": "Elm Park",
+      "borough_code": "E09000016",
+      "green_pct": 53.3,
+      "area_ha": 412.3
+    },
+    "E05013984": {
+      "name": "South Hornchurch",
+      "borough_code": "E09000016",
+      "green_pct": 59.3,
+      "area_ha": 295.4
+    },
+    "E05011101": {
+      "name": "Dulwich Wood",
+      "borough_code": "E09000028",
+      "green_pct": 67.2,
+      "area_ha": 302.0
+    },
+    "E05013743": {
+      "name": "Munster",
+      "borough_code": "E09000013",
+      "green_pct": 19.3,
+      "area_ha": 75.6
+    },
+    "E05014000": {
+      "name": "Mottingham",
+      "borough_code": "E09000006",
+      "green_pct": 64.5,
+      "area_ha": 299.6
+    },
+    "E05009295": {
+      "name": "Broad Street",
+      "borough_code": "E09000001",
+      "green_pct": 1.4,
+      "area_ha": 8.2
+    },
+    "E05011103": {
+      "name": "Goose Green",
+      "borough_code": "E09000028",
+      "green_pct": 25.5,
+      "area_ha": 115.6
+    },
+    "E05013554": {
+      "name": "North Harrow",
+      "borough_code": "E09000015",
+      "green_pct": 36.8,
+      "area_ha": 141.5
+    },
+    "E05013801": {
+      "name": "Marylebone",
+      "borough_code": "E09000033",
+      "green_pct": 8.4,
+      "area_ha": 109.2
+    },
+    "E05013590": {
+      "name": "Harringay",
+      "borough_code": "E09000014",
+      "green_pct": 39.1,
+      "area_ha": 158.6
+    },
+    "E05013648": {
+      "name": "West Finchley",
+      "borough_code": "E09000003",
+      "green_pct": 36.0,
+      "area_ha": 244.1
+    },
+    "E05013758": {
+      "name": "Cheam",
+      "borough_code": "E09000029",
+      "green_pct": 51.2,
+      "area_ha": 393.2
+    },
+    "E05013808": {
+      "name": "West End",
+      "borough_code": "E09000033",
+      "green_pct": 6.1,
+      "area_ha": 228.5
+    },
+    "E05013939": {
+      "name": "Motspur Park & Old Malden East",
+      "borough_code": "E09000021",
+      "green_pct": 41.4,
+      "area_ha": 154.6
+    },
+    "E05014097": {
+      "name": "Brixton Rush Common",
+      "borough_code": "E09000022",
+      "green_pct": 30.5,
+      "area_ha": 97.3
+    },
+    "E05013512": {
+      "name": "Tokyngton",
+      "borough_code": "E09000005",
+      "green_pct": 28.6,
+      "area_ha": 145.6
+    },
+    "E05013892": {
+      "name": "Higham Hill",
+      "borough_code": "E09000031",
+      "green_pct": 34.0,
+      "area_ha": 305.0
+    },
+    "E05009391": {
+      "name": "Chelsea Riverside",
+      "borough_code": "E09000020",
+      "green_pct": 20.7,
+      "area_ha": 69.4
+    },
+    "E05011243": {
+      "name": "Fullwell",
+      "borough_code": "E09000026",
+      "green_pct": 41.6,
+      "area_ha": 277.0
+    },
+    "E05013938": {
+      "name": "Kingston Town",
+      "borough_code": "E09000021",
+      "green_pct": 24.0,
+      "area_ha": 149.2
+    },
+    "E05013705": {
+      "name": "Hillrise",
+      "borough_code": "E09000019",
+      "green_pct": 33.1,
+      "area_ha": 101.3
+    },
+    "E05013531": {
+      "name": "Northolt Mandeville",
+      "borough_code": "E09000009",
+      "green_pct": 51.1,
+      "area_ha": 281.5
+    },
+    "E05013724": {
+      "name": "Hither Green",
+      "borough_code": "E09000023",
+      "green_pct": 31.2,
+      "area_ha": 215.4
+    },
+    "E05014014": {
+      "name": "Lavender",
+      "borough_code": "E09000032",
+      "green_pct": 16.3,
+      "area_ha": 78.5
+    },
+    "E05009388": {
+      "name": "Abingdon",
+      "borough_code": "E09000020",
+      "green_pct": 24.0,
+      "area_ha": 60.2
+    },
+    "E05013532": {
+      "name": "Northolt West End",
+      "borough_code": "E09000009",
+      "green_pct": 67.1,
+      "area_ha": 350.8
+    },
+    "E05013780": {
+      "name": "Hampton Wick & South Teddington",
+      "borough_code": "E09000027",
+      "green_pct": 60.9,
+      "area_ha": 275.2
+    },
+    "E05014065": {
+      "name": "Mayesbrook",
+      "borough_code": "E09000002",
+      "green_pct": 36.8,
+      "area_ha": 168.0
+    }
   }
 }
