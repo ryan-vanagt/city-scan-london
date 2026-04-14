@@ -3,18 +3,19 @@
 /**
  * Animated EKG SVG line for the vital signs header.
  *
- * Four variants with distinct waveform shapes:
+ * Five variants with distinct waveform shapes:
  *   - air: smooth sine wave (breathing rhythm)
  *   - transit: sharp heartbeat spikes (classic ECG)
  *   - sentiment: gentle undulation (brain waves)
  *   - immune: small regular pulses (immune ticks)
+ *   - green_space: organic undulations (growth/foliage rhythm)
  *
  * Animated via translateX on a <g> wrapper using the `ekg-scroll` CSS class.
  * The path is drawn twice (0-120 and 120-240) so translating by -120 is seamless.
  */
 
 interface EkgLineProps {
-  variant: "air" | "transit" | "sentiment" | "immune";
+  variant: "air" | "transit" | "sentiment" | "immune" | "green_space";
   colour: string;
 }
 
@@ -34,6 +35,10 @@ const EKG_PATHS: Record<EkgLineProps["variant"], string> = {
   // Small regular pulses — immune ticks
   immune:
     "M0,15 L12,15 L14,8 L16,22 L18,15 L30,15 L42,15 L44,8 L46,22 L48,15 L60,15 L72,15 L74,8 L76,22 L78,15 L90,15 L102,15 L104,8 L106,22 L108,15 L120,15 L132,15 L134,8 L136,22 L138,15 L150,15 L162,15 L164,8 L166,22 L168,15 L180,15 L192,15 L194,8 L196,22 L198,15 L210,15 L222,15 L224,8 L226,22 L228,15 L240,15",
+
+  // Gentle organic undulations — growth/foliage rhythm
+  green_space:
+    "M0,15 C10,10 20,18 30,12 C40,8 50,20 60,14 C70,10 80,16 90,11 C100,17 110,13 120,15 C130,10 140,18 150,12 C160,8 170,20 180,14 C190,10 200,16 210,11 C220,17 230,13 240,15",
 };
 
 export default function EkgLine({ variant, colour }: EkgLineProps) {

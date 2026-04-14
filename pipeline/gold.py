@@ -5,7 +5,8 @@ Reads Silver metrics from DuckDB, computes weighted composite health scores
 per borough per cycle, writes to the DuckDB gold_scores table, and embeds
 each row as a text description in ChromaDB for RAG retrieval.
 Schema: (borough_code, borough_name, timestamp, air_score, transit_score,
-         sentiment_score, immune_score, composite_score, ingested_at, pipeline_stage)
+         sentiment_score, immune_score, green_space_score, composite_score,
+         ingested_at, pipeline_stage)
 """
 
 import functools
@@ -21,15 +22,15 @@ from pipeline.schemas import BOROUGHS
 
 logger = logging.getLogger(__name__)
 
-# Default equal weights: air, transit, sentiment, immune
-_DEFAULT_WEIGHTS = (0.25, 0.25, 0.25, 0.25)
+# Default equal weights: air, transit, sentiment, immune, green_space
+_DEFAULT_WEIGHTS = (0.20, 0.20, 0.20, 0.20, 0.20)
 
 
 @functools.lru_cache(maxsize=1)
-def _load_weights() -> tuple[float, float, float, float]:
+def _load_weights() -> tuple[float, float, float, float, float]:
     """Load composite score weights from SCORE_WEIGHTS env var.
 
-    Format: 'air,transit,sentiment,immune' e.g. '0.25,0.25,0.25,0.25'.
+    Format: 'air,transit,sentiment,immune,green_space' e.g. '0.20,0.20,0.20,0.20,0.20'.
     Falls back to equal weights on parse error.
 
     Result is cached for the lifetime of the process — the env var is
@@ -40,13 +41,13 @@ def _load_weights() -> tuple[float, float, float, float]:
         return _DEFAULT_WEIGHTS
     try:
         parts = [float(x.strip()) for x in raw.split(",")]
-        if len(parts) != 4 or any(w < 0 for w in parts):
-            raise ValueError("need 4 non-negative floats")
+        if len(parts) != 5 or any(w < 0 for w in parts):
+            raise ValueError("need 5 non-negative floats")
         if sum(parts) <= 0:
             raise ValueError("weights must sum to > 0")
         if abs(sum(parts) - 1.0) > 0.01:
             logger.warning("SCORE_WEIGHTS sum to %.2f, not 1.0 — scores will be renormalised", sum(parts))
-        return (parts[0], parts[1], parts[2], parts[3])
+        return (parts[0], parts[1], parts[2], parts[3], parts[4])
     except (ValueError, TypeError) as exc:
         logger.warning("Gold: invalid SCORE_WEIGHTS '%s': %s — using defaults", raw, exc)
         return _DEFAULT_WEIGHTS
@@ -105,7 +106,7 @@ def aggregate(con: duckdb.DuckDBPyConnection) -> int:
     skipped: list[str] = []
 
     # Coverage counters for logging
-    coverage = {"air": 0, "transit": 0, "sentiment": 0, "immune": 0}
+    coverage = {"air": 0, "transit": 0, "sentiment": 0, "immune": 0, "green_space": 0}
 
     for borough_code in BOROUGHS:
         metrics = borough_data.get(borough_code, {})
@@ -127,6 +128,9 @@ def aggregate(con: duckdb.DuckDBPyConnection) -> int:
             immune_parts.extend(metrics["nhs_ae"])
         immune_score = mean(immune_parts) if immune_parts else None
 
+        # Green space (Skin organ)
+        green_space_score = mean(metrics["green_space"]) if "green_space" in metrics else None
+
         # Track coverage
         if air_score is not None:
             coverage["air"] += 1
@@ -136,6 +140,8 @@ def aggregate(con: duckdb.DuckDBPyConnection) -> int:
             coverage["sentiment"] += 1
         if immune_score is not None:
             coverage["immune"] += 1
+        if green_space_score is not None:
+            coverage["green_space"] += 1
 
         # Composite: weighted average, renormalised over present scores
         pairs = [
@@ -143,6 +149,7 @@ def aggregate(con: duckdb.DuckDBPyConnection) -> int:
             (transit_score, weights[1]),
             (sentiment_score, weights[2]),
             (immune_score, weights[3]),
+            (green_space_score, weights[4]),
         ]
         present = [(score, weight) for score, weight in pairs if score is not None]
 
@@ -165,6 +172,7 @@ def aggregate(con: duckdb.DuckDBPyConnection) -> int:
             transit_score,
             sentiment_score,
             immune_score,
+            green_space_score,
             round(composite, 2),
             now,
             "gold",
@@ -184,15 +192,16 @@ def aggregate(con: duckdb.DuckDBPyConnection) -> int:
         """
         INSERT INTO gold_scores
         (borough_code, borough_name, timestamp, air_score, transit_score,
-         sentiment_score, immune_score, composite_score, ingested_at, pipeline_stage)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         sentiment_score, immune_score, green_space_score, composite_score,
+         ingested_at, pipeline_stage)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         rows,
     )
 
     logger.info(
-        "Gold: %d rows inserted — coverage: air=%d, transit=%d, sentiment=%d, immune=%d",
+        "Gold: %d rows inserted — coverage: air=%d, transit=%d, sentiment=%d, immune=%d, green_space=%d",
         len(rows), coverage["air"], coverage["transit"],
-        coverage["sentiment"], coverage["immune"],
+        coverage["sentiment"], coverage["immune"], coverage["green_space"],
     )
     return len(rows)

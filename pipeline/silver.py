@@ -485,6 +485,53 @@ def _transform_sentiment_source(
     return rows
 
 
+def _transform_green_space(data: dict, timestamp: str) -> list[tuple]:
+    """Transform green space bronze data to silver rows.
+
+    metric_name: 'green_space'
+    raw_value: green cover percentage (e.g. 42.9)
+    normalised_score: min-max normalisation across the 33 boroughs
+    """
+    results = data.get("results", [])
+    if not results:
+        logger.warning("Silver green_space: no results in bronze data")
+        return []
+
+    # Collect valid borough data
+    borough_pcts: dict[str, float] = {}
+    for item in results:
+        bc = item.get("borough_code")
+        pct = item.get("green_pct")
+        if bc and bc in BOROUGHS and pct is not None:
+            borough_pcts[bc] = float(pct)
+
+    if not borough_pcts:
+        logger.warning("Silver green_space: no valid borough data")
+        return []
+
+    # Min-max normalisation across all boroughs
+    pcts = list(borough_pcts.values())
+    min_pct = min(pcts)
+    max_pct = max(pcts)
+    range_pct = max_pct - min_pct
+
+    if range_pct == 0:
+        logger.warning(
+            "Silver green_space: all %d boroughs have identical green cover (%.1f%%) — "
+            "min-max range is zero; all boroughs will score 100",
+            len(borough_pcts), min_pct,
+        )
+
+    rows = []
+    for bc, pct in borough_pcts.items():
+        raw_value = pct
+        normalised = _clamp((pct - min_pct) / range_pct * 100.0) if range_pct > 0 else 100.0
+        rows.append(_make_row(bc, timestamp, "green_space", raw_value, normalised, "green_space"))
+
+    logger.info("Silver green_space: %d borough rows", len(rows))
+    return rows
+
+
 def _transform_reddit(data: dict, timestamp: str) -> list[tuple]:
     """Transform Reddit bronze data to silver sentiment rows."""
     return _transform_sentiment_source(data, "reddit", "title", timestamp)
@@ -510,6 +557,7 @@ _SOURCES = [
     ("tfl", _transform_tfl),
     ("met_police", _transform_met_police),
     ("openaq", _transform_openaq),
+    ("green_space", _transform_green_space),
     ("reddit", _transform_reddit),
     ("bbc", _transform_bbc),
     ("guardian", _transform_guardian),

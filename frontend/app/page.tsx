@@ -56,6 +56,7 @@ export default function Home() {
     transit_score: null,
     sentiment_score: null,
     immune_score: null,
+    green_space_score: null,
     borough_count: 0,
     timestamp: null,
   });

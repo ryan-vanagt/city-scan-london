@@ -260,16 +260,17 @@ CREATE TABLE IF NOT EXISTS silver_metrics (
 
 _DDL_GOLD_SCORES = """
 CREATE TABLE IF NOT EXISTS gold_scores (
-    borough_code     VARCHAR NOT NULL,
-    borough_name     VARCHAR NOT NULL,
-    timestamp        TIMESTAMPTZ NOT NULL,
-    air_score        DOUBLE CHECK (air_score >= 0 AND air_score <= 100),
-    transit_score    DOUBLE CHECK (transit_score >= 0 AND transit_score <= 100),
-    sentiment_score  DOUBLE CHECK (sentiment_score >= 0 AND sentiment_score <= 100),
-    immune_score     DOUBLE CHECK (immune_score >= 0 AND immune_score <= 100),
-    composite_score  DOUBLE NOT NULL CHECK (composite_score >= 0 AND composite_score <= 100),
-    ingested_at      TIMESTAMPTZ NOT NULL,
-    pipeline_stage   VARCHAR DEFAULT 'gold'
+    borough_code       VARCHAR NOT NULL,
+    borough_name       VARCHAR NOT NULL,
+    timestamp          TIMESTAMPTZ NOT NULL,
+    air_score          DOUBLE CHECK (air_score >= 0 AND air_score <= 100),
+    transit_score      DOUBLE CHECK (transit_score >= 0 AND transit_score <= 100),
+    sentiment_score    DOUBLE CHECK (sentiment_score >= 0 AND sentiment_score <= 100),
+    immune_score       DOUBLE CHECK (immune_score >= 0 AND immune_score <= 100),
+    green_space_score  DOUBLE CHECK (green_space_score >= 0 AND green_space_score <= 100),
+    composite_score    DOUBLE NOT NULL CHECK (composite_score >= 0 AND composite_score <= 100),
+    ingested_at        TIMESTAMPTZ NOT NULL,
+    pipeline_stage     VARCHAR DEFAULT 'gold'
 );
 """
 
@@ -315,4 +316,15 @@ def init_db(con: duckdb.DuckDBPyConnection) -> None:
         _DDL_SILVER_HEADLINES,
     ):
         con.execute(ddl)
+
+    # Migration: add green_space_score column to existing gold_scores tables
+    try:
+        con.execute(
+            "ALTER TABLE gold_scores ADD COLUMN IF NOT EXISTS "
+            "green_space_score DOUBLE CHECK (green_space_score >= 0 AND green_space_score <= 100)"
+        )
+    except Exception:
+        # Column already exists or table was just created with it
+        pass
+
     logger.info("DuckDB tables initialised")

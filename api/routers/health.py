@@ -58,7 +58,7 @@ def london_score(con: duckdb.DuckDBPyConnection = Depends(get_connection)) -> di
     try:
         rows = con.execute("""
             SELECT borough_code, air_score, transit_score, sentiment_score,
-                   immune_score, composite_score, timestamp
+                   immune_score, green_space_score, composite_score, timestamp
             FROM (
                 SELECT *,
                        ROW_NUMBER() OVER (PARTITION BY borough_code ORDER BY ingested_at DESC) AS rn
@@ -80,6 +80,7 @@ def london_score(con: duckdb.DuckDBPyConnection = Depends(get_connection)) -> di
             "transit_score": None,
             "sentiment_score": None,
             "immune_score": None,
+            "green_space_score": None,
             "borough_count": 0,
             "timestamp": None,
         }
@@ -89,11 +90,12 @@ def london_score(con: duckdb.DuckDBPyConnection = Depends(get_connection)) -> di
         return round(sum(present) / len(present), 2) if present else None
 
     return {
-        "composite_score": _avg([r[5] for r in rows]),
+        "composite_score": _avg([r[6] for r in rows]),
         "air_score": _avg([r[1] for r in rows]),
         "transit_score": _avg([r[2] for r in rows]),
         "sentiment_score": _avg([r[3] for r in rows]),
         "immune_score": _avg([r[4] for r in rows]),
+        "green_space_score": _avg([r[5] for r in rows]),
         "borough_count": len(rows),
-        "timestamp": str(rows[0][6]),
+        "timestamp": str(rows[0][7]),
     }

@@ -8,10 +8,10 @@ Table silver_metrics {
   borough_code     varchar [not null, note: 'ONS 9-char code (E09000001–E09000033)']
   borough_name     varchar [not null]
   timestamp        timestamptz [not null, note: 'UTC']
-  metric_name      varchar [not null, note: 'air_quality | transit | sentiment | crime | nhs_ae']
+  metric_name      varchar [not null, note: 'air_quality | transit | sentiment | crime | nhs_ae | green_space']
   raw_value        double [note: 'Original value before normalisation (nullable for some sources)']
   normalised_score double [not null, note: '0–100 score, 100 = healthiest, CHECK 0–100']
-  source           varchar [not null, note: 'openaq | tfl | reddit | guardian | bbc | met_police | nhs_ae']
+  source           varchar [not null, note: 'openaq | tfl | reddit | guardian | bbc | met_police | nhs_ae | green_space']
   ingested_at      timestamptz [not null, note: 'UTC pipeline run time']
   pipeline_stage   varchar [default: 'silver']
 }
@@ -24,7 +24,8 @@ Table gold_scores {
   transit_score    double [note: '0–100, from TfL tube line status, CHECK 0–100']
   sentiment_score  double [note: '0–100, from Reddit + Guardian + BBC sentiment, CHECK 0–100']
   immune_score     double [note: '0–100, from Met Police crime + NHS A&E performance, CHECK 0–100']
-  composite_score  double [not null, note: 'Weighted average of four system scores, CHECK 0–100']
+  green_space_score double [note: '0–100, from GLA Green Cover 2024 satellite data, CHECK 0–100']
+  composite_score  double [not null, note: 'Weighted average of five system scores, CHECK 0–100']
   ingested_at      timestamptz [not null, note: 'UTC pipeline run time']
   pipeline_stage   varchar [default: 'gold']
 }

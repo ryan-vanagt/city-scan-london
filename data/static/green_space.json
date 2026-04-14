@@ -1,0 +1,142 @@
+{
+  "_metadata": {
+    "source": "GLA Green Cover 2024",
+    "url": "https://data.london.gov.uk/dataset/green-cover-2024-e56n0/",
+    "method": "Satellite imagery + NDVI classification",
+    "updated": "2024"
+  },
+  "boroughs": {
+    "E09000016": {
+      "name": "Havering",
+      "green_pct": 62.3
+    },
+    "E09000033": {
+      "name": "Westminster",
+      "green_pct": 32.4
+    },
+    "E09000021": {
+      "name": "Kingston upon Thames",
+      "green_pct": 52.3
+    },
+    "E09000007": {
+      "name": "Camden",
+      "green_pct": 40.7
+    },
+    "E09000012": {
+      "name": "Hackney",
+      "green_pct": 34.2
+    },
+    "E09000002": {
+      "name": "Barking and Dagenham",
+      "green_pct": 35.3
+    },
+    "E09000009": {
+      "name": "Ealing",
+      "green_pct": 44.9
+    },
+    "E09000031": {
+      "name": "Waltham Forest",
+      "green_pct": 40.5
+    },
+    "E09000013": {
+      "name": "Hammersmith and Fulham",
+      "green_pct": 29.2
+    },
+    "E09000018": {
+      "name": "Hounslow",
+      "green_pct": 49.5
+    },
+    "E09000032": {
+      "name": "Wandsworth",
+      "green_pct": 38.8
+    },
+    "E09000015": {
+      "name": "Harrow",
+      "green_pct": 54.6
+    },
+    "E09000003": {
+      "name": "Barnet",
+      "green_pct": 56.4
+    },
+    "E09000017": {
+      "name": "Hillingdon",
+      "green_pct": 57.3
+    },
+    "E09000005": {
+      "name": "Brent",
+      "green_pct": 36.9
+    },
+    "E09000025": {
+      "name": "Newham",
+      "green_pct": 30.1
+    },
+    "E09000004": {
+      "name": "Bexley",
+      "green_pct": 49.0
+    },
+    "E09000011": {
+      "name": "Greenwich",
+      "green_pct": 47.6
+    },
+    "E09000030": {
+      "name": "Tower Hamlets",
+      "green_pct": 25.2
+    },
+    "E09000008": {
+      "name": "Croydon",
+      "green_pct": 51.1
+    },
+    "E09000010": {
+      "name": "Enfield",
+      "green_pct": 54.5
+    },
+    "E09000006": {
+      "name": "Bromley",
+      "green_pct": 73.6
+    },
+    "E09000028": {
+      "name": "Southwark",
+      "green_pct": 37.6
+    },
+    "E09000023": {
+      "name": "Lewisham",
+      "green_pct": 39.1
+    },
+    "E09000026": {
+      "name": "Redbridge",
+      "green_pct": 50.3
+    },
+    "E09000020": {
+      "name": "Kensington and Chelsea",
+      "green_pct": 31.4
+    },
+    "E09000029": {
+      "name": "Sutton",
+      "green_pct": 45.0
+    },
+    "E09000024": {
+      "name": "Merton",
+      "green_pct": 45.7
+    },
+    "E09000001": {
+      "name": "City of London",
+      "green_pct": 6.0
+    },
+    "E09000019": {
+      "name": "Islington",
+      "green_pct": 28.9
+    },
+    "E09000014": {
+      "name": "Haringey",
+      "green_pct": 38.6
+    },
+    "E09000027": {
+      "name": "Richmond upon Thames",
+      "green_pct": 64.9
+    },
+    "E09000022": {
+      "name": "Lambeth",
+      "green_pct": 31.1
+    }
+  }
+}

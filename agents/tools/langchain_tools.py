@@ -23,9 +23,9 @@ from agents.tools.trend_analysis import get_trend
 def get_borough_health_tool(borough: str) -> dict:
     """Get the current health score breakdown for a London borough.
 
-    Returns air, transit, sentiment, immune, and composite scores (0-100,
-    where 100 is healthiest). Accepts borough name (e.g. 'Camden',
-    'Hackney') or ONS code (e.g. 'E09000007').
+    Returns air, transit, sentiment, immune, green_space, and composite
+    scores (0-100, where 100 is healthiest). Accepts borough name
+    (e.g. 'Camden', 'Hackney') or ONS code (e.g. 'E09000007').
     """
     borough = borough[:100]
     return get_borough_health(borough)
@@ -35,8 +35,8 @@ def get_borough_health_tool(borough: str) -> dict:
 def get_london_score_tool() -> dict:
     """Get the overall London-wide health score averaged across all 33 boroughs.
 
-    Returns composite and sub-scores (air, transit, sentiment, immune),
-    the number of boroughs included, and the latest timestamp.
+    Returns composite and sub-scores (air, transit, sentiment, immune,
+    green_space), the number of boroughs included, and the latest timestamp.
     """
     return get_london_score()
 
@@ -56,7 +56,7 @@ def get_trend_tool(
     Args:
         borough: Borough name or ONS code.
         metric: One of air_score, transit_score, sentiment_score,
-            immune_score, composite_score.
+            immune_score, green_space_score, composite_score.
         days: Lookback window, 1-30 (default 7).
     """
     borough = borough[:100]
@@ -76,7 +76,7 @@ def compare_boroughs_tool(
 
     Args:
         metric: One of air_score, transit_score, sentiment_score,
-            immune_score, composite_score.
+            immune_score, green_space_score, composite_score.
         top_n: Number of boroughs to return (1-33, default 5).
         ascending: Sort order. False=best first, True=worst first.
     """
@@ -93,8 +93,8 @@ def run_sql_tool(query: str) -> dict:
 
     Available tables:
       - gold_scores: borough_code, borough_name, timestamp, air_score,
-        transit_score, sentiment_score, immune_score, composite_score,
-        ingested_at, pipeline_stage
+        transit_score, sentiment_score, immune_score, green_space_score,
+        composite_score, ingested_at, pipeline_stage
       - silver_metrics: borough_code, borough_name, timestamp,
         metric_name, raw_value, normalised_score, source, ingested_at,
         pipeline_stage

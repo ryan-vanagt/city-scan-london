@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Vital signs header bar showing 4 metrics + overall composite score.
+ * Vital signs header bar showing 5 metrics + overall composite score.
  *
  * Each metric shows a label, an animated EKG line, and a numerical score.
  * All labels and EKG lines are X-ray blue; only scores use thermal colours.
@@ -22,9 +22,9 @@ interface VitalSignsProps {
 }
 
 interface MetricConfig {
-  key: "air_score" | "transit_score" | "sentiment_score" | "immune_score";
+  key: "air_score" | "transit_score" | "sentiment_score" | "immune_score" | "green_space_score";
   label: string;
-  ekgVariant: "air" | "transit" | "sentiment" | "immune";
+  ekgVariant: "air" | "transit" | "sentiment" | "immune" | "green_space";
 }
 
 const METRICS: MetricConfig[] = [
@@ -32,6 +32,7 @@ const METRICS: MetricConfig[] = [
   { key: "transit_score", label: "TRANSIT", ekgVariant: "transit" },
   { key: "sentiment_score", label: "SENTIMENT", ekgVariant: "sentiment" },
   { key: "immune_score", label: "IMMUNE", ekgVariant: "immune" },
+  { key: "green_space_score", label: "GREEN SPACE", ekgVariant: "green_space" },
 ];
 
 function formatScore(value: number | null): string {
@@ -67,6 +68,7 @@ export default function VitalSigns({
         transit_score: hoveredBorough.transit_score,
         sentiment_score: hoveredBorough.sentiment_score,
         immune_score: hoveredBorough.immune_score,
+        green_space_score: hoveredBorough.green_space_score,
         composite_score: hoveredBorough.composite_score,
       };
     }
@@ -75,6 +77,7 @@ export default function VitalSigns({
       transit_score: londonScore.transit_score,
       sentiment_score: londonScore.sentiment_score,
       immune_score: londonScore.immune_score,
+      green_space_score: londonScore.green_space_score,
       composite_score: londonScore.composite_score,
     };
   }, [londonScore, hoveredBorough]);

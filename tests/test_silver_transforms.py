@@ -9,6 +9,7 @@ from pipeline.schemas import BOROUGHS, init_db
 from pipeline.silver import (
     _load_bronze,
     _transform_bbc,
+    _transform_green_space,
     _transform_guardian,
     _transform_met_police,
     _transform_nhs_ae,
@@ -82,13 +83,14 @@ def _validate_rows(rows: list[tuple], source_name: str, expected_metric: str) ->
 # ---------------------------------------------------------------------------
 
 SOURCES = [
-    ("nhs_ae",    _transform_nhs_ae,    "nhs_ae"),
-    ("tfl",       _transform_tfl,       "transit"),
-    ("met_police", _transform_met_police, "crime"),
-    ("openaq",    _transform_openaq,    "air_quality"),
-    ("reddit",    _transform_reddit,    "sentiment"),
-    ("bbc",       _transform_bbc,       "sentiment"),
-    ("guardian",  _transform_guardian,  "sentiment"),
+    ("nhs_ae",      _transform_nhs_ae,      "nhs_ae"),
+    ("tfl",         _transform_tfl,         "transit"),
+    ("met_police",  _transform_met_police,  "crime"),
+    ("openaq",      _transform_openaq,      "air_quality"),
+    ("green_space", _transform_green_space, "green_space"),
+    ("reddit",      _transform_reddit,      "sentiment"),
+    ("bbc",         _transform_bbc,         "sentiment"),
+    ("guardian",    _transform_guardian,    "sentiment"),
 ]
 
 SOURCE_IDS = [s[0] for s in SOURCES]

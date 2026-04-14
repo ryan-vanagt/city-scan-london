@@ -11,6 +11,8 @@ learning/
 
 # Data — ignore file contents, keep directory structure via .gitkeep
 data/**
+!data/static/
+!data/static/**
 !data/bronze/
 !data/bronze/.gitkeep
 !data/silver/

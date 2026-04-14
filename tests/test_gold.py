@@ -80,13 +80,13 @@ def test_names_match_codes(real_gold_data):
 
 def test_no_null_composite_scores(real_gold_data):
     gold_data, _ = real_gold_data
-    composites = [row[7] for row in gold_data]
+    composites = [row[8] for row in gold_data]
     assert all(c is not None for c in composites)
 
 
 def test_all_composites_in_range(real_gold_data):
     gold_data, _ = real_gold_data
-    composites = [row[7] for row in gold_data]
+    composites = [row[8] for row in gold_data]
     assert all(0 <= c <= 100 for c in composites), \
         f"range: [{min(composites)}, {max(composites)}]"
 
@@ -96,7 +96,8 @@ def test_all_sub_scores_null_or_in_range(real_gold_data):
     for row in gold_data:
         bc = row[0]
         for label, val in [("air", row[3]), ("transit", row[4]),
-                            ("sentiment", row[5]), ("immune", row[6])]:
+                            ("sentiment", row[5]), ("immune", row[6]),
+                            ("green_space", row[7])]:
             assert val is None or 0 <= val <= 100, \
                 f"{bc} {label}={val} out of [0, 100]"
 
@@ -133,11 +134,12 @@ def test_composite_equals_weighted_avg_of_sub_scores(real_gold_data):
     weights = _load_weights()
     for row in gold_data:
         bc = row[0]
-        air, transit, sentiment, immune, composite = (
-            row[3], row[4], row[5], row[6], row[7]
+        air, transit, sentiment, immune, green_space, composite = (
+            row[3], row[4], row[5], row[6], row[7], row[8]
         )
         pairs = [(air, weights[0]), (transit, weights[1]),
-                 (sentiment, weights[2]), (immune, weights[3])]
+                 (sentiment, weights[2]), (immune, weights[3]),
+                 (green_space, weights[4])]
         present = [(s, w) for s, w in pairs if s is not None]
         expected = sum(s * w for s, w in present) / sum(w for _, w in present)
         assert abs(composite - round(expected, 2)) <= 0.01, \
@@ -197,7 +199,7 @@ def test_custom_weights_composite_calculation(fresh_db, monkeypatch):
     insert_silver(fresh_db, BC1, "sentiment",   0.0,   source="reddit")
     insert_silver(fresh_db, BC1, "crime",       0.0,   source="met_police")
 
-    monkeypatch.setenv("SCORE_WEIGHTS", "0.7,0.1,0.1,0.1")
+    monkeypatch.setenv("SCORE_WEIGHTS", "0.7,0.1,0.1,0.05,0.05")
     _load_weights.cache_clear()
     try:
         aggregate(fresh_db)
@@ -205,7 +207,10 @@ def test_custom_weights_composite_calculation(fresh_db, monkeypatch):
             "SELECT composite_score FROM gold_scores WHERE borough_code = ?", [BC1]
         ).fetchone()
         assert gold is not None
-        assert abs(gold[0] - 70.0) < 0.01, f"expected 70.0, got {gold[0]}"
+        # Only 4 of 5 scores present, so renormalise: 0.7+0.1+0.1+0.05 = 0.95
+        # composite = (100*0.7 + 0*0.1 + 0*0.1 + 0*0.05) / 0.95 = 73.68
+        expected = round(100.0 * 0.7 / 0.95, 2)
+        assert abs(gold[0] - expected) < 0.01, f"expected {expected}, got {gold[0]}"
     finally:
         _load_weights.cache_clear()
 
@@ -215,7 +220,7 @@ def test_invalid_weights_fall_back_to_defaults(monkeypatch):
     _load_weights.cache_clear()
     try:
         w = _load_weights()
-        assert w == (0.25, 0.25, 0.25, 0.25), f"expected default weights, got {w}"
+        assert w == (0.20, 0.20, 0.20, 0.20, 0.20), f"expected default weights, got {w}"
     finally:
         _load_weights.cache_clear()
 
@@ -224,5 +229,5 @@ def test_ddl_rejects_null_composite(fresh_db):
     with pytest.raises(duckdb.Error):
         fresh_db.execute(
             "INSERT INTO gold_scores VALUES "
-            "('E09000001','Test','2026-01-01T00:00:00+00',80,90,70,60,NULL,'2026-01-01T00:00:00+00','gold')"
+            "('E09000001','Test','2026-01-01T00:00:00+00',80,90,70,60,50,NULL,'2026-01-01T00:00:00+00','gold')"
         )

@@ -6,6 +6,7 @@ export interface LondonScore {
   transit_score: number | null;
   sentiment_score: number | null;
   immune_score: number | null;
+  green_space_score: number | null;
   borough_count: number;
   timestamp: string | null;
 }
@@ -18,6 +19,7 @@ export interface BoroughScore {
   transit_score: number | null;
   sentiment_score: number | null;
   immune_score: number | null;
+  green_space_score: number | null;
   composite_score: number | null;
 }
 
@@ -59,6 +61,7 @@ export type MetricFilter =
   | "transit_score"
   | "sentiment_score"
   | "immune_score"
+  | "green_space_score"
   | null;
 
 /** Which panel is open on the right side */

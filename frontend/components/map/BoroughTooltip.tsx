@@ -3,7 +3,7 @@
 /**
  * Hover tooltip for a borough on the thermal map.
  *
- * Shows borough name in ALL CAPS, 4 metric scores with short text labels,
+ * Shows borough name in ALL CAPS, 5 metric scores with short text labels,
  * and the composite score below a divider.
  */
 
@@ -27,6 +27,7 @@ const METRICS: MetricDisplay[] = [
   { abbr: "TRS", key: "transit_score", source: "TfL" },
   { abbr: "SNT", key: "sentiment_score", source: "Reddit/Guardian/BBC" },
   { abbr: "IMM", key: "immune_score", source: "Met Police/NHS" },
+  { abbr: "GRN", key: "green_space_score", source: "GLA Green Cover" },
 ];
 
 function formatScore(value: number | null): string {
