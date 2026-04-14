@@ -204,7 +204,8 @@ def _transform_met_police(data: dict, timestamp: str) -> list[tuple]:
     """Transform Met Police crime bronze data to silver rows.
 
     metric_name: 'crime'
-    normalised_score: min-max inverted (fewer crimes = higher score)
+    raw_value: crimes per 1,000 residents (per-capita)
+    normalised_score: min-max inverted (lower crime rate = higher score)
     """
     results = data.get("results", [])
     if not results:
@@ -230,27 +231,36 @@ def _transform_met_police(data: dict, timestamp: str) -> list[tuple]:
         )
         return []
 
-    # Min-max normalise, inverted: fewer crimes = higher score
-    counts = list(borough_counts.values())
-    min_count = min(counts)
-    max_count = max(counts)
-    if max_count == min_count:
+    # Convert raw counts to per-capita rates (crimes per 1,000 residents).
+    # This prevents high-footfall boroughs (Westminster, City of London) from
+    # always scoring worst due to volume rather than resident risk.
+    borough_rates: dict[str, float] = {}
+    for bc, count in borough_counts.items():
+        pop = BOROUGHS[bc].get("population")
+        if pop and pop > 0:
+            borough_rates[bc] = (count / pop) * 1000
+        else:
+            logger.warning(
+                "Silver Met Police: no population for %s — using raw count", bc,
+            )
+            borough_rates[bc] = float(count)
+
+    # Min-max normalise, inverted: fewer crimes per capita = higher score
+    rates = list(borough_rates.values())
+    min_rate = min(rates)
+    max_rate = max(rates)
+    if max_rate == min_rate:
         logger.warning(
-            "Silver Met Police: all %d boroughs have identical crime count (%d) — "
+            "Silver Met Police: all %d boroughs have identical crime rate (%.1f) — "
             "min-max range is zero; all boroughs will score 100 this cycle",
-            len(borough_counts), min_count,
+            len(borough_rates), min_rate,
         )
-        # Design note: when all boroughs report identical crime counts, relative
-        # scoring gives everyone 100/100.  This is intentional — the score
-        # measures *relative* safety across boroughs, not absolute crime levels.
-        # If absolute thresholds are needed, they belong in a future gold-layer
-        # enrichment step, not here.
-    range_count = max_count - min_count if max_count != min_count else 1
+    range_rate = max_rate - min_rate if max_rate != min_rate else 1.0
 
     rows = []
-    for bc, count in borough_counts.items():
-        raw_value = float(count)
-        normalised = _clamp(100.0 * (1.0 - (count - min_count) / range_count))
+    for bc, rate in borough_rates.items():
+        raw_value = round(rate, 2)
+        normalised = _clamp(100.0 * (1.0 - (rate - min_rate) / range_rate))
         rows.append(_make_row(bc, timestamp, "crime", raw_value, normalised, "met_police"))
 
     logger.info("Silver Met Police: %d borough rows", len(rows))

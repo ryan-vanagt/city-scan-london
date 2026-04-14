@@ -11,167 +11,200 @@
     "E09000001": {
       "name": "City of London",
       "lat": 51.5156,
-      "lng": -0.0935
+      "lng": -0.0935,
+      "population": 15111
     },
     "E09000002": {
       "name": "Barking and Dagenham",
       "lat": 51.5456,
-      "lng": 0.1295
+      "lng": 0.1295,
+      "population": 232747
     },
     "E09000003": {
       "name": "Barnet",
       "lat": 51.6111,
-      "lng": -0.2182
+      "lng": -0.2182,
+      "population": 405050
     },
     "E09000004": {
       "name": "Bexley",
       "lat": 51.4582,
-      "lng": 0.1462
+      "lng": 0.1462,
+      "population": 256434
     },
     "E09000005": {
       "name": "Brent",
       "lat": 51.5644,
-      "lng": -0.2757
+      "lng": -0.2757,
+      "population": 352976
     },
     "E09000006": {
       "name": "Bromley",
       "lat": 51.3727,
-      "lng": 0.0392
+      "lng": 0.0392,
+      "population": 335319
     },
     "E09000007": {
       "name": "Camden",
       "lat": 51.5431,
-      "lng": -0.1629
+      "lng": -0.1629,
+      "population": 216943
     },
     "E09000008": {
       "name": "Croydon",
       "lat": 51.366,
-      "lng": -0.0776
+      "lng": -0.0776,
+      "population": 409342
     },
     "E09000009": {
       "name": "Ealing",
       "lat": 51.5244,
-      "lng": -0.3141
+      "lng": -0.3141,
+      "population": 385985
     },
     "E09000010": {
       "name": "Enfield",
       "lat": 51.6489,
-      "lng": -0.0814
+      "lng": -0.0814,
+      "population": 327434
     },
     "E09000011": {
       "name": "Greenwich",
       "lat": 51.4639,
-      "lng": 0.0501
+      "lng": 0.0501,
+      "population": 299528
     },
     "E09000012": {
       "name": "Hackney",
       "lat": 51.5549,
-      "lng": -0.0605
+      "lng": -0.0605,
+      "population": 266758
     },
     "E09000013": {
       "name": "Hammersmith and Fulham",
       "lat": 51.4873,
-      "lng": -0.2174
+      "lng": -0.2174,
+      "population": 188687
     },
     "E09000014": {
       "name": "Haringey",
       "lat": 51.5877,
-      "lng": -0.1067
+      "lng": -0.1067,
+      "population": 263850
     },
     "E09000015": {
       "name": "Harrow",
       "lat": 51.5947,
-      "lng": -0.336
+      "lng": -0.336,
+      "population": 270724
     },
     "E09000016": {
       "name": "Havering",
       "lat": 51.5652,
-      "lng": 0.2354
+      "lng": 0.2354,
+      "population": 276274
     },
     "E09000017": {
       "name": "Hillingdon",
       "lat": 51.5366,
-      "lng": -0.4418
+      "lng": -0.4418,
+      "population": 329185
     },
     "E09000018": {
       "name": "Hounslow",
       "lat": 51.4624,
-      "lng": -0.3786
+      "lng": -0.3786,
+      "population": 299424
     },
     "E09000019": {
       "name": "Islington",
       "lat": 51.5455,
-      "lng": -0.1099
+      "lng": -0.1099,
+      "population": 223024
     },
     "E09000020": {
       "name": "Kensington and Chelsea",
       "lat": 51.4964,
-      "lng": -0.1898
+      "lng": -0.1898,
+      "population": 144518
     },
     "E09000021": {
       "name": "Kingston upon Thames",
       "lat": 51.393,
-      "lng": -0.2837
+      "lng": -0.2837,
+      "population": 172692
     },
     "E09000022": {
       "name": "Lambeth",
       "lat": 51.4645,
-      "lng": -0.1139
+      "lng": -0.1139,
+      "population": 316920
     },
     "E09000023": {
       "name": "Lewisham",
       "lat": 51.4423,
-      "lng": -0.0173
+      "lng": -0.0173,
+      "population": 301255
     },
     "E09000024": {
       "name": "Merton",
       "lat": 51.4106,
-      "lng": -0.1887
+      "lng": -0.1887,
+      "population": 218539
     },
     "E09000025": {
       "name": "Newham",
       "lat": 51.5315,
-      "lng": 0.0273
+      "lng": 0.0273,
+      "population": 374523
     },
     "E09000026": {
       "name": "Redbridge",
       "lat": 51.5859,
-      "lng": 0.0701
+      "lng": 0.0701,
+      "population": 321231
     },
     "E09000027": {
       "name": "Richmond upon Thames",
       "lat": 51.4404,
-      "lng": -0.2891
+      "lng": -0.2891,
+      "population": 196678
     },
     "E09000028": {
       "name": "Southwark",
       "lat": 51.4659,
-      "lng": -0.0731
+      "lng": -0.0731,
+      "population": 314786
     },
     "E09000029": {
       "name": "Sutton",
       "lat": 51.3576,
-      "lng": -0.1723
+      "lng": -0.1723,
+      "population": 214525
     },
     "E09000030": {
       "name": "Tower Hamlets",
       "lat": 51.5155,
-      "lng": -0.0365
+      "lng": -0.0365,
+      "population": 331886
     },
     "E09000031": {
       "name": "Waltham Forest",
       "lat": 51.5946,
-      "lng": -0.0188
+      "lng": -0.0188,
+      "population": 279737
     },
     "E09000032": {
       "name": "Wandsworth",
       "lat": 51.4524,
-      "lng": -0.2002
+      "lng": -0.2002,
+      "population": 337655
     },
     "E09000033": {
       "name": "Westminster",
       "lat": 51.5122,
-      "lng": -0.153
+      "lng": -0.153,
+      "population": 209996
     }
   },
   "tfl_line_to_boroughs": {
