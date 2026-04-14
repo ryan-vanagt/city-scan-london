@@ -245,6 +245,13 @@ def _transform_met_police(data: dict, timestamp: str) -> list[tuple]:
             )
             borough_rates[bc] = float(count)
 
+    # Winsorise at 95th percentile to prevent non-residential borough outliers
+    # (e.g. City of London: 15k residents, 500k daily workers) from compressing
+    # the score range for all other boroughs.
+    rates_sorted = sorted(borough_rates.values())
+    p95 = rates_sorted[int(len(rates_sorted) * 0.95)]
+    borough_rates = {bc: min(rate, p95) for bc, rate in borough_rates.items()}
+
     # Min-max normalise, inverted: fewer crimes per capita = higher score
     rates = list(borough_rates.values())
     min_rate = min(rates)
