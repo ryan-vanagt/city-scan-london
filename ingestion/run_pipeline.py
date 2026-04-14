@@ -21,7 +21,7 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(messag
 
 import duckdb  # noqa: E402
 
-from ingestion.sources import openaq, tfl, met_police, guardian, reddit, bbc, nhs_ae  # noqa: E402
+from ingestion.sources import openaq, tfl, met_police, guardian, reddit, bbc, nhs_ae, green_space  # noqa: E402
 from pipeline import bronze, gold, silver  # noqa: E402
 from pipeline.embed import embed_gold_scores  # noqa: E402
 from pipeline.schemas import init_db  # noqa: E402
@@ -36,6 +36,7 @@ SOURCES = {
     "reddit": reddit,
     "met_police": met_police,
     "nhs_ae": nhs_ae,
+    "green_space": green_space,
 }
 
 DB_PATH = str(PROJECT_ROOT / "data" / "cityscan.duckdb")
