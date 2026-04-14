@@ -57,7 +57,6 @@ def download_xlsx(url: str) -> Path:
                 logger.error("Download failed after 3 attempts: %s", e)
                 raise
             logger.warning("Download attempt %d failed: %s — retrying", attempt + 1, e)
-            import time
             time.sleep(2 ** attempt)
 
     tmp = tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False)
@@ -283,6 +282,10 @@ def main() -> None:
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
+
+    # Clean up temp file (skip if using local fallback)
+    if xlsx_path != Path("/tmp/green_cover_2024.xlsx"):
+        xlsx_path.unlink(missing_ok=True)
 
     logger.info("Wrote %s (%d boroughs, %d wards)", OUTPUT_PATH, len(boroughs), len(wards))
 

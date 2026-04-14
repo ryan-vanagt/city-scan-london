@@ -2,7 +2,7 @@
 
 ## Overview
 
-CityScan is a live urban health diagnostic platform that models London as a human body. Each data source maps to a biological system — air quality to lungs, transport to arteries, public sentiment to the brain, crime to the immune system. The system produces a real-time health score per London borough and an overall city health score, queryable via a natural language agent interface and summarised in a daily LLM-generated bulletin.
+CityScan is a live urban health diagnostic platform that models London as a human body. Each data source maps to a biological system — air quality to lungs, transport to arteries, public sentiment to the brain, crime to the immune system, green space coverage to the skin. The system produces a real-time health score per London borough and an overall city health score, queryable via a natural language agent interface and summarised in a daily LLM-generated bulletin.
 
 **Tagline:** *A CT scan for the city.*
 
@@ -38,6 +38,7 @@ Each signal is normalised to a 0–100 score (100 = healthy). The composite boro
 
 - Raw API responses stored as timestamped JSON files
 - One directory per source: `/data/bronze/openaq/`, `/data/bronze/tfl/`, `/data/bronze/reddit/`, `/data/bronze/guardian/`, `/data/bronze/bbc/`, `/data/bronze/met_police/`
+- Green space data is static (GLA Green Cover 2024) and stored in `/data/static/green_space.json` rather than bronze (no raw API response to capture)
 - Nothing is transformed at this stage
 - Ingestion runs on a schedule via APScheduler inside the `ingestion` service
 
@@ -60,9 +61,9 @@ Each signal is normalised to a 0–100 score (100 = healthy). The composite boro
 **Gold layer** — aggregated health scores
 
 - One row per borough per ingestion cycle:
-`(borough_code, borough_name, timestamp, air_score, transit_score, sentiment_score, immune_score, composite_score, ingested_at, pipeline_stage)`
+`(borough_code, borough_name, timestamp, air_score, transit_score, sentiment_score, immune_score, green_space_score, composite_score, ingested_at, pipeline_stage)`
 - Stored in DuckDB (structured) and embedded into ChromaDB (vector, for RAG)
-- Composite score = weighted average: air (25%), transit (25%), sentiment (25%), immune (25%)
+- Composite score = weighted average: air (20%), transit (20%), sentiment (20%), immune (20%), green space (20%)
 - Weights are configurable via environment variable `SCORE_WEIGHTS`
 
 ### Pipeline execution model
@@ -284,7 +285,7 @@ OPENAQ_API_KEY=
 GUARDIAN_API_KEY=
 REDDIT_USER_AGENT=cityscan/1.0
 TFL_APP_KEY=
-SCORE_WEIGHTS=0.25,0.25,0.25,0.25
+SCORE_WEIGHTS=0.20,0.20,0.20,0.20,0.20
 CHROMADB_HOST=localhost
 CHROMADB_PORT=8001                        # local dev default; Docker overrides to 8000
 MCP_PORT=8002
@@ -319,7 +320,7 @@ AGENT_RATE_LIMIT_GLOBAL_DAY=150
 Ideas validated during development but deferred to keep scope manageable:
 
 - **TfL reason text for RAG** — the TfL API returns a `reason` field (e.g. "points failure at Queen's Park") alongside severity. Currently unused for scoring (severity integer is sufficient), but the Doctor Agent could retrieve it to explain *why* a line is disrupted when answering queries. Store in bronze, surface via agent tool.
-- **Per-capita crime normalisation** — current crime scoring uses min-max (relative ranking across boroughs). Adding ONS population data would enable per-capita normalisation, making scores fairer for high-population boroughs. Population data is available from the same ONS API used for borough centroids.
+- **~~Per-capita crime normalisation~~** — **IMPLEMENTED.** Crime scoring now uses per-capita normalisation (crimes per 1,000 residents) with winsorisation at the 95th percentile to prevent non-residential boroughs (e.g. City of London: 15k residents, 500k daily workers) from distorting the scale. ONS population data fetched by `scripts/fetch_population.py`.
 - **Multi-modal transit scoring** — current transit data covers only tube. TfL's status API supports bus, Overground, Elizabeth line, and DLR in the same endpoint (`GET /line/mode/tube,overground,elizabeth-line,dlr/status`). Adding these modes would: (a) give transit scores to the 7 boroughs currently missing tube coverage, (b) let boroughs with alternatives (e.g. DLR + Jubilee in Greenwich) score based on their best available mode rather than worst tube line. This is a bronze-level fetch change — same API, wider mode filter.
 - **Borough-level sentiment via NER** — current sentiment is city-wide (all 33 boroughs get the same score). Named Entity Recognition could extract borough names from Reddit/BBC/Guardian text and assign sentiment at borough level. Out of scope due to NER complexity and sparse borough mentions in most articles.
 
@@ -339,7 +340,9 @@ city-scan-london/
 │   ├── lineage.md               ← Mermaid diagram + transformation notes
 │   └── schema.dbml              ← DuckDB schema for dbdiagram.io
 ├── scripts/
-│   └── generate_geo_mappings.py ← Fetches borough/TfL/NHS geo data from public APIs
+│   ├── generate_geo_mappings.py ← Fetches borough/TfL/NHS geo data from public APIs
+│   ├── fetch_population.py      ← Downloads ONS population data for per-capita normalisation
+│   └── fetch_green_space.py     ← Downloads GLA Green Cover 2024 XLSX → data/static/green_space.json
 ├── ingestion/
 │   ├── scheduler.py             ← APScheduler: fetch + full pipeline chain
 │   ├── run_pipeline.py          ← one-shot manual trigger (dev only)
@@ -350,7 +353,8 @@ city-scan-london/
 │       ├── reddit.py
 │       ├── guardian.py
 │       ├── bbc.py
-│       └── nhs_ae.py
+│       ├── nhs_ae.py
+│       └── green_space.py
 ├── pipeline/
 │   ├── bronze.py                ← save raw JSON to /data/bronze/
 │   ├── silver.py                ← normalise to DuckDB silver schema
@@ -391,6 +395,7 @@ city-scan-london/
 │   ├── bronze/
 │   ├── silver/
 │   ├── gold/
+│   ├── static/                  ← pre-processed reference data (green_space.json, population)
 │   └── bulletins/
 ├── embeddings/
 │   └── (ChromaDB persistence)

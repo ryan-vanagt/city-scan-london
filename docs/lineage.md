@@ -90,7 +90,7 @@ Every Silver and Gold record carries:
 | ----------- | -------------------- | ---------------------------------------------------------------------------- |
 | Bronze      | `pipeline/bronze.py` | Raw API response saved as timestamped JSON — no transformation               |
 | Silver      | `pipeline/silver.py` | Parsed, validated, normalised to 0–100 score, mapped to ONS borough code     |
-| Silver Detail | `pipeline/silver.py` | Per-item context (crime categories, tube line statuses, AQ station readings, NHS trust data, per-headline sentiment) — does NOT feed into gold scores |
+| Silver Detail | `pipeline/silver.py` | Per-item context (crime categories, tube line statuses, AQ station readings, NHS trust data, ward-level green space coverage, per-headline sentiment) — does NOT feed into gold scores |
 | Gold        | `pipeline/gold.py`   | Per-borough weighted average across all five signals (48h time-bound on silver data); embedded into ChromaDB |
 | Embed       | `pipeline/embed.py`  | Gold rows converted to text descriptions and upserted into ChromaDB for RAG  |
 | Agent Tools | `agents/tools/`      | 4 curated DuckDB queries + 1 guarded `run_sql` (13-layer security) + 1 RAG `search_scores` |

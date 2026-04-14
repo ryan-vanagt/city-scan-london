@@ -108,8 +108,8 @@ All state lives in `app/page.tsx`. No routing — everything is panel-based.
                            ▼
 ┌──────────────────────────────────────────────────────────────────────┐
 │ HEADER: Vital Signs Bar (sticky)                                     │
-│  [ALL] AIR ~~42~~ │ TRANSIT ~~78~~ │ SENTIMENT ~~61~~ │ IMMUNE ~~55~~│ ❤ 59│
-│        (EKG line)   (EKG line)       (EKG line)         (EKG line)   │
+│  [ALL] AIR ~~42~~ │ TRANSIT ~~78~~ │ SENTIMENT ~~61~~ │ IMMUNE ~~55~~ │ GREEN SPACE ~~70~~ │ ❤ 59│
+│        (EKG line)   (EKG line)       (EKG line)         (EKG line)     (EKG line)          │
 ├────────────────────────────────────────┬─────────────────────────────┤
 │                                        │                             │
 │         LONDON THERMAL MAP             │    CONTEXTUAL PANEL         │
@@ -165,7 +165,7 @@ All state lives in `app/page.tsx`. No routing — everything is panel-based.
 
 **Layout:** Three sections:
 1. **Left:** Context label — shows abbreviated hovered borough name or "LONDON" (hidden on mobile)
-2. **Centre:** "ALL" button + 4 metric buttons (air, transit, sentiment, immune)
+2. **Centre:** "ALL" button + 5 metric buttons (air, transit, sentiment, immune, green space)
 3. **Right:** HeartPulse icon (pulsing) + overall composite score
 
 **Each metric button shows:**
@@ -178,6 +178,7 @@ All state lives in `app/page.tsx`. No routing — everything is panel-based.
 - Transit: sharp ECG spikes (heartbeat)
 - Sentiment: gentle curves (brain waves)
 - Immune: small pulses (immune ticks)
+- Green Space: organic undulations suggesting growth/foliage
 
 **Interactivity:**
 - **Hover a borough** → header scores transition to that borough's scores. On leave → back to London-wide.
@@ -201,7 +202,7 @@ All state lives in `app/page.tsx`. No routing — everything is panel-based.
 2. All other boroughs: opacity 0.3, brightness 0.5
 3. Tooltip appears above the borough (positioned at centroid):
    - Borough name (uppercase, tracking)
-   - Metric scores (abbreviations: AIR, TRS, SNT, IMM)
+   - Metric scores (abbreviations: AIR, TRS, SNT, IMM, GRN)
    - Divider
    - Overall composite score
    - Border colour matches the borough's thermal colour (with glow)
@@ -292,7 +293,7 @@ Two pill-shaped buttons stacked vertically (12px gap):
 
 **Content:**
 ```
-Ryan Van Agt • Sources: OpenAQ, TfL, Reddit/Guardian/BBC, Met Police, NHS A&E • Powered by Claude Haiku 4.5, LangGraph, DuckDB, ChromaDB   [LinkedIn] [GitHub]
+Ryan Van Agt • Sources: OpenAQ, TfL, Reddit/Guardian/BBC, Met Police, NHS A&E, GLA Green Cover (yearly) • Powered by Claude Haiku 4.5, LangGraph, DuckDB, ChromaDB   [LinkedIn] [GitHub]
 ```
 
 Custom inline SVG icons for LinkedIn (18px) and GitHub (16px).
@@ -346,8 +347,8 @@ frontend/
 │   │   ├── BoroughPath.tsx      ← individual borough path (thermal fill, glow, pulse)
 │   │   └── BoroughTooltip.tsx   ← hover tooltip (metric scores, thermal border)
 │   ├── header/
-│   │   ├── VitalSigns.tsx       ← sticky header (4 metrics + composite, metric filter)
-│   │   └── EkgLine.tsx          ← animated SVG EKG waveform (4 variants)
+│   │   ├── VitalSigns.tsx       ← sticky header (5 metrics + composite, metric filter)
+│   │   └── EkgLine.tsx          ← animated SVG EKG waveform (5 variants)
 │   ├── panels/
 │   │   ├── DoctorChat.tsx       ← SSE streaming chat (rate-limited, markdown, source cards)
 │   │   └── BulletinPanel.tsx    ← full bulletin markdown in side panel
@@ -377,7 +378,7 @@ frontend/
 RootLayout (layout.tsx)
 └─ Page (page.tsx)
    ├─ VitalSigns
-   │  └─ EkgLine (x4)
+   │  └─ EkgLine (x5)
    ├─ LondonMap
    │  ├─ BoroughPath (x33)
    │  └─ BoroughTooltip (0 or 1)

@@ -34,7 +34,8 @@ def get_trend(
     Args:
         borough: Borough name (case-insensitive) or ONS 9-char code.
         metric: Score column to track. Must be one of air_score,
-            transit_score, sentiment_score, immune_score, composite_score.
+            transit_score, sentiment_score, immune_score,
+            green_space_score, composite_score.
         days: Lookback window in days (clamped to 1–30).
         con: Optional DuckDB connection. Uses the shared lazy connection if None.
 
