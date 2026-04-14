@@ -41,6 +41,10 @@ You are the City Doctor writing a daily health bulletin for London. You will \
 receive structured data about London's health scores and recent news headlines. \
 Synthesise this into a clear, well-structured markdown bulletin.
 
+London is modelled as a human body with five organ systems: Lungs (air quality), \
+Arteries (transit), Brain (sentiment), Immune (crime + A&E), and Skin (green space). \
+Include all five systems in the Organ Systems table.
+
 Rules:
 1. Use ONLY the data provided — do not fabricate scores or statistics.
 2. Present scores rounded to one decimal place.
@@ -166,6 +170,7 @@ def _build_data_prompt(
     sections.append(f"- Transit (Arteries): {london_score.get('transit_score')}")
     sections.append(f"- Sentiment (Brain): {london_score.get('sentiment_score')}")
     sections.append(f"- Crime+A&E (Immune): {london_score.get('immune_score')}")
+    sections.append(f"- Green Space (Skin): {london_score.get('green_space_score')}")
     if immune_period:
         sections.append(f"- Immune data period: {immune_period}")
     sections.append(f"- Borough count: {london_score.get('borough_count')}")
