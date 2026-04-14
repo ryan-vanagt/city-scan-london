@@ -4,16 +4,36 @@ This file provides context for AI coding assistants (Claude Code) working on thi
 
 ---
 
+## Competition: Analytics for Society Awards 2026
+
+CityScan is being submitted to the Analytics for Society Awards 2026 (UCL School of Management + Imperial Gandhi Centre + IoA).
+
+- **SDG 11:** Sustainable Cities and Communities
+- **Targets:** 11.6 (air quality), 11.2 (transport), 11.7 (green spaces), 11.3/11.9 (inclusive planning via deprivation context)
+- **Judging:** Content 60% (Problem 30% + Solution 30%), Delivery 40% (Communication 20% + Data Viz 20%)
+- **Deadline:** April 18 2026 (MVP submission) | May 7 2026 (Final presentation)
+- **Key differentiator (planned):** Prescriptive layer — system will prescribe evidence-based policy interventions, not just monitor
+- **Roadmap:** `docs/competition/roadmap.md`
+
+---
+
 ## What this project is
 
-CityScan models London as a human body using live data. Four public data sources map to four biological systems and produce a real-time health score per London borough, queryable via a natural language agent interface and summarised in a daily LLM-generated bulletin.
+CityScan models London as a human body using live data. Four biological systems (with a fifth planned) map to public data sources and produce a real-time health score per London borough, queryable via a natural language agent interface and summarised in a daily LLM-generated bulletin.
 
-- 🫁 **Lungs** → OpenAQ (air quality)
-- 🩸 **Arteries** → TfL API (tube line status)
+**Live now (4 organs):**
+- 🫁 **Lungs** → OpenAQ (air quality) — SDG 11.6
+- 🩸 **Arteries** → TfL API (tube line status) — SDG 11.2
 - 🧠 **Brain** → Reddit + Guardian API + BBC News RSS (public sentiment)
 - 🛡️ **Immune system** → Met Police API (crime) + NHS England A&E stats (A&E pressure)
 
-Dual purpose: UCL MSc Data Engineering assignment (MSIN0166) + public portfolio project.
+**Planned (building now):**
+- 🌿 **Skin** → Green space data (London Datastore) — SDG 11.7
+- **IMD deprivation context** (MHCLG) — not a scored organ, but fuel for targeting interventions at the most vulnerable boroughs (SDG 11.3, 11.9)
+- **Prescriptive policy layer** — evidence-based intervention menu for Doctor Agent and Bulletin
+- **Per-capita crime normalisation** — ONS population data for fairer scoring
+
+Dual purpose: UCL MSc Data Engineering assignment (MSIN0166) + Analytics for Society Awards 2026 competition entry.
 
 Full product spec in `PRD.md`.
 
