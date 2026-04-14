@@ -4,6 +4,7 @@
 
 # Private docs
 CLAUDE.md
+docs/competition/
 *.pdf
 
 # Personal learning notes
