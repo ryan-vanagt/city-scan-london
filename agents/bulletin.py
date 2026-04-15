@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 BULLETINS_DIR = PROJECT_ROOT / "data" / "bulletins"
 
-MODEL_NAME = "claude-sonnet-4-5-20241022"
+MODEL_NAME = "claude-haiku-4-5"
 
 SYSTEM_PROMPT = """\
 You are the City Doctor writing a daily health bulletin for London. You will \
