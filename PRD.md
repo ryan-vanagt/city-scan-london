@@ -320,14 +320,53 @@ AGENT_RATE_LIMIT_GLOBAL_DAY=150
 
 ---
 
-## Future Enhancements (post-submission)
+## Future Enhancements
 
 Ideas validated during development but deferred to keep scope manageable:
 
-- **TfL reason text for RAG** — the TfL API returns a `reason` field (e.g. "points failure at Queen's Park") alongside severity. Currently unused for scoring (severity integer is sufficient), but the Doctor Agent could retrieve it to explain *why* a line is disrupted when answering queries. Store in bronze, surface via agent tool.
-- **~~Per-capita crime normalisation~~** — **IMPLEMENTED.** Crime scoring now uses per-capita normalisation (crimes per 1,000 residents) with winsorisation at the 95th percentile to prevent non-residential boroughs (e.g. City of London: 15k residents, 500k daily workers) from distorting the scale. ONS population data fetched by `scripts/fetch_population.py`.
-- **Multi-modal transit scoring** — current transit data covers only tube. TfL's status API supports bus, Overground, Elizabeth line, and DLR in the same endpoint (`GET /line/mode/tube,overground,elizabeth-line,dlr/status`). Adding these modes would: (a) give transit scores to the 7 boroughs currently missing tube coverage, (b) let boroughs with alternatives (e.g. DLR + Jubilee in Greenwich) score based on their best available mode rather than worst tube line. This is a bronze-level fetch change — same API, wider mode filter.
-- **Borough-level sentiment via NER** — current sentiment is city-wide (all 33 boroughs get the same score). Named Entity Recognition could extract borough names from Reddit/BBC/Guardian text and assign sentiment at borough level. Out of scope due to NER complexity and sparse borough mentions in most articles.
+### Data & Analytics
+
+- **Predictive layer** — time-series forecasting (Prophet/ARIMA) on gold_scores once 3-6 months of data accumulates. The pipeline already produces hourly time-series data across 5 dimensions for 33 boroughs — the input layer for predictive models is built.
+- **Anomaly detection** — flag borough scores deviating >2 standard deviations from their rolling mean. Surface as visual indicators on the map and in the bulletin.
+- **Ambient population for crime** — replace residential per-capita with workday/daytime population (Census 2021 or TfL tap-in/tap-out data) for fairer crime normalisation in commuter boroughs.
+- **PTAL integration** — TfL Public Transport Accessibility Levels for real SDG 11.2 coverage (who can ACCESS transport, not just service status).
+- **Housing data** — Land Registry prices or GLA housing stats as a 6th organ ("Skeleton"), aligned with SDG 11.1 (affordable housing).
+- **Noise pollution** — DEFRA noise maps as an additional environmental signal for the Lungs organ.
+- **Multi-modal transit scoring** — TfL's status API supports bus, Overground, Elizabeth line, and DLR in the same endpoint. Adding these modes gives transit scores to the 7 boroughs currently missing tube coverage.
+- **Borough-level sentiment via NER** — Named Entity Recognition to extract borough names from headlines and assign per-borough sentiment scores instead of city-wide.
+- **Correlation engine** — algorithmically discover which IMD domains correlate most strongly with which organ scores across all 33 boroughs.
+- **TfL reason text for RAG** — surface the TfL `reason` field (e.g. "points failure at Queen's Park") to explain why a line is disrupted.
+
+### Frontend & UX
+
+- **Radar/pentagon chart** — click a borough to see all 5 organ scores as a radar chart at a glance.
+- **IMD overlay on map** — toggle deprivation as border thickness on borough paths.
+- **Time slider** — drag to see how the thermal map changed over days/weeks using accumulated gold_scores history.
+- **Borough comparison mode** — select 2 boroughs for side-by-side radar charts + deprivation breakdown.
+- **Notification/alerting** — subscribe to a borough, get email when any organ drops below a threshold.
+- **Embed mode** — `<iframe>` embed code for council websites to display their borough health card.
+- **Mobile-responsive redesign** — proper layout for 5-metric header on narrow screens.
+
+### Agent & NLP
+
+- **Fine-tuned local model** — train an open-source model (Llama/Mistral) on accumulated agent_logs interaction data. Zero API cost, sub-second local inference. The logging infrastructure already captures training data (queries, tool outputs, final responses).
+- **Sonnet/Opus as default** — compatibility fixes in place (timeout, recursion limit, max_tokens). Blocked by API cost ($0.15-0.25/query vs $0.03 for Haiku). Viable when query volume justifies the quality improvement.
+- **Conversation memory** — Doctor remembers prior questions within a session for multi-turn context.
+- **Voice input/output** — Web Speech API for spoken queries and diagnosis narration.
+- **Structured treatment plans** — dedicated output format: Diagnosis → Prognosis → Prescriptions → Monitoring schedule.
+- **Citation links** — prescriptions link directly to policy document URLs.
+- **Confidence scores** — Doctor indicates "high confidence" on fresh data, "lower confidence" on stale readings.
+
+### Infrastructure & Deployment
+
+- **PostgreSQL migration** — replace DuckDB for concurrent multi-user support with connection pooling.
+- **Redis caching** — cache borough scores (change hourly), eliminate 99% of database reads on the serving path.
+- **On-premise deployment** — councils run their own CityScan instance with custom policy context documents. DuckDB's zero-dependency embedded model is an advantage here.
+- **Multi-city framework** — parameterise borough codes, data sources, and SVG paths for any UK city. IMD data already covers all 296 English local authorities. OpenAQ, Police API, and NHS data are national.
+- **User accounts** — save favourite boroughs, track notification preferences.
+- **API keys for external consumers** — other tools query CityScan's scored data.
+- **Automated data quality checks** — flag when a source returns suspiciously few rows or scores shift >20 points in one cycle.
+- **Real-time WebSocket** — push score updates to frontend as the pipeline runs.
 
 ---
 
