@@ -57,7 +57,7 @@ The following sources publish data under the [Open Government License v3.0](http
 ## Processing & Privacy
 
 - Raw text from Guardian and BBC is scored locally using a sentiment model (`cardiffnlp/twitter-roberta-base-sentiment`) and is never sent to any external LLM or API.
-- **Aggregated numerical scores** (0–100) reach the LLM (Claude Sonnet 4.5) for agent responses via the gold_scores table.
+- **Aggregated numerical scores** (0–100) reach the LLM (Claude Haiku 4.5) for agent responses via the gold_scores table.
 - **Headline titles** (not article body text) and their per-title sentiment scores are stored in `silver_headlines` and may be returned to the LLM when the agent answers questions about public sentiment. Only titles from the sources listed above are stored; URLs are validated against a domain allowlist.
 - **Contextual detail** (crime categories, tube line statuses, air quality station readings, NHS trust performance, ward-level green space coverage) is stored in `silver_detail` for agent breakdown queries. No raw article text, post bodies, or personally identifiable information is included.
 - No personally identifiable information is collected, stored, or transmitted.
