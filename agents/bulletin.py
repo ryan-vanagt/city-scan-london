@@ -60,7 +60,10 @@ headlines — simply omit the "In the News" section entirely.
 6. Do not speculate on causes — only report what the data shows. Do not \
 editorialize or suggest policy actions.
 7. Keep the bulletin concise — aim for ~500 words.
-8. Do NOT include a "next bulletin" date — the schedule is not fixed.\
+8. Do NOT include a "next bulletin" date — the schedule is not fixed.
+9. When deprivation context (IMD 2025) is provided for worst-scoring boroughs, \
+note the structural disadvantage in your Diagnosis section. Highlight where \
+deprivation aligns with poor health scores — this is the key insight.\
 """
 
 
@@ -159,6 +162,7 @@ def _build_data_prompt(
     headlines: list[dict],
     date_str: str,
     immune_period: str | None = None,
+    deprivation: dict[str, dict] | None = None,
 ) -> str:
     """Format all collected data into the LLM prompt."""
     sections = [f"Date: {date_str}\n"]
@@ -187,6 +191,23 @@ def _build_data_prompt(
     for b in worst:
         sections.append(f"- #{b['rank']} {b['borough_name']}: {b['score']}")
     sections.append("")
+
+    # Deprivation context for worst boroughs
+    if deprivation:
+        sections.append("## Deprivation Context (IMD 2025)")
+        for code, dep in deprivation.items():
+            # Find top 3 worst domains for this borough
+            domains = dep.get("domains", {})
+            worst_domains = sorted(domains.items(), key=lambda x: x[1]["rank"])[:3]
+            domain_str = ", ".join(
+                f"{name} (rank {vals['rank']}/296)" for name, vals in worst_domains
+            )
+            sections.append(
+                f"- {dep['borough_name']}: IMD rank {dep['imd_rank']}/296 nationally "
+                f"({dep['pct_most_deprived_10']}% of areas in most deprived 10%). "
+                f"Worst domains: {domain_str}"
+            )
+        sections.append("")
 
     # Trends
     if trends:
@@ -248,6 +269,14 @@ def generate_bulletin(trigger: str = "manual") -> dict:
     best = best_result.get("boroughs", [])
     worst = worst_result.get("boroughs", [])
 
+    # 2b. Fetch deprivation context for worst boroughs
+    from agents.tools.deprivation import get_deprivation
+    deprivation: dict[str, dict] = {}
+    for b in worst:
+        dep = get_deprivation(b.get("borough_code", ""))
+        if "error" not in dep:
+            deprivation[b["borough_code"]] = dep
+
     # 3. Fetch trends for top 3 best and worst
     trend_boroughs = [b["borough_code"] for b in best[:3]] + [
         b["borough_code"] for b in worst[:3]
@@ -268,6 +297,7 @@ def generate_bulletin(trigger: str = "manual") -> dict:
     data_prompt = _build_data_prompt(
         london_score, best, worst, trends, headlines, date_str,
         immune_period=immune_period,
+        deprivation=deprivation,
     )
 
     llm = ChatAnthropic(model=MODEL_NAME)
