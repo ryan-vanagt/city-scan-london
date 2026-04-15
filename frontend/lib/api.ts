@@ -47,7 +47,8 @@ export async function fetchBulletin(): Promise<BulletinResponse | null> {
  */
 export async function* streamDoctorQuery(
   question: string,
-  role?: string | null
+  role?: string | null,
+  signal?: AbortSignal
 ): AsyncGenerator<
   | { type: "token"; content: string }
   | { type: "sources"; sources: Array<{ type: string; tool: string; data: Record<string, unknown> }> }
@@ -60,6 +61,7 @@ export async function* streamDoctorQuery(
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
+    signal,
   });
 
   if (!res.ok) throw new Error(`Agent query failed: ${res.status}`);

@@ -192,6 +192,10 @@ def coord_to_borough_bulk(
     # Check cache first (under lock for thread safety)
     with _COORD_CACHE_LOCK:
         for i, (lat, lng) in enumerate(coords):
+            # Skip coordinates outside the London bounding box (same check as coord_to_borough)
+            if not (_LONDON_LAT_MIN <= lat <= _LONDON_LAT_MAX and
+                    _LONDON_LNG_MIN <= lng <= _LONDON_LNG_MAX):
+                continue
             cache_key = (round(lat, _COORD_PRECISION), round(lng, _COORD_PRECISION))
             if cache_key in _COORD_CACHE:
                 results[i] = _COORD_CACHE[cache_key]
@@ -317,14 +321,14 @@ def init_db(con: duckdb.DuckDBPyConnection) -> None:
     ):
         con.execute(ddl)
 
-    # Migration: add green_space_score column to existing gold_scores tables
+    # Migration: add green_space_score column to existing gold_scores tables.
+    # Note: DuckDB ALTER TABLE doesn't support CHECK constraints — the CHECK
+    # is already in the CREATE TABLE DDL above, so new tables get it.
     try:
         con.execute(
-            "ALTER TABLE gold_scores ADD COLUMN IF NOT EXISTS "
-            "green_space_score DOUBLE CHECK (green_space_score >= 0 AND green_space_score <= 100)"
+            "ALTER TABLE gold_scores ADD COLUMN IF NOT EXISTS green_space_score DOUBLE"
         )
-    except Exception:
-        # Column already exists or table was just created with it
-        pass
+    except (duckdb.CatalogException, duckdb.ParserException) as e:
+        logger.debug("Migration note (green_space_score): %s", e)
 
     logger.info("DuckDB tables initialised")

@@ -2,7 +2,7 @@
 
 A live urban health diagnostic platform that models London as a human body.
 
-Seven public data sources map to five biological systems, producing a real-time health score per London borough — queryable via a natural language agent interface and summarised in a daily LLM-generated bulletin.
+Seven public data sources map to five biological systems, producing a real-time health score per London borough — queryable via a natural language agent interface that diagnoses and prescribes evidence-based interventions, and summarised in a daily LLM-generated bulletin.
 
 | System | Data Source | Signal |
 |---|---|---|
@@ -23,6 +23,7 @@ cp .env.example .env   # add your API keys
 python scripts/generate_geo_mappings.py   # fetch borough/TfL/NHS geographic data
 python scripts/fetch_population.py        # fetch ONS population estimates
 python scripts/fetch_green_space.py       # fetch GLA green cover data
+python scripts/fetch_imd.py              # fetch IMD 2025 deprivation data
 ```
 
 ## Run
@@ -44,11 +45,12 @@ docker compose up
 |-----------|--------|
 | Data pipeline (7 sources → Bronze → Silver → Gold) | **Working** |
 | FastAPI (8 endpoints: health, scores, boroughs, trends, agent, bulletin) | **Working** |
-| Agent tools (4 curated + `run_sql` + `search_scores`) | **Working** |
+| Agent tools (5 curated + `run_sql` + `search_scores` + `get_deprivation`) | **Working** |
 | ChromaDB embedding (gold → vector store) | **Working** |
 | pytest test suite (`pytest tests/`) | **Working** |
-| Doctor Agent (LangGraph ReAct + SSE streaming + tools + RAG) | **Working** |
-| Bulletin Agent (LangChain prompt chain) | **Working** |
+| Doctor Agent (LangGraph ReAct + SSE streaming + 7 tools + prescriptions) | **Working** |
+| Bulletin Agent (LangChain prompt chain + prescriptions) | **Working** |
+| IMD deprivation context (7 domains per borough) | **Working** |
 | Scheduler (APScheduler) | **Working** |
 | MCP Server | **Working** |
 | Frontend (Next.js) | **Working** |

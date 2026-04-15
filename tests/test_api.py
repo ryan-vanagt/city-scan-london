@@ -183,7 +183,7 @@ def test_london_score_borough_count_33(api_server):
     assert data["borough_count"] == 33, f"expected 33, got {data['borough_count']}"
 
 
-@pytest.mark.parametrize("field", ["air_score", "transit_score", "sentiment_score", "immune_score"])
+@pytest.mark.parametrize("field", ["air_score", "transit_score", "sentiment_score", "immune_score", "green_space_score"])
 def test_london_score_sub_scores_valid(api_server, field):
     data = get("/london/score")
     assert data is not None

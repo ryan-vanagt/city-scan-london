@@ -94,7 +94,15 @@ export default function DoctorChat({
   const inputRef = useRef<HTMLInputElement>(null);
   const hasAutofiredRef = useRef(false);
   const lastQueryRef = useRef<number>(0);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const QUERY_COOLDOWN_MS = 3000;
+
+  // Abort any in-flight SSE stream on unmount
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, []);
 
   // Scroll to bottom whenever messages update
   useEffect(() => {
@@ -136,8 +144,13 @@ export default function DoctorChat({
     setInput("");
     setIsStreaming(true);
 
+    // Abort any previous stream and create a new controller
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     try {
-      const stream = streamDoctorQuery(question.trim(), activeRole);
+      const stream = streamDoctorQuery(question.trim(), activeRole, controller.signal);
       let pendingSources: SSESourcesEvent["sources"] | undefined;
 
       for await (const event of stream) {
@@ -344,6 +357,7 @@ export default function DoctorChat({
             key={role}
             type="button"
             onClick={() => setActiveRole(activeRole === role ? null : role)}
+            aria-pressed={activeRole === role}
             className="text-[9px] font-mono px-2 py-0.5 rounded-full transition-all duration-200"
             style={{
               border: `1px solid ${activeRole === role ? "#0ea5e9" : "#334155"}`,

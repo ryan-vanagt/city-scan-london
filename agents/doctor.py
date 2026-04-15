@@ -158,7 +158,12 @@ POLICY CONTEXT (verified London policies — reference these when prescribing):
 {_POLICY_CONTEXT}
 """ if _POLICY_CONTEXT else "")
 
-_INJECTION_PATTERNS = ["ignore previous", "ignore all", "system prompt", "you are now", "disregard", "forget your"]
+_INJECTION_PATTERNS = [
+    "ignore previous", "ignore all", "system prompt", "you are now",
+    "disregard", "forget your", "override instructions", "new instructions",
+    "act as", "pretend you are", "jailbreak", "developer mode",
+    "DAN", "do anything now", "bypass", "reveal prompt",
+]
 
 
 def _check_prompt_injection(question: str) -> bool:
@@ -288,6 +293,20 @@ async def stream_doctor_response(question: str) -> AsyncGenerator[str, None]:
         err = json.dumps({"type": "error", "message": "Agent encountered an error"})
         yield f"data: {err}\n\n"
         yield "data: [DONE]\n\n"
+        # Log failed interaction so it appears in the audit trail
+        try:
+            log_agent_interaction(
+                query=question,
+                tools_called=[],
+                tool_inputs=[],
+                tool_outputs=[],
+                sources_cited=[],
+                final_response="ERROR: Agent encountered an error",
+                latency_ms=0,
+                model_used=MODEL_NAME,
+            )
+        except Exception:
+            logger.exception("Failed to log failed agent interaction")
         return
 
     # Flush sources and done sentinel

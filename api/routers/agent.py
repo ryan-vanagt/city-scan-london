@@ -128,7 +128,11 @@ async def bulletin_latest():
 
 @router.post("/bulletin/generate")
 async def bulletin_generate():
-    """Trigger on-demand bulletin generation."""
+    """Trigger on-demand bulletin generation.
+
+    Note: each call invokes an LLM (Claude Haiku) and incurs API cost.
+    Rate-limited to one call per 60 seconds to prevent accidental cost spikes.
+    """
     global _last_bulletin_time
     now = time.time()
     if now - _last_bulletin_time < _BULLETIN_COOLDOWN_SECONDS:

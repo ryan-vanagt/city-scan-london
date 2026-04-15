@@ -120,6 +120,17 @@ export default function Home() {
     };
   }, []);
 
+  // Close panels on Escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setPanelState({ type: "closed" });
+      }
+    };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, []);
+
   // Gate colour transition on BOTH timer elapsed AND data loaded
   useEffect(() => {
     if (colourReady && boroughs.length > 0) {
@@ -303,6 +314,7 @@ export default function Home() {
               stroke="currentColor"
               strokeWidth={1.5}
               className="text-slate-600 group-hover:text-slate-300 transition-colors animate-bounce"
+              aria-hidden="true"
             >
               <path d="M12 5v14M5 12l7 7 7-7" strokeLinecap="round" strokeLinejoin="round" />
             </svg>

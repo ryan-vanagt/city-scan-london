@@ -56,5 +56,5 @@ def search_scores(
         return {"results": items, "count": len(items)}
 
     except Exception as exc:
-        logger.error("RAG search failed: %s", exc)
+        logger.exception("RAG search failed: %s", exc)
         return {"results": [], "count": 0, "error": "Search temporarily unavailable"}

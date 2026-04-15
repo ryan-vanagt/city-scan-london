@@ -90,6 +90,7 @@ def get_deprivation(borough: str) -> dict:
     Returns:
         Dict with deprivation data, or error dict if borough not found.
     """
+    borough = str(borough)[:200]
     resolved = _resolve_borough(borough)
     if resolved is None:
         return {"error": f"Borough not found: '{borough}'"}

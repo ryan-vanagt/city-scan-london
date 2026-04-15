@@ -35,7 +35,7 @@ flowchart TD
     B_GD -->|sentiment per title| SH
     B_BBC -->|sentiment per title| SH
 
-    G --> TOOLS[Agent Tools\n4 curated + run_sql\n+ search_scores]
+    G --> TOOLS[Agent Tools\n5 curated + run_sql\n+ search_scores + get_deprivation]
     SD --> TOOLS
     SH --> TOOLS
     CH --> TOOLS
@@ -93,6 +93,6 @@ Every Silver and Gold record carries:
 | Silver Detail | `pipeline/silver.py` | Per-item context (crime categories, tube line statuses, AQ station readings, NHS trust data, ward-level green space coverage, per-headline sentiment) — does NOT feed into gold scores |
 | Gold        | `pipeline/gold.py`   | Per-borough weighted average across all five signals (48h time-bound on silver data); embedded into ChromaDB |
 | Embed       | `pipeline/embed.py`  | Gold rows converted to text descriptions and upserted into ChromaDB for RAG  |
-| Agent Tools | `agents/tools/`      | 4 curated DuckDB queries + 1 guarded `run_sql` (13-layer security) + 1 RAG `search_scores` |
+| Agent Tools | `agents/tools/`      | 5 curated DuckDB queries + 1 guarded `run_sql` (13-layer security) + 1 RAG `search_scores` + 1 deprivation lookup |
 
 

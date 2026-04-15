@@ -102,13 +102,16 @@ python ingestion/run_pipeline.py   # runs full chain once and exits
 - **Framework:** LangGraph `create_react_agent` + LangChain tools
 - **LLM:** `claude-haiku-4-5` via `langchain-anthropic`
 - **Memory:** ChromaDB vector store (semantic retrieval over embedded health score descriptions)
-- **Tools registered (hybrid architecture — 4 curated + 1 flexible + 1 RAG):**
+- **Tools registered (hybrid architecture — 5 curated + 1 flexible + 1 RAG + 1 deprivation):**
   - `get_borough_health(borough)` — full score breakdown for a single borough (curated)
   - `get_london_score()` — overall city score averaged across all boroughs (curated)
   - `get_trend(borough, metric, days)` — trend direction + delta over N days (curated)
   - `compare_boroughs(metric, top_n, ascending)` — ranks boroughs by a given signal (curated)
+  - `get_deprivation(borough)` — IMD 2025 deprivation rank + 7 domain sub-scores (income, employment, education, health, crime, barriers, living) from static JSON
   - `run_sql(query)` — read-only SQL against `gold_scores` / `silver_metrics` / `silver_detail` / `silver_headlines` for analytical questions the curated tools can't answer (flexible, guarded)
   - `search_scores(query, n_results, borough_code)` — semantic similarity search over ChromaDB gold_scores embeddings for RAG context retrieval
+- **Prescriptive capability:** The Doctor diagnoses AND prescribes evidence-based interventions. System prompt loads verified London policy references from `data/static/policy_context.md`. Prescriptions cite specific data + policy. Adapts response style based on question framing (policy/community/resident/analytical) or explicit role field.
+- **Role-aware queries:** API accepts optional `role` field (`council|community|resident|analyst`). Frontend provides toggle chips. Auto-detects from question if no role specified.
 - **Input:** Natural language question from frontend or API
 - **Output:** Structured JSON with two fields:
   - `answer` — natural language response (streamed via SSE)
@@ -196,7 +199,7 @@ The Doctor agent tools are also exposed as a Model Context Protocol (MCP) server
 - **Location:** `mcp_server/server.py`
 - **SDK:** `mcp` Python package
 - **Port:** 8002
-- **Tools exposed:** `get_borough_health`, `get_london_score`, `get_trend`, `compare_boroughs`, `run_sql`, `search_scores`
+- **Tools exposed:** `get_borough_health`, `get_london_score`, `get_trend`, `compare_boroughs`, `run_sql`, `search_scores` (6 of 7 Doctor tools — `get_deprivation` not yet exposed via MCP)
 - **Transport:** Streamable HTTP transport on port 8002 (path: `/mcp`)
 
 This means any external agent can discover and invoke CityScan's data tools without going through the FastAPI REST layer.
@@ -342,7 +345,8 @@ city-scan-london/
 ├── scripts/
 │   ├── generate_geo_mappings.py ← Fetches borough/TfL/NHS geo data from public APIs
 │   ├── fetch_population.py      ← Downloads ONS population data for per-capita normalisation
-│   └── fetch_green_space.py     ← Downloads GLA Green Cover 2024 XLSX → data/static/green_space.json
+│   ├── fetch_green_space.py     ← Downloads GLA Green Cover 2024 XLSX → data/static/green_space.json
+│   └── fetch_imd.py             ← Downloads IMD 2025 deprivation data → data/static/imd_borough.json
 ├── ingestion/
 │   ├── scheduler.py             ← APScheduler: fetch + full pipeline chain
 │   ├── run_pipeline.py          ← one-shot manual trigger (dev only)
@@ -377,6 +381,7 @@ city-scan-london/
 │       ├── trend_analysis.py
 │       ├── sql_query.py
 │       ├── rag_query.py
+│       ├── deprivation.py          ← IMD 2025 deprivation lookup (static JSON, no DuckDB)
 │       ├── chroma_client.py
 │       └── langchain_tools.py
 ├── mcp_server/

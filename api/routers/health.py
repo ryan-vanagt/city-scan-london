@@ -43,6 +43,7 @@ def reset_db() -> dict:
     Only reachable from the Docker internal network (port 8000 is bound
     to 127.0.0.1 on the host, and this endpoint is not used by the frontend).
     """
+    # Security: relies on network isolation (Docker internal). Add auth header if exposed publicly.
     reset_connection()
     close_tools_connection()
     return {"status": "reset"}

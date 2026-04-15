@@ -50,7 +50,12 @@ def reset_connection() -> None:
 
 
 def get_connection() -> duckdb.DuckDBPyConnection:
-    """Return the shared DuckDB connection, opening it lazily on first call.
+    """Return a DuckDB cursor from the shared connection, opened lazily.
+
+    Returns a cursor (not the raw connection) so FastAPI dependency injection
+    gives each request its own cursor. Callers do not need to close cursors
+    explicitly — DuckDB cursors are lightweight and garbage-collected. The
+    underlying connection is closed via close_connection() at app shutdown.
 
     Raises RuntimeError if the database file doesn't exist yet or is locked
     by the ingestion writer. The caller should handle this gracefully.

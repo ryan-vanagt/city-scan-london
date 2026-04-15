@@ -14,6 +14,9 @@ Tools exposed:
   - search_scores(query, n_results, borough_code)
 """
 
+# Security: no authentication. Relies on MCP_HOST binding (default 127.0.0.1).
+# Set MCP_HOST=0.0.0.0 only in Docker with network isolation.
+
 import json
 import logging
 import os

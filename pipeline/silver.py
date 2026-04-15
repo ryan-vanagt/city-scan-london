@@ -50,6 +50,7 @@ def _clamp(score: float) -> float:
 
 
 def _latest_bronze_file(source: str) -> Path | None:
+    # Returns only the most recent bronze file. If the latest file is corrupt, earlier good files are ignored.
     """Return the most recent bronze JSON file for a source, or None."""
     source_dir = BRONZE_BASE / source
     if not source_dir.exists():
@@ -241,9 +242,9 @@ def _transform_met_police(data: dict, timestamp: str) -> list[tuple]:
             borough_rates[bc] = (count / pop) * 1000
         else:
             logger.warning(
-                "Silver Met Police: no population for %s — using raw count", bc,
+                "Silver Met Police: no population for %s — excluding from scoring", bc,
             )
-            borough_rates[bc] = float(count)
+            continue
 
     # Winsorise at 95th percentile to prevent non-residential borough outliers
     # (e.g. City of London: 15k residents, 500k daily workers) from compressing

@@ -30,6 +30,7 @@ def insert_gold(
     transit: float | None = None,
     sentiment: float | None = None,
     immune: float | None = None,
+    green_space: float | None = 45.0,
     composite: float = 50.0,
     timestamp: str = "2026-04-09T12:00:00+00:00",
     ingested_at: str = "2026-04-09T12:00:00+00:00",
@@ -39,12 +40,13 @@ def insert_gold(
         """
         INSERT INTO gold_scores
         (borough_code, borough_name, timestamp, air_score, transit_score,
-         sentiment_score, immune_score, composite_score, ingested_at, pipeline_stage)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         sentiment_score, immune_score, green_space_score, composite_score,
+         ingested_at, pipeline_stage)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         [
             borough_code, borough_name, timestamp, air, transit,
-            sentiment, immune, composite, ingested_at, "gold",
+            sentiment, immune, green_space, composite, ingested_at, "gold",
         ],
     )
 
