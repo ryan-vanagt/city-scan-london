@@ -223,6 +223,8 @@ Base URL: `http://localhost:8000`
 | `POST` | `/agent/query`          | Doctor agent — returns SSE stream (`text/event-stream`) |
 | `GET`  | `/bulletin/latest`      | Latest generated bulletin                               |
 | `POST` | `/bulletin/generate`    | Trigger on-demand bulletin generation                   |
+| `GET`  | `/boroughs/deprivation` | IMD 2025 deprivation data for all boroughs              |
+| `POST` | `/internal/reset-db`    | Release DuckDB read connection (internal)               |
 
 
 ### Response format
@@ -251,9 +253,9 @@ Single-page application with panel-based navigation. All interactions happen on 
 
 **Live map state:** Interactive thermal map with boroughs coloured by health score. UI elements:
 - Header: vital signs with EKG lines, metric filter buttons
-- Floating action buttons: "Daily Bulletin" and "Ask the Doctor"
+- Floating action buttons: "Analytics" and "Ask the Doctor"
 - Panels slide in from the right when activated:
-  - **Bulletin panel** — latest bulletin markdown rendered as formatted report
+  - **Analytics panel** — Health vs Deprivation scatter plot (Recharts) showing 33 boroughs with IMD rank vs composite score, thermal-coloured dots, labelled outliers, trend line
   - **Doctor chat panel** — natural language input with SSE streaming response
 
 ### Design principles
@@ -395,7 +397,10 @@ city-scan-london/
 │       ├── boroughs.py
 │       └── agent.py             ← SSE streaming endpoint
 ├── frontend/
-│   └── (Next.js app)
+│   └── (Next.js app — see docs/frontend-spec.md)
+│       ├── components/panels/AnalyticsPanel.tsx   ← Health vs Deprivation scatter panel
+│       ├── components/charts/DeprivationScatter.tsx ← Recharts scatter: IMD rank vs health score
+│       └── ...
 ├── data/
 │   ├── bronze/
 │   ├── silver/

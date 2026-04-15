@@ -44,7 +44,7 @@ docker compose up
 | Component | Status |
 |-----------|--------|
 | Data pipeline (7 sources → Bronze → Silver → Gold) | **Working** |
-| FastAPI (8 endpoints: health, scores, boroughs, trends, agent, bulletin) | **Working** |
+| FastAPI (10 endpoints: health, scores, boroughs, trends, deprivation, agent, bulletin, internal) | **Working** |
 | Agent tools (5 curated + `run_sql` + `search_scores` + `get_deprivation`) | **Working** |
 | ChromaDB embedding (gold → vector store) | **Working** |
 | pytest test suite (`pytest tests/`) | **Working** |
@@ -64,6 +64,8 @@ docker compose up
 - `POST /agent/query` — Doctor Agent, SSE stream (`text/event-stream`)
 - `GET /bulletin/latest` — latest bulletin markdown
 - `POST /bulletin/generate` — trigger bulletin generation
+- `GET /boroughs/deprivation` — IMD 2025 deprivation data for all boroughs
+- `POST /internal/reset-db` — release DuckDB read connection (internal)
 
 ## Architecture
 

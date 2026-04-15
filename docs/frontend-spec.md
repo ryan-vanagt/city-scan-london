@@ -117,12 +117,12 @@ All state lives in `app/page.tsx`. No routing — everything is panel-based.
 │                                        │                             │
 │         boroughs filled with           │    - Doctor chat             │
 │         thermal gradient               │      (on ASK THE DOCTOR)    │
-│         pulsing, hover-interactive     │    - Bulletin                │
-│                                        │      (on DAILY BULLETIN)    │
+│         pulsing, hover-interactive     │    - Analytics scatter       │
+│                                        │      (on ANALYTICS)         │
 │                                        │                             │
 ├────────────────────────────────────────┴─────────────────────────────┤
 │ FOOTER: Ryan Van Agt • Sources • Powered by...    [LinkedIn][GitHub] │
-│                                                   DAILY BULLETIN     │
+│                                                   ANALYTICS          │
 │                                                   ASK THE DOCTOR     │
 └──────────────────────────────────────────────────────────────────────┘
 ```
@@ -249,21 +249,32 @@ Slide-in panel (35% width desktop, 90% mobile). Fixed position, right-0, top-0, 
 
 **Rate limiting:** 3-second cooldown between queries. Send button disabled during cooldown. Prevents rapid-fire API calls.
 
+**Role chips:** 4 togglable pills displayed above the input field: `council`, `community`, `resident`, `analyst`. Only one can be active at a time (click to toggle on/off). The selected role is sent as the `role` field in the `POST /agent/query` request body. When a role is active, suggestion chips update to role-appropriate prompts. Pill styling: rounded, small text, border toggle between slate-700 (inactive) and sky-500 (active).
+
 **Input:** maxLength 500 (matches backend validation). JetBrains Mono. AutoComplete off.
 
 **Accessibility:** Messages container has `role="log"` and `aria-live="polite"`. Input and send button have `aria-label`.
 
-### State B: Bulletin Panel (on "DAILY BULLETIN" FAB)
+### State B: Analytics Panel (on "ANALYTICS" FAB)
 
-**Component:** `BulletinPanel` — renders full bulletin markdown.
+**Component:** `AnalyticsPanel` — Health vs Deprivation scatter plot.
 
-**Header:** "DAILY BULLETIN" (uppercase, tracking-widest). Close button.
+**Header:** "ANALYTICS" (uppercase, tracking-widest). Close button.
 
-**Content:** Full bulletin rendered via ReactMarkdown + remark-gfm. Same markdown component styling as BulletinReport. Font: IBM Plex Sans.
+**Content:** `DeprivationScatter` chart (Recharts `ScatterChart`) plotting all 33 boroughs:
+- X-axis: IMD 2025 deprivation rank (1 = most deprived)
+- Y-axis: Composite health score (0-100)
+- Each dot: thermal-coloured by composite score (uses `scoreToColour`), sized for visibility
+- Outlier boroughs are labelled directly on the chart
+- Trend line shows correlation between deprivation and health
 
-**Empty state:** "No bulletin available yet." centred text.
+**Data source:** `GET /boroughs/deprivation` for IMD data, merged with borough scores already loaded.
+
+**Empty state:** "No deprivation data available." centred text.
 
 Only one panel can be open at a time — opening one closes the other.
+
+> **Note:** `BulletinPanel` still exists but is used only on the landing page (as `BulletinReport`). It is no longer accessible from the live map FABs.
 
 ---
 
@@ -272,7 +283,7 @@ Only one panel can be open at a time — opening one closes the other.
 **Component:** `FloatingActions` — fixed bottom-right (bottom: 56px, right: 24px, z-50).
 
 Two pill-shaped buttons stacked vertically (12px gap):
-1. **"DAILY BULLETIN"** — toggles bulletin panel
+1. **"ANALYTICS"** — toggles analytics panel (Health vs Deprivation scatter plot)
 2. **"ASK THE DOCTOR"** — toggles doctor chat panel
 
 **Button style:** Rounded (24px radius), dark background (`#0f172a`), 1px border. Text: uppercase Inter 11px, font-weight 600, tracking 0.1em.
@@ -321,6 +332,7 @@ On initial page load, before API data arrives:
 | `/boroughs` | GET | Map fills, tooltips, header on hover | Runtime array validation |
 | `/bulletin/latest` | GET | Landing bulletin, bulletin panel | Returns null on 404 |
 | `/agent/query` | POST (SSE) | Doctor chat | Manual stream parsing, type-guarded events |
+| `/boroughs/deprivation` | GET | Analytics panel scatter chart | IMD 2025 data for all boroughs |
 
 **Base URL:** `NEXT_PUBLIC_API_URL` env var (default `http://localhost:8000`).
 
@@ -350,10 +362,13 @@ frontend/
 │   │   ├── VitalSigns.tsx       ← sticky header (5 metrics + composite, metric filter)
 │   │   └── EkgLine.tsx          ← animated SVG EKG waveform (5 variants)
 │   ├── panels/
-│   │   ├── DoctorChat.tsx       ← SSE streaming chat (rate-limited, markdown, source cards)
-│   │   └── BulletinPanel.tsx    ← full bulletin markdown in side panel
+│   │   ├── DoctorChat.tsx       ← SSE streaming chat (rate-limited, markdown, source cards, role chips)
+│   │   ├── AnalyticsPanel.tsx   ← analytics panel with Health vs Deprivation scatter chart
+│   │   └── BulletinPanel.tsx    ← full bulletin markdown (landing page only, not in live map)
+│   ├── charts/
+│   │   └── DeprivationScatter.tsx ← Recharts scatter: IMD rank vs health score
 │   ├── ui/
-│   │   └── FloatingActions.tsx  ← FAB buttons (doctor, bulletin)
+│   │   └── FloatingActions.tsx  ← FAB buttons (analytics, doctor)
 │   └── Footer.tsx               ← attribution bar with social links
 ├── lib/
 │   ├── api.ts              ← fetch wrappers + SSE async generator (type-guarded)
@@ -385,7 +400,8 @@ RootLayout (layout.tsx)
    ├─ Panel container
    │  ├─ DoctorChat [conditional]
    │  │  └─ SourceCard (xN)
-   │  └─ BulletinPanel [conditional]
+   │  └─ AnalyticsPanel [conditional]
+   │     └─ DeprivationScatter
    ├─ FloatingActions [conditional]
    │  └─ FabButton (x2)
    ├─ Footer [conditional]
