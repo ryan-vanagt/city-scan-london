@@ -8,7 +8,7 @@ Five public data sources map to five biological systems, producing a real-time h
 |---|---|---|
 | 🫁 Lungs | OpenAQ | Air quality (PM2.5, NO2) |
 | 🩸 Arteries | TfL API | Tube line status & severity scores |
-| 🧠 Brain | Reddit + Guardian + BBC News | Public sentiment (NLP) |
+| 🧠 Brain | Guardian + BBC News | Public sentiment (NLP) |
 | 🛡️ Immune system | Met Police API + NHS England A&E | Per-capita crime (winsorised) + A&E pressure |
 | 🌿 Skin | GLA Green Cover 2024 | Green space coverage per borough |
 

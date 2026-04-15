@@ -95,7 +95,7 @@ export default function Footer() {
     >
       {/* Attribution text */}
       <span>
-        Ryan Van Agt&nbsp;&nbsp;•&nbsp;&nbsp;Sources: OpenAQ (hourly), TfL (hourly), Reddit/Guardian/BBC (hourly, city-wide), Met Police (~2mo lag), NHS A&amp;E (~2mo lag), GLA Green Cover (yearly)&nbsp;&nbsp;•&nbsp;&nbsp;Powered by Claude Haiku 4.5, LangGraph, DuckDB, ChromaDB
+        Ryan Van Agt&nbsp;&nbsp;•&nbsp;&nbsp;Sources: OpenAQ (hourly), TfL (hourly), Guardian/BBC (hourly, city-wide), Met Police (~2mo lag), NHS A&amp;E (~2mo lag), GLA Green Cover (yearly)&nbsp;&nbsp;•&nbsp;&nbsp;Powered by Claude Haiku 4.5, LangGraph, DuckDB, ChromaDB
       </span>
 
       {/* Social links */}

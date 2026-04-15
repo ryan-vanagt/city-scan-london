@@ -6,7 +6,7 @@
 flowchart TD
     OQ[OpenAQ API] -->|hourly| B_OQ[bronze/openaq/]
     TFL[TfL API] -->|hourly| B_TFL[bronze/tfl/]
-    RD[Reddit public JSON API] -->|hourly| B_RD[bronze/reddit/]
+    RD[Reddit public JSON API] -.->|"hourly (currently 403 blocked)"| B_RD[bronze/reddit/]
     GD[Guardian API] -->|hourly| B_GD[bronze/guardian/]
     BBC[BBC News RSS] -->|hourly| B_BBC[bronze/bbc/]
     MP[Met Police API] -->|"daily (data updates monthly)"| B_MP[bronze/met_police/]

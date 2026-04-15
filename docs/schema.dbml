@@ -22,7 +22,7 @@ Table gold_scores {
   timestamp        timestamptz [not null, note: 'UTC']
   air_score        double [note: '0–100, from OpenAQ PM2.5 + NO2, CHECK 0–100']
   transit_score    double [note: '0–100, from TfL tube line status, CHECK 0–100']
-  sentiment_score  double [note: '0–100, from Reddit + Guardian + BBC sentiment, CHECK 0–100']
+  sentiment_score  double [note: '0–100, from Guardian + BBC sentiment (Reddit inactive), CHECK 0–100']
   immune_score     double [note: '0–100, from Met Police crime + NHS A&E performance, CHECK 0–100']
   green_space_score double [note: '0–100, from GLA Green Cover 2024 satellite data, CHECK 0–100']
   composite_score  double [not null, note: 'Weighted average of five system scores, CHECK 0–100']

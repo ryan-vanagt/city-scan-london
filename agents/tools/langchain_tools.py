@@ -105,7 +105,7 @@ def run_sql_tool(query: str) -> dict:
         Always filter by source and borough_code in WHERE clause.)
       - silver_headlines: timestamp, source, title, url, sentiment_score,
         ingested_at
-        (Individual news/reddit headlines with per-title sentiment.
+        (Individual news headlines with per-title sentiment.
         Always include a WHERE clause.)
 
     Results limited to 100 rows (50 for detail tables). Write operations blocked.

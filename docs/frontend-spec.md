@@ -293,7 +293,7 @@ Two pill-shaped buttons stacked vertically (12px gap):
 
 **Content:**
 ```
-Ryan Van Agt • Sources: OpenAQ, TfL, Reddit/Guardian/BBC, Met Police, NHS A&E, GLA Green Cover (yearly) • Powered by Claude Haiku 4.5, LangGraph, DuckDB, ChromaDB   [LinkedIn] [GitHub]
+Ryan Van Agt • Sources: OpenAQ, TfL, Guardian/BBC, Met Police, NHS A&E, GLA Green Cover (yearly) • Powered by Claude Haiku 4.5, LangGraph, DuckDB, ChromaDB   [LinkedIn] [GitHub]
 ```
 
 Custom inline SVG icons for LinkedIn (18px) and GitHub (16px).

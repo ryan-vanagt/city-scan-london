@@ -36,7 +36,7 @@ live public data. London is modelled as a human body with five organ systems:
 
 - Lungs (air quality) — OpenAQ PM2.5 and NO2 readings per borough
 - Arteries (transit) — TfL tube line status mapped to boroughs
-- Brain (sentiment) — Reddit, BBC, and Guardian headline sentiment
+- Brain (sentiment) — BBC and Guardian headline sentiment (Reddit currently inactive)
 - Immune system (crime + A&E) — Met Police street crime and NHS A&E pressure
 - Skin (green space) — GLA green cover percentage per borough, scored 0–100 relative to London range
 

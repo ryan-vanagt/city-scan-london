@@ -19,7 +19,7 @@ CityScan is a live urban health diagnostic platform that models London as a huma
 | ----------------- | ----------------------------------------------- | ------------------------------------------- | -------------- | --------------------------------- |
 | 🫁 Lungs          | OpenAQ API                                      | PM2.5, NO2 per borough                       | Hourly         | ~1 hour                           |
 | 🩸 Arteries       | TfL Unified API                                 | Tube line status & severity scores          | Hourly         | Real-time                         |
-| 🧠 Brain          | Reddit (r/london) + Guardian API + BBC News RSS | NLP sentiment score from posts & headlines  | Hourly         | ~1 hour                           |
+| 🧠 Brain          | Guardian API + BBC News RSS                     | NLP sentiment score from headlines           | Hourly         | ~1 hour                           |
 | 🛡️ Immune System | Met Police API + NHS England A&E stats          | Per-capita crime (winsorised) + A&E pressure index | Monthly        | Crime: ~2 months · A&E: ~2 months |
 | 🌿 Skin           | GLA Green Cover 2024                            | Green space coverage per borough (satellite NDVI)  | Yearly         | Static (2024 snapshot)            |
 
@@ -47,14 +47,14 @@ Each signal is normalised to a 0–100 score (100 = healthy). The composite boro
 - All sources normalised to a common schema in DuckDB:
 `(borough_code, borough_name, timestamp, metric_name, raw_value, normalised_score, source, ingested_at, pipeline_stage)`
 - Borough codes follow ONS Greater London Authority boundary codes (static lookup file)
-- Reddit, Guardian, and BBC text is processed locally by a sentiment model before entering Silver — raw post content never leaves the machine
+- Guardian and BBC text is processed locally by a sentiment model before entering Silver — raw content never leaves the machine. Reddit ingestion code exists but is currently inactive (Reddit blocks public JSON API access with 403 since April 2026)
 - Sentiment model: `cardiffnlp/twitter-roberta-base-sentiment` (runs on CPU)
 
 **Silver Detail layer** — contextual per-item data
 
 - Two tables (`silver_detail` + `silver_headlines`) storing per-item data for agent breakdown queries
 - `silver_detail`: crime categories per borough, tube line statuses, AQ station readings, NHS trust performance, ward-level green space coverage
-- `silver_headlines`: individual news/Reddit headlines with per-title sentiment scores
+- `silver_headlines`: individual news headlines with per-title sentiment scores
 - These do **not** feed into gold scores — purely additive context for the Doctor Agent
 - Retention: 90 days (same cleanup job as silver_metrics)
 
