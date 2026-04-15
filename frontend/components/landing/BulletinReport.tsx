@@ -9,7 +9,7 @@
  * handles headings, bold, tables, lists, and horizontal rules.
  */
 
-import { useMemo } from "react";
+// No longer truncating — show full bulletin content
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSanitize from "rehype-sanitize";
@@ -38,17 +38,6 @@ export default function BulletinReport({
       </div>
     );
   }
-
-  const truncatedContent = useMemo(() => {
-    if (!bulletin.content) return "";
-    if (bulletin.content.length <= 500) return bulletin.content;
-    // Cut at 500 chars, then find the last space to avoid mid-word truncation
-    const cut = bulletin.content.slice(0, 500);
-    const lastSpace = cut.lastIndexOf(" ");
-    return (lastSpace > 400 ? cut.slice(0, lastSpace) : cut) + "...";
-  }, [bulletin.content]);
-
-  const isTruncated = bulletin.content ? bulletin.content.length > 500 : false;
 
   const dateStr = bulletin.date
     ? new Date(bulletin.date).toLocaleDateString("en-GB", {
@@ -103,7 +92,7 @@ export default function BulletinReport({
 
       {/* Bulletin content */}
       <div
-        className="px-6 pb-5 text-xs leading-relaxed text-slate-300"
+        className="px-6 pb-5 text-xs leading-relaxed text-slate-300 max-h-[60vh] overflow-y-auto"
         style={{ fontFamily: "var(--font-ibm-plex), sans-serif" }}
       >
         <ReactMarkdown
@@ -128,13 +117,8 @@ export default function BulletinReport({
             a: ({ children, href }) => <a href={href?.startsWith("http") ? href : "#"} className="text-[#0ea5e9] underline hover:text-[#38bdf8] transition-colors" target="_blank" rel="noopener noreferrer">{children}</a>,
           }}
         >
-          {truncatedContent}
+          {bulletin.content}
         </ReactMarkdown>
-        {isTruncated && (
-          <div className="mt-3 text-[10px] text-slate-600">
-            Full report available via Daily Bulletin
-          </div>
-        )}
       </div>
 
       {/* Footer */}

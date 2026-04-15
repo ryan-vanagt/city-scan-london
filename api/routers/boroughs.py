@@ -2,12 +2,16 @@
 Borough data endpoints.
 
 GET /boroughs              — all 33 boroughs with current composite scores
+GET /boroughs/deprivation  — all 33 boroughs with static IMD deprivation data
 GET /borough/{name}        — full organ breakdown for a single borough
 GET /borough/{name}/trend  — 7-day trend for a single borough
 """
 
+import json
 import logging
 from enum import Enum
+from functools import lru_cache
+from pathlib import Path as FilePath
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
 
@@ -94,6 +98,44 @@ def list_boroughs(
     """).fetchall()
 
     return [_borough_row_to_dict(r) for r in rows]
+
+
+IMD_FILE = FilePath(__file__).resolve().parents[2] / "data" / "static" / "imd_borough.json"
+
+
+@lru_cache(maxsize=1)
+def _load_imd_data() -> list[dict]:
+    """Load and cache IMD borough data from the static JSON file.
+
+    Returns a list of borough dicts ready for the API response.
+    Raises FileNotFoundError if the file does not exist.
+    """
+    raw = json.loads(IMD_FILE.read_text(encoding="utf-8"))
+    boroughs = raw.get("boroughs", {})
+    result = []
+    for code, data in boroughs.items():
+        result.append({
+            "borough_code": code,
+            "borough_name": data["name"],
+            "imd_rank": data["imd_rank"],
+            "imd_score": data["imd_score"],
+            "pct_most_deprived_10": data["pct_most_deprived_10"],
+            "domains": data.get("domains", {}),
+        })
+    return result
+
+
+@router.get("/boroughs/deprivation")
+def list_boroughs_deprivation() -> list[dict]:
+    """All 33 boroughs with their IMD deprivation data (static dataset)."""
+    try:
+        return _load_imd_data()
+    except FileNotFoundError:
+        logger.error("IMD data file not found: %s", IMD_FILE)
+        raise HTTPException(status_code=404, detail="IMD deprivation data not available")
+    except (json.JSONDecodeError, KeyError) as exc:
+        logger.error("Failed to parse IMD data file: %s", exc)
+        raise HTTPException(status_code=500, detail="IMD deprivation data is malformed")
 
 
 @router.get("/borough/{name}")

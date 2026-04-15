@@ -1,12 +1,11 @@
 /**
- * FloatingActions — fixed bottom-right FAB stack for Doctor and Bulletin panels.
+ * FloatingActions — fixed bottom-right FAB stack for Doctor and Analytics panels.
  *
  * Two pill-shaped buttons (auto-width, 36px tall):
- *   1. ClipboardList + "REPORT"     — toggles the Bulletin panel
- *   2. Stethoscope   + "DIAGNOSTIC" — toggles the Doctor chat panel
+ *   1. "ANALYTICS"    — toggles the Analytics panel
+ *   2. "ASK THE DOCTOR" — toggles the Doctor chat panel
  *
- * The stethoscope pulsates via the `stethoscope-pulse` CSS class when the doctor
- * panel is closed (inviting interaction). Active panels get a brighter border.
+ * Active panels get a brighter border.
  * Hover shows a glow in x-ray blue (#0ea5e9).
  */
 
@@ -19,7 +18,7 @@ import type { PanelState } from "@/lib/types";
 interface FloatingActionsProps {
   panelState: PanelState;
   onToggleDoctor: () => void;
-  onToggleBulletin: () => void;
+  onToggleAnalytics: () => void;
 }
 
 interface FabButtonProps {
@@ -83,10 +82,10 @@ function FabButton({
 export default function FloatingActions({
   panelState,
   onToggleDoctor,
-  onToggleBulletin,
+  onToggleAnalytics,
 }: FloatingActionsProps) {
   const doctorOpen = panelState.type === "doctor";
-  const bulletinOpen = panelState.type === "bulletin";
+  const analyticsOpen = panelState.type === "analytics";
 
   return (
     <div
@@ -100,16 +99,15 @@ export default function FloatingActions({
         gap: 12,
       }}
     >
-      {/* Bulletin button — text only */}
+      {/* Analytics button */}
       <FabButton
-        onClick={onToggleBulletin}
-        isActive={bulletinOpen}
-        ariaLabel="Toggle daily bulletin panel"
-        label="DAILY BULLETIN"
+        onClick={onToggleAnalytics}
+        isActive={analyticsOpen}
+        ariaLabel="Toggle analytics panel"
+        label="ANALYTICS"
       />
 
-      {/* Doctor button — pulsates when panel is closed */}
-      {/* Doctor button — text only */}
+      {/* Doctor button */}
       <FabButton
         onClick={onToggleDoctor}
         isActive={doctorOpen}

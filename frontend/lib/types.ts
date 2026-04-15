@@ -69,4 +69,5 @@ export type PanelState =
   | { type: "closed" }
   | { type: "borough"; boroughCode: string }
   | { type: "doctor"; prefill?: string }
-  | { type: "bulletin" };
+  | { type: "bulletin" }
+  | { type: "analytics" };

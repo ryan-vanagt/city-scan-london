@@ -28,8 +28,8 @@ const DoctorChat = dynamic(
   () => import("@/components/panels/DoctorChat"),
   { ssr: false }
 );
-const BulletinPanel = dynamic(
-  () => import("@/components/panels/BulletinPanel"),
+const AnalyticsPanel = dynamic(
+  () => import("@/components/panels/AnalyticsPanel"),
   { ssr: false }
 );
 const FloatingActions = dynamic(
@@ -64,6 +64,7 @@ export default function Home() {
   const [hoveredBorough, setHoveredBorough] = useState<string | null>(null);
   const [panelState, setPanelState] = useState<PanelState>({ type: "closed" });
   const [metricFilter, setMetricFilter] = useState<MetricFilter>(null);
+  const [deprivation, setDeprivation] = useState<Record<string, any>>({});
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -84,15 +85,24 @@ export default function Home() {
     let hasLoaded = false;
 
     async function loadData() {
-      const [boroughResult, scoreResult, bulletinResult] = await Promise.allSettled([
+      const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const [boroughResult, scoreResult, bulletinResult, depResult] = await Promise.allSettled([
         fetchBoroughs(),
         fetchLondonScore(),
         fetchBulletin(),
+        fetch(`${BASE_URL}/boroughs/deprivation`).then(r => r.ok ? r.json() : Promise.reject(r)),
       ]);
       if (cancelled) return;
       if (boroughResult.status === "fulfilled") setBoroughs(boroughResult.value);
       if (scoreResult.status === "fulfilled") setLondonScore(scoreResult.value);
       if (bulletinResult.status === "fulfilled") setBulletin(bulletinResult.value);
+      if (depResult.status === "fulfilled") {
+        const lookup: Record<string, any> = {};
+        for (const item of depResult.value) {
+          lookup[item.borough_code] = item;
+        }
+        setDeprivation(lookup);
+      }
       const anyFailed = [boroughResult, scoreResult, bulletinResult].some(r => r.status === "rejected");
       if (anyFailed) {
         console.error("Some data fetches failed");
@@ -163,8 +173,8 @@ export default function Home() {
     setPanelState({ type: "doctor", prefill });
   }, []);
 
-  const handleOpenBulletin = useCallback(() => {
-    setPanelState({ type: "bulletin" });
+  const handleOpenAnalytics = useCallback(() => {
+    setPanelState((prev) => prev.type === "analytics" ? { type: "closed" } : { type: "analytics" });
   }, []);
 
   // --- Render ---
@@ -209,6 +219,7 @@ export default function Home() {
           >
             <LondonMap
               boroughs={boroughs}
+              deprivation={deprivation}
               metricFilter={metricFilter}
               selectedBorough={null}
               xrayMode={xrayActive}
@@ -237,9 +248,10 @@ export default function Home() {
               overallScore={londonScore.composite_score}
             />
           )}
-          {panelState.type === "bulletin" && (
-            <BulletinPanel
-              bulletin={bulletin}
+          {panelState.type === "analytics" && (
+            <AnalyticsPanel
+              boroughs={boroughs}
+              deprivation={deprivation}
               onClose={handlePanelClose}
             />
           )}
@@ -251,7 +263,7 @@ export default function Home() {
         <FloatingActions
           panelState={panelState}
           onToggleDoctor={() => handleOpenDoctor()}
-          onToggleBulletin={() => handleOpenBulletin()}
+          onToggleAnalytics={() => handleOpenAnalytics()}
         />
       )}
 
@@ -284,7 +296,7 @@ export default function Home() {
           pointerEvents: showLanding ? "auto" : "none",
         }}
       >
-        <div className="flex-1 flex flex-col items-center justify-center gap-8 px-6 py-12 max-w-2xl mx-auto">
+        <div className="flex-1 flex flex-col items-center justify-center gap-8 px-6 py-12 max-w-3xl mx-auto">
           {isLoading && boroughs.length === 0 && (
             <div className="absolute inset-0 flex items-center justify-center z-40">
               <span className="font-mono text-sm text-[#0ea5e9] animate-pulse tracking-widest">

@@ -15,6 +15,7 @@ import BoroughTooltip from "./BoroughTooltip";
 
 interface LondonMapProps {
   boroughs: BoroughScore[];
+  deprivation?: Record<string, any>;
   metricFilter: MetricFilter;
   selectedBorough: string | null;
   xrayMode?: boolean;
@@ -24,6 +25,7 @@ interface LondonMapProps {
 
 export default function LondonMap({
   boroughs,
+  deprivation,
   metricFilter,
   selectedBorough,
   xrayMode,
@@ -56,8 +58,8 @@ export default function LondonMap({
         const scaleX = rect.width / VIEW_BOX_WIDTH;
         const scaleY = rect.height / VIEW_BOX_HEIGHT;
         setTooltipPos({
-          x: geo.centroidX * scaleX,
-          y: geo.centroidY * scaleY,
+          x: rect.left + geo.centroidX * scaleX,
+          y: rect.top + geo.centroidY * scaleY,
         });
       }
     },
@@ -124,6 +126,7 @@ export default function LondonMap({
           borough={hoveredBorough}
           position={tooltipPos}
           metricFilter={metricFilter}
+          imdRank={deprivation?.[hoveredBorough.borough_code]?.imd_rank ?? null}
         />
       )}
     </div>
