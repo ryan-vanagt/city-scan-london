@@ -25,21 +25,26 @@ _lock = threading.Lock()
 
 
 def get_connection() -> duckdb.DuckDBPyConnection:
-    """Return the shared read-only DuckDB connection, opening lazily if needed."""
+    """Return a cursor from the shared read-only DuckDB connection.
+
+    DuckDB connections are NOT thread-safe, but cursors derived from them
+    are independent. Each tool call gets its own cursor, preventing the
+    'closed pending query result' segfault when LangGraph runs tools
+    concurrently in different threads.
+    """
     global _con
-    if _con is not None:
-        return _con
-    with _lock:
-        if _con is None:  # double-check after acquiring lock
-            new_con = duckdb.connect(DB_PATH, read_only=True)
-            try:
-                new_con.execute("SET memory_limit = '512MB'")
-            except Exception:
-                new_con.close()
-                raise
-            _con = new_con
-            logger.info("Agent tools: DuckDB connection opened (read-only, 512MB limit): %s", DB_PATH)
-    return _con
+    if _con is None:
+        with _lock:
+            if _con is None:
+                new_con = duckdb.connect(DB_PATH, read_only=True)
+                try:
+                    new_con.execute("SET memory_limit = '512MB'")
+                except Exception:
+                    new_con.close()
+                    raise
+                _con = new_con
+                logger.info("Agent tools: DuckDB connection opened (read-only, 512MB limit): %s", DB_PATH)
+    return _con.cursor()
 
 
 def close_connection() -> None:
