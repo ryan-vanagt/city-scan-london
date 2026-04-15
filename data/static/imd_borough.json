@@ -1,0 +1,1207 @@
+{
+  "_metadata": {
+    "source": "English Indices of Deprivation 2025 (MHCLG)",
+    "url": "https://www.gov.uk/government/statistics/english-indices-of-deprivation-2025",
+    "published": "October 2025",
+    "total_lads": 296,
+    "domains": [
+      "income",
+      "employment",
+      "education",
+      "health",
+      "crime",
+      "barriers",
+      "living"
+    ]
+  },
+  "boroughs": {
+    "E09000001": {
+      "name": "City of London",
+      "imd_rank": 267,
+      "imd_score": 10.21,
+      "pct_most_deprived_10": 0.0,
+      "domains": {
+        "income": {
+          "rank": 295,
+          "score": 0.066
+        },
+        "employment": {
+          "rank": 293,
+          "score": 0.05
+        },
+        "education": {
+          "rank": 295,
+          "score": 4.12
+        },
+        "health": {
+          "rank": 201,
+          "score": -0.529
+        },
+        "crime": {
+          "rank": 295,
+          "score": -1.482
+        },
+        "barriers": {
+          "rank": 271,
+          "score": 14.265
+        },
+        "living": {
+          "rank": 2,
+          "score": 49.464
+        }
+      }
+    },
+    "E09000002": {
+      "name": "Barking and Dagenham",
+      "imd_rank": 9,
+      "imd_score": 30.27,
+      "pct_most_deprived_10": 1.7,
+      "domains": {
+        "income": {
+          "rank": 1,
+          "score": 0.384
+        },
+        "employment": {
+          "rank": 18,
+          "score": 0.167
+        },
+        "education": {
+          "rank": 50,
+          "score": 24.962
+        },
+        "health": {
+          "rank": 77,
+          "score": 0.265
+        },
+        "crime": {
+          "rank": 46,
+          "score": 0.354
+        },
+        "barriers": {
+          "rank": 8,
+          "score": 32.012
+        },
+        "living": {
+          "rank": 48,
+          "score": 25.497
+        }
+      }
+    },
+    "E09000003": {
+      "name": "Barnet",
+      "imd_rank": 129,
+      "imd_score": 19.5,
+      "pct_most_deprived_10": 0.4,
+      "domains": {
+        "income": {
+          "rank": 70,
+          "score": 0.257
+        },
+        "employment": {
+          "rank": 136,
+          "score": 0.119
+        },
+        "education": {
+          "rank": 254,
+          "score": 10.793
+        },
+        "health": {
+          "rank": 261,
+          "score": -0.79
+        },
+        "crime": {
+          "rank": 146,
+          "score": -0.101
+        },
+        "barriers": {
+          "rank": 24,
+          "score": 31.375
+        },
+        "living": {
+          "rank": 35,
+          "score": 28.271
+        }
+      }
+    },
+    "E09000004": {
+      "name": "Bexley",
+      "imd_rank": 200,
+      "imd_score": 15.3,
+      "pct_most_deprived_10": 0.0,
+      "domains": {
+        "income": {
+          "rank": 174,
+          "score": 0.187
+        },
+        "employment": {
+          "rank": 182,
+          "score": 0.109
+        },
+        "education": {
+          "rank": 167,
+          "score": 16.51
+        },
+        "health": {
+          "rank": 184,
+          "score": -0.327
+        },
+        "crime": {
+          "rank": 164,
+          "score": -0.178
+        },
+        "barriers": {
+          "rank": 245,
+          "score": 15.666
+        },
+        "living": {
+          "rank": 84,
+          "score": 20.848
+        }
+      }
+    },
+    "E09000005": {
+      "name": "Brent",
+      "imd_rank": 22,
+      "imd_score": 30.05,
+      "pct_most_deprived_10": 15.5,
+      "domains": {
+        "income": {
+          "rank": 6,
+          "score": 0.367
+        },
+        "employment": {
+          "rank": 74,
+          "score": 0.146
+        },
+        "education": {
+          "rank": 99,
+          "score": 22.511
+        },
+        "health": {
+          "rank": 175,
+          "score": -0.281
+        },
+        "crime": {
+          "rank": 75,
+          "score": 0.236
+        },
+        "barriers": {
+          "rank": 2,
+          "score": 41.64
+        },
+        "living": {
+          "rank": 26,
+          "score": 29.898
+        }
+      }
+    },
+    "E09000006": {
+      "name": "Bromley",
+      "imd_rank": 248,
+      "imd_score": 12.67,
+      "pct_most_deprived_10": 0.5,
+      "domains": {
+        "income": {
+          "rank": 223,
+          "score": 0.158
+        },
+        "employment": {
+          "rank": 224,
+          "score": 0.097
+        },
+        "education": {
+          "rank": 273,
+          "score": 10.096
+        },
+        "health": {
+          "rank": 250,
+          "score": -0.773
+        },
+        "crime": {
+          "rank": 189,
+          "score": -0.274
+        },
+        "barriers": {
+          "rank": 211,
+          "score": 18.016
+        },
+        "living": {
+          "rank": 88,
+          "score": 21.051
+        }
+      }
+    },
+    "E09000007": {
+      "name": "Camden",
+      "imd_rank": 83,
+      "imd_score": 23.7,
+      "pct_most_deprived_10": 3.1,
+      "domains": {
+        "income": {
+          "rank": 75,
+          "score": 0.266
+        },
+        "employment": {
+          "rank": 109,
+          "score": 0.136
+        },
+        "education": {
+          "rank": 233,
+          "score": 12.384
+        },
+        "health": {
+          "rank": 110,
+          "score": 0.047
+        },
+        "crime": {
+          "rank": 82,
+          "score": 0.22
+        },
+        "barriers": {
+          "rank": 137,
+          "score": 21.896
+        },
+        "living": {
+          "rank": 5,
+          "score": 42.556
+        }
+      }
+    },
+    "E09000008": {
+      "name": "Croydon",
+      "imd_rank": 105,
+      "imd_score": 22.56,
+      "pct_most_deprived_10": 3.5,
+      "domains": {
+        "income": {
+          "rank": 53,
+          "score": 0.277
+        },
+        "employment": {
+          "rank": 82,
+          "score": 0.145
+        },
+        "education": {
+          "rank": 172,
+          "score": 16.756
+        },
+        "health": {
+          "rank": 153,
+          "score": -0.149
+        },
+        "crime": {
+          "rank": 100,
+          "score": 0.128
+        },
+        "barriers": {
+          "rank": 95,
+          "score": 24.072
+        },
+        "living": {
+          "rank": 44,
+          "score": 26.856
+        }
+      }
+    },
+    "E09000009": {
+      "name": "Ealing",
+      "imd_rank": 45,
+      "imd_score": 25.95,
+      "pct_most_deprived_10": 3.0,
+      "domains": {
+        "income": {
+          "rank": 18,
+          "score": 0.318
+        },
+        "employment": {
+          "rank": 97,
+          "score": 0.131
+        },
+        "education": {
+          "rank": 168,
+          "score": 18.012
+        },
+        "health": {
+          "rank": 177,
+          "score": -0.298
+        },
+        "crime": {
+          "rank": 107,
+          "score": 0.106
+        },
+        "barriers": {
+          "rank": 4,
+          "score": 37.613
+        },
+        "living": {
+          "rank": 25,
+          "score": 31.721
+        }
+      }
+    },
+    "E09000010": {
+      "name": "Enfield",
+      "imd_rank": 37,
+      "imd_score": 29.89,
+      "pct_most_deprived_10": 18.0,
+      "domains": {
+        "income": {
+          "rank": 9,
+          "score": 0.377
+        },
+        "employment": {
+          "rank": 43,
+          "score": 0.168
+        },
+        "education": {
+          "rank": 81,
+          "score": 26.858
+        },
+        "health": {
+          "rank": 170,
+          "score": -0.279
+        },
+        "crime": {
+          "rank": 80,
+          "score": 0.209
+        },
+        "barriers": {
+          "rank": 22,
+          "score": 31.552
+        },
+        "living": {
+          "rank": 28,
+          "score": 29.654
+        }
+      }
+    },
+    "E09000011": {
+      "name": "Greenwich",
+      "imd_rank": 74,
+      "imd_score": 23.54,
+      "pct_most_deprived_10": 0.0,
+      "domains": {
+        "income": {
+          "rank": 43,
+          "score": 0.277
+        },
+        "employment": {
+          "rank": 90,
+          "score": 0.138
+        },
+        "education": {
+          "rank": 184,
+          "score": 15.364
+        },
+        "health": {
+          "rank": 103,
+          "score": 0.124
+        },
+        "crime": {
+          "rank": 45,
+          "score": 0.356
+        },
+        "barriers": {
+          "rank": 51,
+          "score": 27.329
+        },
+        "living": {
+          "rank": 47,
+          "score": 26.038
+        }
+      }
+    },
+    "E09000012": {
+      "name": "Hackney",
+      "imd_rank": 10,
+      "imd_score": 31.8,
+      "pct_most_deprived_10": 16.1,
+      "domains": {
+        "income": {
+          "rank": 5,
+          "score": 0.4
+        },
+        "employment": {
+          "rank": 31,
+          "score": 0.17
+        },
+        "education": {
+          "rank": 211,
+          "score": 14.82
+        },
+        "health": {
+          "rank": 32,
+          "score": 0.602
+        },
+        "crime": {
+          "rank": 12,
+          "score": 0.529
+        },
+        "barriers": {
+          "rank": 53,
+          "score": 27.425
+        },
+        "living": {
+          "rank": 14,
+          "score": 35.594
+        }
+      }
+    },
+    "E09000013": {
+      "name": "Hammersmith and Fulham",
+      "imd_rank": 108,
+      "imd_score": 21.2,
+      "pct_most_deprived_10": 1.7,
+      "domains": {
+        "income": {
+          "rank": 92,
+          "score": 0.239
+        },
+        "employment": {
+          "rank": 146,
+          "score": 0.119
+        },
+        "education": {
+          "rank": 277,
+          "score": 8.682
+        },
+        "health": {
+          "rank": 127,
+          "score": 0.0
+        },
+        "crime": {
+          "rank": 91,
+          "score": 0.177
+        },
+        "barriers": {
+          "rank": 98,
+          "score": 23.697
+        },
+        "living": {
+          "rank": 6,
+          "score": 41.533
+        }
+      }
+    },
+    "E09000014": {
+      "name": "Haringey",
+      "imd_rank": 29,
+      "imd_score": 30.86,
+      "pct_most_deprived_10": 19.1,
+      "domains": {
+        "income": {
+          "rank": 15,
+          "score": 0.354
+        },
+        "employment": {
+          "rank": 48,
+          "score": 0.162
+        },
+        "education": {
+          "rank": 139,
+          "score": 21.016
+        },
+        "health": {
+          "rank": 141,
+          "score": -0.118
+        },
+        "crime": {
+          "rank": 30,
+          "score": 0.46
+        },
+        "barriers": {
+          "rank": 10,
+          "score": 34.992
+        },
+        "living": {
+          "rank": 10,
+          "score": 37.534
+        }
+      }
+    },
+    "E09000015": {
+      "name": "Harrow",
+      "imd_rank": 153,
+      "imd_score": 17.53,
+      "pct_most_deprived_10": 0.0,
+      "domains": {
+        "income": {
+          "rank": 57,
+          "score": 0.255
+        },
+        "employment": {
+          "rank": 179,
+          "score": 0.103
+        },
+        "education": {
+          "rank": 220,
+          "score": 13.271
+        },
+        "health": {
+          "rank": 266,
+          "score": -0.79
+        },
+        "crime": {
+          "rank": 201,
+          "score": -0.305
+        },
+        "barriers": {
+          "rank": 37,
+          "score": 29.271
+        },
+        "living": {
+          "rank": 61,
+          "score": 22.825
+        }
+      }
+    },
+    "E09000016": {
+      "name": "Havering",
+      "imd_rank": 173,
+      "imd_score": 16.75,
+      "pct_most_deprived_10": 0.7,
+      "domains": {
+        "income": {
+          "rank": 133,
+          "score": 0.203
+        },
+        "employment": {
+          "rank": 160,
+          "score": 0.113
+        },
+        "education": {
+          "rank": 142,
+          "score": 18.273
+        },
+        "health": {
+          "rank": 197,
+          "score": -0.401
+        },
+        "crime": {
+          "rank": 171,
+          "score": -0.193
+        },
+        "barriers": {
+          "rank": 104,
+          "score": 23.605
+        },
+        "living": {
+          "rank": 129,
+          "score": 17.268
+        }
+      }
+    },
+    "E09000017": {
+      "name": "Hillingdon",
+      "imd_rank": 116,
+      "imd_score": 20.65,
+      "pct_most_deprived_10": 0.0,
+      "domains": {
+        "income": {
+          "rank": 67,
+          "score": 0.257
+        },
+        "employment": {
+          "rank": 153,
+          "score": 0.114
+        },
+        "education": {
+          "rank": 132,
+          "score": 19.272
+        },
+        "health": {
+          "rank": 181,
+          "score": -0.317
+        },
+        "crime": {
+          "rank": 116,
+          "score": 0.038
+        },
+        "barriers": {
+          "rank": 28,
+          "score": 30.292
+        },
+        "living": {
+          "rank": 67,
+          "score": 22.101
+        }
+      }
+    },
+    "E09000018": {
+      "name": "Hounslow",
+      "imd_rank": 49,
+      "imd_score": 24.86,
+      "pct_most_deprived_10": 2.0,
+      "domains": {
+        "income": {
+          "rank": 35,
+          "score": 0.289
+        },
+        "employment": {
+          "rank": 111,
+          "score": 0.126
+        },
+        "education": {
+          "rank": 123,
+          "score": 20.129
+        },
+        "health": {
+          "rank": 209,
+          "score": -0.438
+        },
+        "crime": {
+          "rank": 68,
+          "score": 0.262
+        },
+        "barriers": {
+          "rank": 5,
+          "score": 35.604
+        },
+        "living": {
+          "rank": 18,
+          "score": 34.028
+        }
+      }
+    },
+    "E09000019": {
+      "name": "Islington",
+      "imd_rank": 39,
+      "imd_score": 26.65,
+      "pct_most_deprived_10": 4.0,
+      "domains": {
+        "income": {
+          "rank": 23,
+          "score": 0.304
+        },
+        "employment": {
+          "rank": 47,
+          "score": 0.156
+        },
+        "education": {
+          "rank": 209,
+          "score": 13.879
+        },
+        "health": {
+          "rank": 64,
+          "score": 0.369
+        },
+        "crime": {
+          "rank": 33,
+          "score": 0.413
+        },
+        "barriers": {
+          "rank": 86,
+          "score": 24.403
+        },
+        "living": {
+          "rank": 11,
+          "score": 37.47
+        }
+      }
+    },
+    "E09000020": {
+      "name": "Kensington and Chelsea",
+      "imd_rank": 130,
+      "imd_score": 20.34,
+      "pct_most_deprived_10": 3.0,
+      "domains": {
+        "income": {
+          "rank": 180,
+          "score": 0.196
+        },
+        "employment": {
+          "rank": 207,
+          "score": 0.106
+        },
+        "education": {
+          "rank": 279,
+          "score": 8.335
+        },
+        "health": {
+          "rank": 219,
+          "score": -0.743
+        },
+        "crime": {
+          "rank": 67,
+          "score": 0.283
+        },
+        "barriers": {
+          "rank": 136,
+          "score": 22.279
+        },
+        "living": {
+          "rank": 3,
+          "score": 51.559
+        }
+      }
+    },
+    "E09000021": {
+      "name": "Kingston upon Thames",
+      "imd_rank": 259,
+      "imd_score": 11.06,
+      "pct_most_deprived_10": 0.0,
+      "domains": {
+        "income": {
+          "rank": 194,
+          "score": 0.164
+        },
+        "employment": {
+          "rank": 246,
+          "score": 0.084
+        },
+        "education": {
+          "rank": 281,
+          "score": 8.007
+        },
+        "health": {
+          "rank": 265,
+          "score": -0.795
+        },
+        "crime": {
+          "rank": 222,
+          "score": -0.399
+        },
+        "barriers": {
+          "rank": 289,
+          "score": 10.703
+        },
+        "living": {
+          "rank": 36,
+          "score": 27.719
+        }
+      }
+    },
+    "E09000022": {
+      "name": "Lambeth",
+      "imd_rank": 70,
+      "imd_score": 23.04,
+      "pct_most_deprived_10": 0.5,
+      "domains": {
+        "income": {
+          "rank": 54,
+          "score": 0.26
+        },
+        "employment": {
+          "rank": 116,
+          "score": 0.127
+        },
+        "education": {
+          "rank": 232,
+          "score": 12.044
+        },
+        "health": {
+          "rank": 114,
+          "score": 0.047
+        },
+        "crime": {
+          "rank": 54,
+          "score": 0.322
+        },
+        "barriers": {
+          "rank": 70,
+          "score": 25.329
+        },
+        "living": {
+          "rank": 7,
+          "score": 41.346
+        }
+      }
+    },
+    "E09000023": {
+      "name": "Lewisham",
+      "imd_rank": 46,
+      "imd_score": 25.47,
+      "pct_most_deprived_10": 1.7,
+      "domains": {
+        "income": {
+          "rank": 36,
+          "score": 0.287
+        },
+        "employment": {
+          "rank": 60,
+          "score": 0.149
+        },
+        "education": {
+          "rank": 231,
+          "score": 12.43
+        },
+        "health": {
+          "rank": 91,
+          "score": 0.193
+        },
+        "crime": {
+          "rank": 36,
+          "score": 0.409
+        },
+        "barriers": {
+          "rank": 36,
+          "score": 28.27
+        },
+        "living": {
+          "rank": 15,
+          "score": 34.991
+        }
+      }
+    },
+    "E09000024": {
+      "name": "Merton",
+      "imd_rank": 207,
+      "imd_score": 14.38,
+      "pct_most_deprived_10": 0.0,
+      "domains": {
+        "income": {
+          "rank": 137,
+          "score": 0.203
+        },
+        "employment": {
+          "rank": 211,
+          "score": 0.099
+        },
+        "education": {
+          "rank": 250,
+          "score": 11.376
+        },
+        "health": {
+          "rank": 251,
+          "score": -0.78
+        },
+        "crime": {
+          "rank": 177,
+          "score": -0.219
+        },
+        "barriers": {
+          "rank": 257,
+          "score": 15.006
+        },
+        "living": {
+          "rank": 33,
+          "score": 28.231
+        }
+      }
+    },
+    "E09000025": {
+      "name": "Newham",
+      "imd_rank": 7,
+      "imd_score": 31.58,
+      "pct_most_deprived_10": 5.4,
+      "domains": {
+        "income": {
+          "rank": 2,
+          "score": 0.39
+        },
+        "employment": {
+          "rank": 67,
+          "score": 0.143
+        },
+        "education": {
+          "rank": 64,
+          "score": 24.385
+        },
+        "health": {
+          "rank": 106,
+          "score": 0.081
+        },
+        "crime": {
+          "rank": 64,
+          "score": 0.282
+        },
+        "barriers": {
+          "rank": 3,
+          "score": 39.266
+        },
+        "living": {
+          "rank": 16,
+          "score": 34.983
+        }
+      }
+    },
+    "E09000026": {
+      "name": "Redbridge",
+      "imd_rank": 127,
+      "imd_score": 19.85,
+      "pct_most_deprived_10": 1.8,
+      "domains": {
+        "income": {
+          "rank": 50,
+          "score": 0.274
+        },
+        "employment": {
+          "rank": 142,
+          "score": 0.118
+        },
+        "education": {
+          "rank": 189,
+          "score": 14.805
+        },
+        "health": {
+          "rank": 225,
+          "score": -0.53
+        },
+        "crime": {
+          "rank": 122,
+          "score": 0.0
+        },
+        "barriers": {
+          "rank": 74,
+          "score": 26.265
+        },
+        "living": {
+          "rank": 40,
+          "score": 26.564
+        }
+      }
+    },
+    "E09000027": {
+      "name": "Richmond upon Thames",
+      "imd_rank": 282,
+      "imd_score": 9.53,
+      "pct_most_deprived_10": 0.0,
+      "domains": {
+        "income": {
+          "rank": 279,
+          "score": 0.122
+        },
+        "employment": {
+          "rank": 281,
+          "score": 0.072
+        },
+        "education": {
+          "rank": 296,
+          "score": 3.638
+        },
+        "health": {
+          "rank": 290,
+          "score": -1.382
+        },
+        "crime": {
+          "rank": 221,
+          "score": -0.39
+        },
+        "barriers": {
+          "rank": 296,
+          "score": 7.225
+        },
+        "living": {
+          "rank": 12,
+          "score": 37.446
+        }
+      }
+    },
+    "E09000028": {
+      "name": "Southwark",
+      "imd_rank": 67,
+      "imd_score": 23.33,
+      "pct_most_deprived_10": 0.0,
+      "domains": {
+        "income": {
+          "rank": 51,
+          "score": 0.266
+        },
+        "employment": {
+          "rank": 104,
+          "score": 0.132
+        },
+        "education": {
+          "rank": 239,
+          "score": 11.706
+        },
+        "health": {
+          "rank": 99,
+          "score": 0.127
+        },
+        "crime": {
+          "rank": 61,
+          "score": 0.296
+        },
+        "barriers": {
+          "rank": 48,
+          "score": 26.734
+        },
+        "living": {
+          "rank": 13,
+          "score": 36.292
+        }
+      }
+    },
+    "E09000029": {
+      "name": "Sutton",
+      "imd_rank": 224,
+      "imd_score": 13.85,
+      "pct_most_deprived_10": 0.8,
+      "domains": {
+        "income": {
+          "rank": 175,
+          "score": 0.184
+        },
+        "employment": {
+          "rank": 195,
+          "score": 0.104
+        },
+        "education": {
+          "rank": 246,
+          "score": 12.038
+        },
+        "health": {
+          "rank": 228,
+          "score": -0.571
+        },
+        "crime": {
+          "rank": 184,
+          "score": -0.247
+        },
+        "barriers": {
+          "rank": 234,
+          "score": 16.718
+        },
+        "living": {
+          "rank": 69,
+          "score": 21.942
+        }
+      }
+    },
+    "E09000030": {
+      "name": "Tower Hamlets",
+      "imd_rank": 20,
+      "imd_score": 30.55,
+      "pct_most_deprived_10": 13.0,
+      "domains": {
+        "income": {
+          "rank": 3,
+          "score": 0.401
+        },
+        "employment": {
+          "rank": 85,
+          "score": 0.143
+        },
+        "education": {
+          "rank": 169,
+          "score": 16.363
+        },
+        "health": {
+          "rank": 65,
+          "score": 0.364
+        },
+        "crime": {
+          "rank": 35,
+          "score": 0.4
+        },
+        "barriers": {
+          "rank": 12,
+          "score": 32.271
+        },
+        "living": {
+          "rank": 23,
+          "score": 32.475
+        }
+      }
+    },
+    "E09000031": {
+      "name": "Waltham Forest",
+      "imd_rank": 65,
+      "imd_score": 23.45,
+      "pct_most_deprived_10": 0.7,
+      "domains": {
+        "income": {
+          "rank": 26,
+          "score": 0.296
+        },
+        "employment": {
+          "rank": 83,
+          "score": 0.136
+        },
+        "education": {
+          "rank": 154,
+          "score": 16.611
+        },
+        "health": {
+          "rank": 149,
+          "score": -0.124
+        },
+        "crime": {
+          "rank": 83,
+          "score": 0.203
+        },
+        "barriers": {
+          "rank": 72,
+          "score": 25.667
+        },
+        "living": {
+          "rank": 20,
+          "score": 33.957
+        }
+      }
+    },
+    "E09000032": {
+      "name": "Wandsworth",
+      "imd_rank": 193,
+      "imd_score": 15.16,
+      "pct_most_deprived_10": 0.0,
+      "domains": {
+        "income": {
+          "rank": 151,
+          "score": 0.2
+        },
+        "employment": {
+          "rank": 239,
+          "score": 0.089
+        },
+        "education": {
+          "rank": 284,
+          "score": 7.388
+        },
+        "health": {
+          "rank": 223,
+          "score": -0.559
+        },
+        "crime": {
+          "rank": 145,
+          "score": -0.092
+        },
+        "barriers": {
+          "rank": 262,
+          "score": 15.154
+        },
+        "living": {
+          "rank": 9,
+          "score": 38.647
+        }
+      }
+    },
+    "E09000033": {
+      "name": "Westminster",
+      "imd_rank": 87,
+      "imd_score": 23.93,
+      "pct_most_deprived_10": 8.9,
+      "domains": {
+        "income": {
+          "rank": 105,
+          "score": 0.254
+        },
+        "employment": {
+          "rank": 155,
+          "score": 0.127
+        },
+        "education": {
+          "rank": 253,
+          "score": 11.187
+        },
+        "health": {
+          "rank": 164,
+          "score": -0.31
+        },
+        "crime": {
+          "rank": 66,
+          "score": 0.285
+        },
+        "barriers": {
+          "rank": 78,
+          "score": 25.86
+        },
+        "living": {
+          "rank": 4,
+          "score": 46.969
+        }
+      }
+    }
+  }
+}
