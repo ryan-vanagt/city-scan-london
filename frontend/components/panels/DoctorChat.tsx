@@ -89,6 +89,7 @@ export default function DoctorChat({
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [cooldown, setCooldown] = useState(false);
+  const [activeRole, setActiveRole] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const hasAutofiredRef = useRef(false);
@@ -136,7 +137,7 @@ export default function DoctorChat({
     setIsStreaming(true);
 
     try {
-      const stream = streamDoctorQuery(question.trim());
+      const stream = streamDoctorQuery(question.trim(), activeRole);
       let pendingSources: SSESourcesEvent["sources"] | undefined;
 
       for await (const event of stream) {
@@ -299,10 +300,15 @@ export default function DoctorChat({
       {messages.length === 1 && !isStreaming && (
         <div className="flex flex-wrap gap-2 px-4 pb-2">
           {[
-            "How is London doing today?",
-            "Which boroughs need attention?",
-            "Compare air quality across boroughs",
-            "What types of crime are common in Camden?",
+            activeRole === "council"
+              ? "What should Tower Hamlets council prioritise?"
+              : activeRole === "community"
+              ? "How can our community help Hackney's environment?"
+              : activeRole === "resident"
+              ? "Where's the greenest area in Camden for a walk?"
+              : activeRole === "analyst"
+              ? "Is there a link between deprivation and health?"
+              : "How is London doing today?",
           ].map((q) => (
             <button
               key={q}
@@ -328,11 +334,33 @@ export default function DoctorChat({
         </div>
       )}
 
+      {/* Role chips */}
+      <div className="flex items-center gap-1.5 px-4 py-1.5" style={{ borderTop: "1px solid #1e293b" }}>
+        <span className="text-[9px] font-mono" style={{ color: "#475569" }}>
+          Mode:
+        </span>
+        {(["council", "community", "resident", "analyst"] as const).map((role) => (
+          <button
+            key={role}
+            type="button"
+            onClick={() => setActiveRole(activeRole === role ? null : role)}
+            className="text-[9px] font-mono px-2 py-0.5 rounded-full transition-all duration-200"
+            style={{
+              border: `1px solid ${activeRole === role ? "#0ea5e9" : "#334155"}`,
+              color: activeRole === role ? "#0ea5e9" : "#64748b",
+              background: activeRole === role ? "rgba(14, 165, 233, 0.1)" : "transparent",
+            }}
+          >
+            {role.charAt(0).toUpperCase() + role.slice(1)}
+          </button>
+        ))}
+      </div>
+
       {/* Input bar */}
       <form
         onSubmit={handleSubmit}
         className="flex-shrink-0 flex items-center gap-2 px-4 py-3"
-        style={{ borderTop: "1px solid #1e293b" }}
+        style={{ borderTop: "1px solid #0f172a" }}
       >
         <input
           ref={inputRef}

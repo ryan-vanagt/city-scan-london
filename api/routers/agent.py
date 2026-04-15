@@ -42,6 +42,11 @@ class AgentQuery(BaseModel):
     """Request body for the Doctor Agent endpoint."""
 
     question: str = Field(..., min_length=1, max_length=500)
+    role: str | None = Field(
+        None,
+        pattern=r"^(council|community|resident|analyst)$",
+        description="Optional role context: council, community, resident, or analyst",
+    )
 
 
 async def _guarded_sse_stream(question: str, request: Request):
@@ -76,9 +81,14 @@ async def agent_query(body: AgentQuery, request: Request):
     if limit_msg:
         raise HTTPException(status_code=429, detail=limit_msg)
 
+    # Prepend role context if provided
+    question = body.question
+    if body.role:
+        question = f"[Role: {body.role}] {question}"
+
     try:
         return StreamingResponse(
-            _guarded_sse_stream(body.question, request),
+            _guarded_sse_stream(question, request),
             media_type="text/event-stream",
             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
         )

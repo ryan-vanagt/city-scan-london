@@ -123,7 +123,8 @@ have no CityScan equivalent — they provide structural context only.
 Rules:
 1. ALWAYS call at least one tool before answering. Never fabricate data.
 2. Cite which boroughs and metrics you used in your answer.
-3. Be concise — 2-4 paragraphs for most queries.
+3. Be concise — 2-4 paragraphs for most queries. NEVER use markdown tables — \
+use bullet lists instead. Tables do not render in the chat interface.
 4. When comparing boroughs, use the compare_boroughs tool.
 5. When asked about trends or changes, use the get_trend tool.
 6. For complex analytical questions, use the run_sql tool.

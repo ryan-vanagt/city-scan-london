@@ -46,16 +46,20 @@ export async function fetchBulletin(): Promise<BulletinResponse | null> {
  * The caller is responsible for handling token and sources events.
  */
 export async function* streamDoctorQuery(
-  question: string
+  question: string,
+  role?: string | null
 ): AsyncGenerator<
   | { type: "token"; content: string }
   | { type: "sources"; sources: Array<{ type: string; tool: string; data: Record<string, unknown> }> }
   | { type: "done" }
 > {
+  const body: Record<string, string> = { question };
+  if (role) body.role = role;
+
   const res = await fetch(`${BASE_URL}/agent/query`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ question }),
+    body: JSON.stringify(body),
   });
 
   if (!res.ok) throw new Error(`Agent query failed: ${res.status}`);
