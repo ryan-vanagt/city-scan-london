@@ -193,7 +193,7 @@ def get_doctor_agent():
         return _agent
     with _agent_lock:
         if _agent is None:  # double-check after acquiring lock
-            llm = ChatAnthropic(model=MODEL_NAME, max_tokens=2048, streaming=True)
+            llm = ChatAnthropic(model=MODEL_NAME, max_tokens=4096, streaming=True)
             _agent = create_react_agent(llm, ALL_TOOLS, prompt=SYSTEM_PROMPT)
             logger.info("Doctor Agent built with model=%s, tools=%d", MODEL_NAME, len(ALL_TOOLS))
     return _agent
@@ -227,7 +227,7 @@ async def stream_doctor_response(question: str) -> AsyncGenerator[str, None]:
         async for event in agent.astream_events(
             {"messages": [HumanMessage(content=question)]},
             version="v2",
-            config={"run_id": str(uuid.uuid4())},
+            config={"run_id": str(uuid.uuid4()), "recursion_limit": 50},
         ):
             kind = event.get("event")
 

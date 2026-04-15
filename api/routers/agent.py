@@ -31,7 +31,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 BULLETINS_DIR = PROJECT_ROOT / "data" / "bulletins"
 
 # SSE stream timeout in seconds
-_SSE_TIMEOUT_SECONDS = 60
+_SSE_TIMEOUT_SECONDS = 180  # 180s to support Sonnet/Opus (more tool calls = longer)
 
 # Rate limiting for bulletin generation (seconds between requests)
 _BULLETIN_COOLDOWN_SECONDS = 60
