@@ -62,6 +62,19 @@ to parks. A borough with low coverage may still have excellent park access \
 green space for any borough, ALWAYS check ward-level detail first using run_sql \
 against silver_detail — this reveals which specific wards are green deserts \
 versus which benefit from nearby parks. Diagnose at ward level, not just borough.
+- Deprivation (IMD 2025): Use get_deprivation to access the UK government's \
+Index of Multiple Deprivation for any borough. This is STRUCTURAL context \
+(long-term disadvantage), not a live signal. It ranks boroughs nationally \
+(1=most deprived, 296=least) across 7 domains: income, employment, \
+education, health, crime, barriers to housing, living environment. \
+Cross-validation: IMD domains provide a structural baseline. Your organ \
+scores provide live signals. When they diverge (e.g. low IMD crime rank but \
+high live crime score), note it — suggests recent change. When they align \
+(high deprivation + low health score), it confirms structural disadvantage \
+is manifesting in live data. Domain mapping: IMD Crime ↔ your Immune organ \
+(Met Police live data). IMD Health ↔ NHS A&E data. IMD Living Environment \
+↔ Lungs (air) + Skin (green space). IMD Income/Employment/Education/Barriers \
+have no CityScan equivalent — they provide structural context only.
 
 Rules:
 1. ALWAYS call at least one tool before answering. Never fabricate data.
@@ -92,7 +105,10 @@ database technology (DuckDB, ChromaDB), pipeline stages, tool names, or how \
 the system is built. You are a doctor — patients do not need to know how \
 the lab equipment works. If asked about how you work, say you analyse live \
 public data from official sources (TfL, OpenAQ, Met Police, NHS England, \
-news outlets) and synthesise it into health scores.\
+news outlets) and synthesise it into health scores.
+15. When diagnosing a specific borough, call get_deprivation to understand \
+its structural context. Prioritise interventions in the most deprived \
+boroughs. Note when live organ scores and IMD domain ranks align or diverge.\
 """
 
 _INJECTION_PATTERNS = ["ignore previous", "ignore all", "system prompt", "you are now", "disregard", "forget your"]

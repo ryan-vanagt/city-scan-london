@@ -13,6 +13,7 @@ Usage:
 from langchain_core.tools import tool
 
 from agents.tools.borough_query import get_borough_health, compare_boroughs
+from agents.tools.deprivation import get_deprivation
 from agents.tools.health_score import get_london_score
 from agents.tools.rag_query import search_scores
 from agents.tools.sql_query import run_sql
@@ -137,6 +138,26 @@ def search_scores_tool(
     return search_scores(query, n_results, borough_code)
 
 
+@tool
+def get_deprivation_tool(borough: str) -> dict:
+    """Get IMD 2025 deprivation data for a London borough.
+
+    Returns the UK government's Index of Multiple Deprivation rank (1-296,
+    where 1 is most deprived nationally) plus 7 domain sub-scores:
+    income, employment, education, health, crime, barriers to housing,
+    living environment.
+
+    Use this to understand a borough's structural context — long-term
+    disadvantage that live health scores don't capture. Compare IMD domains
+    against CityScan organ scores (e.g. IMD Crime vs live immune score).
+
+    Args:
+        borough: Borough name (e.g. 'Hackney') or ONS code (e.g. 'E09000012').
+    """
+    borough = borough[:100]
+    return get_deprivation(borough)
+
+
 ALL_TOOLS = [
     get_borough_health_tool,
     get_london_score_tool,
@@ -144,4 +165,5 @@ ALL_TOOLS = [
     compare_boroughs_tool,
     run_sql_tool,
     search_scores_tool,
+    get_deprivation_tool,
 ]
