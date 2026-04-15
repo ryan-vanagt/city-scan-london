@@ -320,6 +320,20 @@ AGENT_RATE_LIMIT_GLOBAL_DAY=150
 
 ---
 
+## Scaling & Production Readiness
+
+The current architecture is a working prototype deployed on a single VPS. To scale to production serving multiple councils and public users:
+
+- **Database:** DuckDB → PostgreSQL with connection pooling (pgBouncer). DuckDB is single-writer and not thread-safe for concurrent access. PostgreSQL handles hundreds of concurrent reads/writes. The pipeline's standard SQL makes migration straightforward.
+- **Caching:** Add Redis between the API and database. Borough scores change hourly — cache them for 60 minutes. Eliminates 99% of database reads on the serving path.
+- **Reverse proxy:** Caddy or nginx in front of API + frontend. HTTPS termination via Let's Encrypt, proper `X-Forwarded-For` handling, rate limiting at the proxy layer.
+- **LLM cost:** Fine-tune an open-source model (Llama/Mistral 7B-13B) on accumulated agent_logs interaction data. The logging infrastructure already captures training data (queries, tool outputs, final responses). Eliminates per-query API cost and reduces latency to sub-second.
+- **Deployment model:** On-premise for councils — each borough runs their own CityScan instance with custom policy context documents. DuckDB's zero-dependency embedded model is an advantage here (no database server to install).
+- **CI/CD:** GitHub Actions workflow: push to main → run tests → build Docker images → deploy to VPS automatically.
+- **Monitoring:** Prometheus + Grafana for container health, API latency, pipeline success rates, LLM token usage.
+
+---
+
 ## Future Enhancements
 
 Ideas validated during development but deferred to keep scope manageable:
