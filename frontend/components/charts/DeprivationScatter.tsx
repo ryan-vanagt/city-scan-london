@@ -186,13 +186,12 @@ export default function DeprivationScatter({
             type="number"
             dataKey="x"
             name="IMD Rank"
-            reversed
             domain={["dataMin - 5", "dataMax + 5"]}
             tick={{ fill: "#64748b", fontSize: 10, fontFamily: "var(--font-jetbrains, monospace)" }}
             axisLine={{ stroke: "#475569" }}
             tickLine={{ stroke: "#475569" }}
             label={{
-              value: "IMD Rank (1 = most deprived)",
+              value: "← Most Deprived          IMD Rank          Least Deprived →",
               position: "bottom",
               offset: 12,
               style: { fill: "#64748b", fontSize: 10, fontFamily: "var(--font-jetbrains, monospace)" },

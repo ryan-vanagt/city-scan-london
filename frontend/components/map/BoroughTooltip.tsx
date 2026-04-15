@@ -65,7 +65,7 @@ export default function BoroughTooltip({
 
   return (
     <div
-      className="pointer-events-none fixed z-[60]"
+      className="pointer-events-none absolute z-50"
       style={{
         left: position.x,
         top: position.y,

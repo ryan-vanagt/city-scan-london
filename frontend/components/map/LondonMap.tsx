@@ -58,8 +58,8 @@ export default function LondonMap({
         const scaleX = rect.width / VIEW_BOX_WIDTH;
         const scaleY = rect.height / VIEW_BOX_HEIGHT;
         setTooltipPos({
-          x: rect.left + geo.centroidX * scaleX,
-          y: rect.top + geo.centroidY * scaleY,
+          x: geo.centroidX * scaleX,
+          y: geo.centroidY * scaleY,
         });
       }
     },
