@@ -2,7 +2,7 @@
 
 A live urban health diagnostic platform that models London as a human body.
 
-Five public data sources map to five biological systems, producing a real-time health score per London borough — queryable via a natural language agent interface and summarised in a daily LLM-generated bulletin.
+Seven public data sources map to five biological systems, producing a real-time health score per London borough — queryable via a natural language agent interface and summarised in a daily LLM-generated bulletin.
 
 | System | Data Source | Signal |
 |---|---|---|
@@ -42,7 +42,7 @@ docker compose up
 
 | Component | Status |
 |-----------|--------|
-| Data pipeline (8 sources → Bronze → Silver → Gold) | **Working** |
+| Data pipeline (7 sources → Bronze → Silver → Gold) | **Working** |
 | FastAPI (8 endpoints: health, scores, boroughs, trends, agent, bulletin) | **Working** |
 | Agent tools (4 curated + `run_sql` + `search_scores`) | **Working** |
 | ChromaDB embedding (gold → vector store) | **Working** |
