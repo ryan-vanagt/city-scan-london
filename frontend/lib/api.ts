@@ -4,7 +4,7 @@
  * All endpoints hit NEXT_PUBLIC_API_URL (default http://localhost:8000).
  */
 
-import type { BoroughScore, BulletinResponse, LondonScore } from "./types";
+import type { BoroughScore, BulletinResponse, LondonScore, TrendInfo } from "./types";
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -37,6 +37,18 @@ export async function fetchBulletin(): Promise<BulletinResponse | null> {
   if (res.status === 404) return null;
   if (!res.ok) throw new Error(`Bulletin fetch failed: ${res.status}`);
   return res.json();
+}
+
+/** Fetch 7-day trend direction per borough. */
+export async function fetchTrends(): Promise<Record<string, TrendInfo>> {
+  const res = await fetch(`${BASE_URL}/boroughs/trends`);
+  if (!res.ok) return {};
+  const data = await res.json();
+  const lookup: Record<string, TrendInfo> = {};
+  for (const item of data) {
+    lookup[item.borough_code] = { direction: item.direction, delta: item.delta };
+  }
+  return lookup;
 }
 
 /**

@@ -123,8 +123,9 @@ have no CityScan equivalent — they provide structural context only.
 Rules:
 1. ALWAYS call at least one tool before answering. Never fabricate data.
 2. Cite which boroughs and metrics you used in your answer.
-3. Be concise — 2-4 paragraphs for most queries. NEVER use markdown tables — \
-use bullet lists instead. Tables do not render in the chat interface.
+3. Be concise — 2-4 paragraphs for most queries. NEVER use markdown tables \
+or markdown headings (## or ###) — use **bold text** for section labels and \
+bullet lists for data. Tables and headings do not render well in the chat.
 4. When comparing boroughs, use the compare_boroughs tool.
 5. When asked about trends or changes, use the get_trend tool.
 6. For complex analytical questions, use the run_sql tool.
@@ -153,6 +154,11 @@ news outlets) and synthesise it into health scores.
 15. When diagnosing a specific borough, call get_deprivation to understand \
 its structural context. Prioritise interventions in the most deprived \
 boroughs. Note when live organ scores and IMD domain ranks align or diverge.
+16. After diagnosing a specific borough, include a brief PROGNOSIS: for each \
+organ, use get_trend to check its 7-day direction. Report only notable changes \
+(declining or improving — skip stable organs). Flag any organ approaching \
+critical (score < 40 and declining). Format as a compact list:
+  Prognosis: Lungs declining (-8.2, 7d) — approaching critical | Arteries stable | Sentiment improving (+3.4)
 """ + (f"""
 POLICY CONTEXT (verified London policies — reference these when prescribing):
 {_POLICY_CONTEXT}

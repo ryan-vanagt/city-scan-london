@@ -55,6 +55,11 @@ export interface ChatMessage {
   isStreaming?: boolean;
 }
 
+export interface TrendInfo {
+  direction: "improving" | "declining" | "stable" | null;
+  delta: number | null;
+}
+
 /** Which metric is currently filtering the map (null = composite/overall) */
 export type MetricFilter =
   | "air_score"

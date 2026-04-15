@@ -8,7 +8,7 @@
  */
 
 import { useMemo } from "react";
-import type { BoroughScore, MetricFilter } from "@/lib/types";
+import type { BoroughScore, MetricFilter, TrendInfo } from "@/lib/types";
 import { scoreToColour, glowIntensity, pulseDuration, XRAY_BLUE } from "@/lib/colours";
 
 interface BoroughPathProps {
@@ -20,6 +20,9 @@ interface BoroughPathProps {
   metricFilter: MetricFilter;
   xrayMode?: boolean;
   effectsReady?: boolean;
+  trend?: TrendInfo | null;
+  centroidX?: number;
+  centroidY?: number;
   onHover: () => void;
   onLeave: () => void;
 }
@@ -41,6 +44,9 @@ export default function BoroughPath({
   metricFilter,
   xrayMode,
   effectsReady,
+  trend,
+  centroidX,
+  centroidY,
   onHover,
   onLeave,
 }: BoroughPathProps) {
@@ -73,26 +79,28 @@ export default function BoroughPath({
   const showPulse = effectsReady && !isDimmed && !xrayMode;
 
   return (
-    <path
-      d={pathData}
-      fill={fill}
-      stroke="#020617"
-      strokeWidth={1.2}
-      className={showPulse ? "borough-pulse" : ""}
-      style={{
-        "--pulse-duration": pulse,
-        opacity,
-        filter,
-        transform: isElevated ? "scale(1.05)" : "scale(1)",
-        transformOrigin: "center",
-        transformBox: "fill-box",
-        willChange: effectsReady ? "auto" : "fill, opacity, filter, transform",
-        transition: "fill 1.5s ease-out, opacity 1s ease-out, transform 300ms ease-out, filter 1s ease-out",
-      } as React.CSSProperties}
-      onMouseEnter={xrayMode ? undefined : onHover}
-      onMouseLeave={xrayMode ? undefined : onLeave}
-      data-borough-code={borough.borough_code}
-      aria-label={`${borough.borough_name}: ${score !== null ? Math.round(score) + "/100" : "N/A"}`}
-    />
+    <>
+      <path
+        d={pathData}
+        fill={fill}
+        stroke="#020617"
+        strokeWidth={1.2}
+        className={showPulse ? "borough-pulse" : ""}
+        style={{
+          "--pulse-duration": pulse,
+          opacity,
+          filter,
+          transform: isElevated ? "scale(1.05)" : "scale(1)",
+          transformOrigin: "center",
+          transformBox: "fill-box",
+          willChange: effectsReady ? "auto" : "fill, opacity, filter, transform",
+          transition: "fill 1.5s ease-out, opacity 1s ease-out, transform 300ms ease-out, filter 1s ease-out",
+        } as React.CSSProperties}
+        onMouseEnter={xrayMode ? undefined : onHover}
+        onMouseLeave={xrayMode ? undefined : onLeave}
+        data-borough-code={borough.borough_code}
+        aria-label={`${borough.borough_name}: ${score !== null ? Math.round(score) + "/100" : "N/A"}`}
+      />
+    </>
   );
 }

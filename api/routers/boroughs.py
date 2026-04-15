@@ -3,6 +3,7 @@ Borough data endpoints.
 
 GET /boroughs              — all 33 boroughs with current composite scores
 GET /boroughs/deprivation  — all 33 boroughs with static IMD deprivation data
+GET /boroughs/trends       — 7-day composite trend direction for all boroughs
 GET /borough/{name}        — full organ breakdown for a single borough
 GET /borough/{name}/trend  — 7-day trend for a single borough
 """
@@ -136,6 +137,68 @@ def list_boroughs_deprivation() -> list[dict]:
     except (json.JSONDecodeError, KeyError) as exc:
         logger.error("Failed to parse IMD data file: %s", exc)
         raise HTTPException(status_code=500, detail="IMD deprivation data is malformed")
+
+
+@router.get("/boroughs/trends")
+def borough_trends(
+    days: int = Query(7, ge=1, le=30),
+    con: duckdb.DuckDBPyConnection = Depends(get_connection),
+) -> list[dict]:
+    """7-day composite trend direction for all boroughs.
+
+    Returns each borough with a direction (improving/declining/stable)
+    and delta based on earliest vs latest composite_score in the window.
+    Boroughs with fewer than 3 data points get direction=null, delta=null.
+    Threshold of 2.0 matches agents/tools/trend_analysis._DIRECTION_THRESHOLD.
+    """
+    try:
+        rows = con.execute(f"""
+            WITH windowed AS (
+                SELECT borough_code, borough_name,
+                       FIRST_VALUE(composite_score) OVER (
+                           PARTITION BY borough_code ORDER BY timestamp ASC
+                       ) AS earliest,
+                       LAST_VALUE(composite_score) OVER (
+                           PARTITION BY borough_code ORDER BY timestamp ASC
+                           ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+                       ) AS latest,
+                       COUNT(*) OVER (PARTITION BY borough_code) AS n
+                FROM gold_scores
+                WHERE timestamp >= NOW() - INTERVAL {int(days)} DAY
+            )
+            SELECT DISTINCT borough_code, borough_name, earliest, latest, n
+            FROM windowed
+            ORDER BY borough_name
+        """).fetchall()
+    except Exception:
+        logger.exception("Failed to fetch borough trends")
+        return []
+
+    result = []
+    for row in rows:
+        code, name, earliest, latest, n = row
+        if n < 3 or earliest is None or latest is None:
+            result.append({
+                "borough_code": code,
+                "borough_name": name,
+                "direction": None,
+                "delta": None,
+            })
+        else:
+            delta = round(latest - earliest, 1)
+            if delta > 2.0:
+                direction = "improving"
+            elif delta < -2.0:
+                direction = "declining"
+            else:
+                direction = "stable"
+            result.append({
+                "borough_code": code,
+                "borough_name": name,
+                "direction": direction,
+                "delta": delta,
+            })
+    return result
 
 
 @router.get("/borough/{name}")

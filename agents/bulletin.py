@@ -63,7 +63,9 @@ headlines — simply omit the "In the News" section entirely.
 9. When deprivation context (IMD 2025) is provided for worst-scoring boroughs, \
 note the structural disadvantage in your Diagnosis section. Highlight where \
 deprivation aligns with poor health scores — this is the key insight.
-10. End the bulletin with a "Prescriptions" section: 2-3 targeted recommendations \
+10. Before Prescriptions, include a brief "Prognosis" section for the 3 worst-scoring \
+boroughs: which organs are improving, stable, or declining. One line per borough.
+11. End the bulletin with a "Prescriptions" section: 2-3 targeted recommendations \
 for the worst-scoring boroughs. Frame as neutral clinical recommendations — \
 "the data indicates..." not "the council should..." — since this bulletin is \
 read by all audiences (council, community, residents, analysts). Each \

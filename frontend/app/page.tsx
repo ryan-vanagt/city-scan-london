@@ -15,8 +15,9 @@ import type {
   BulletinResponse,
   MetricFilter,
   PanelState,
+  TrendInfo,
 } from "@/lib/types";
-import { fetchBoroughs, fetchLondonScore, fetchBulletin } from "@/lib/api";
+import { fetchBoroughs, fetchLondonScore, fetchBulletin, fetchTrends } from "@/lib/api";
 
 // Own components (always loaded)
 import VitalSigns from "@/components/header/VitalSigns";
@@ -64,6 +65,7 @@ export default function Home() {
   const [hoveredBorough, setHoveredBorough] = useState<string | null>(null);
   const [panelState, setPanelState] = useState<PanelState>({ type: "closed" });
   const [metricFilter, setMetricFilter] = useState<MetricFilter>(null);
+  const [trends, setTrends] = useState<Record<string, TrendInfo>>({});
   const [deprivation, setDeprivation] = useState<Record<string, any>>({});
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -86,16 +88,18 @@ export default function Home() {
 
     async function loadData() {
       const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-      const [boroughResult, scoreResult, bulletinResult, depResult] = await Promise.allSettled([
+      const [boroughResult, scoreResult, bulletinResult, depResult, trendResult] = await Promise.allSettled([
         fetchBoroughs(),
         fetchLondonScore(),
         fetchBulletin(),
         fetch(`${BASE_URL}/boroughs/deprivation`).then(r => r.ok ? r.json() : Promise.reject(r)),
+        fetchTrends(),
       ]);
       if (cancelled) return;
       if (boroughResult.status === "fulfilled") setBoroughs(boroughResult.value);
       if (scoreResult.status === "fulfilled") setLondonScore(scoreResult.value);
       if (bulletinResult.status === "fulfilled") setBulletin(bulletinResult.value);
+      if (trendResult.status === "fulfilled") setTrends(trendResult.value);
       if (depResult.status === "fulfilled") {
         const lookup: Record<string, any> = {};
         for (const item of depResult.value) {
@@ -220,6 +224,7 @@ export default function Home() {
             <LondonMap
               boroughs={boroughs}
               deprivation={deprivation}
+              trends={trends}
               metricFilter={metricFilter}
               selectedBorough={null}
               xrayMode={xrayActive}

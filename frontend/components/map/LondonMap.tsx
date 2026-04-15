@@ -8,7 +8,7 @@
  */
 
 import { useState, useCallback, useRef, useMemo } from "react";
-import type { BoroughScore, MetricFilter } from "@/lib/types";
+import type { BoroughScore, MetricFilter, TrendInfo } from "@/lib/types";
 import { BOROUGH_PATHS, BOROUGH_PATH_MAP, VIEW_BOX_WIDTH, VIEW_BOX_HEIGHT } from "@/lib/geo";
 import BoroughPath from "./BoroughPath";
 import BoroughTooltip from "./BoroughTooltip";
@@ -16,6 +16,7 @@ import BoroughTooltip from "./BoroughTooltip";
 interface LondonMapProps {
   boroughs: BoroughScore[];
   deprivation?: Record<string, any>;
+  trends?: Record<string, TrendInfo>;
   metricFilter: MetricFilter;
   selectedBorough: string | null;
   xrayMode?: boolean;
@@ -26,6 +27,7 @@ interface LondonMapProps {
 export default function LondonMap({
   boroughs,
   deprivation,
+  trends,
   metricFilter,
   selectedBorough,
   xrayMode,
@@ -105,12 +107,43 @@ export default function LondonMap({
                 metricFilter={metricFilter}
                 xrayMode={xrayMode}
                 effectsReady={effectsReady}
+                trend={trends?.[geo.code] ?? null}
+                centroidX={geo.centroidX}
+                centroidY={geo.centroidY}
                 onHover={() => handleHover(geo.code)}
                 onLeave={handleLeave}
               />
             );
           })}
         </g>
+
+        {/* Trend arrows — composite only, hidden when metric filter active */}
+        {effectsReady && !xrayMode && !metricFilter && trends && BOROUGH_PATHS.map((geo) => {
+          const trend = trends[geo.code];
+          if (!trend?.direction || trend.direction === "stable") return null;
+          return (
+            <g
+              key={`trend-${geo.code}`}
+              transform={`translate(${geo.centroidX}, ${geo.centroidY})`}
+              className="pointer-events-none"
+              opacity={0.9}
+            >
+              {trend.direction === "declining" ? (
+                <>
+                  <line x1={0} y1={-5} x2={0} y2={4} stroke="white" strokeWidth={1.5} strokeLinecap="round" />
+                  <polyline points="-3,1 0,5 3,1" fill="none" stroke="white" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+                  <animateTransform attributeName="transform" type="translate" values={`${geo.centroidX},${geo.centroidY}; ${geo.centroidX},${geo.centroidY + 3}; ${geo.centroidX},${geo.centroidY}`} dur="1s" repeatCount="indefinite" />
+                </>
+              ) : (
+                <>
+                  <line x1={0} y1={5} x2={0} y2={-4} stroke="white" strokeWidth={1.5} strokeLinecap="round" />
+                  <polyline points="-3,-1 0,-5 3,-1" fill="none" stroke="white" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+                  <animateTransform attributeName="transform" type="translate" values={`${geo.centroidX},${geo.centroidY}; ${geo.centroidX},${geo.centroidY - 3}; ${geo.centroidX},${geo.centroidY}`} dur="1s" repeatCount="indefinite" />
+                </>
+              )}
+            </g>
+          );
+        })}
       </svg>
 
       {/* Subtle vignette — slightly darker edges */}
@@ -120,6 +153,16 @@ export default function LondonMap({
           background: "radial-gradient(ellipse at center, transparent 55%, rgba(2,6,23,0.4) 100%)",
         }}
       />
+
+      {effectsReady && !xrayMode && (
+        <div
+          className="absolute bottom-2 left-2 flex items-center gap-3 text-[9px] font-mono"
+          style={{ color: "#64748b" }}
+        >
+          <span className="text-white">↑ Improving (7d)</span>
+          <span className="text-white">↓ Declining (7d)</span>
+        </div>
+      )}
 
       {hoveredBorough && (
         <BoroughTooltip
