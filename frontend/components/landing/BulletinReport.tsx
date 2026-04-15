@@ -127,7 +127,7 @@ export default function BulletinReport({
         style={{ borderColor: "#1e293b" }}
       >
         <div>ATTENDING: Dr. CityScan AI</div>
-        <div>MODEL: Claude Haiku 4.5</div>
+        <div>MODEL: Claude Sonnet 4.5</div>
       </div>
     </div>
   );

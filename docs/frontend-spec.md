@@ -142,7 +142,7 @@ All state lives in `app/page.tsx`. No routing — everything is panel-based.
   - Header: "CITYSCAN LONDON", date, overall score (thermal-coloured, 4xl)
   - Decorative dash divider
   - Bulletin markdown (truncated to 500 chars on landing, full in panel)
-  - Footer: "ATTENDING: Dr. CityScan AI" / "MODEL: Claude Haiku 4.5"
+  - Footer: "ATTENDING: Dr. CityScan AI" / "MODEL: Claude Sonnet 4.5"
   - Font: IBM Plex Sans for markdown, JetBrains Mono for scores
 - "VIEW LIVE SIGNALS" button with bouncing ChevronDown icon
 
@@ -298,7 +298,7 @@ Two pill-shaped buttons stacked vertically (12px gap):
 
 **Content:**
 ```
-Ryan Van Agt • Sources: OpenAQ, TfL, Guardian/BBC, Met Police, NHS A&E, GLA Green Cover (yearly) • Powered by Claude Haiku 4.5, LangGraph, DuckDB, ChromaDB   [LinkedIn] [GitHub]
+Ryan Van Agt • Sources: OpenAQ, TfL, Guardian/BBC, Met Police, NHS A&E, GLA Green Cover (yearly) • Powered by Claude Sonnet 4.5, LangGraph, DuckDB, ChromaDB   [LinkedIn] [GitHub]
 ```
 
 Custom inline SVG icons for LinkedIn (18px) and GitHub (16px).

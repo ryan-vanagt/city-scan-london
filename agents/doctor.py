@@ -28,7 +28,7 @@ from agents.tools.langchain_tools import ALL_TOOLS
 
 logger = logging.getLogger(__name__)
 
-MODEL_NAME = "claude-haiku-4-5"
+MODEL_NAME = "claude-sonnet-4-5-20241022"
 
 # Load policy context at module level (read once, cached)
 _POLICY_CONTEXT = ""

@@ -14,7 +14,7 @@ Seven public data sources map to five biological systems, producing a real-time 
 
 ## Stack
 
-Python 3.11 · DuckDB · ChromaDB · LangChain + LangGraph · Claude Haiku · FastAPI · Next.js · Docker
+Python 3.11 · DuckDB · ChromaDB · LangChain + LangGraph · Claude Sonnet · FastAPI · Next.js · Docker
 
 ## Setup
 

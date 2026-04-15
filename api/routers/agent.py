@@ -130,7 +130,7 @@ async def bulletin_latest():
 async def bulletin_generate():
     """Trigger on-demand bulletin generation.
 
-    Note: each call invokes an LLM (Claude Haiku) and incurs API cost.
+    Note: each call invokes an LLM (Claude Sonnet) and incurs API cost.
     Rate-limited to one call per 60 seconds to prevent accidental cost spikes.
     """
     global _last_bulletin_time

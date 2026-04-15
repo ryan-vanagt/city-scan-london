@@ -100,7 +100,7 @@ python ingestion/run_pipeline.py   # runs full chain once and exits
 
 - **Purpose:** Answers natural language queries about London's health using historical Gold-layer data
 - **Framework:** LangGraph `create_react_agent` + LangChain tools
-- **LLM:** `claude-haiku-4-5` via `langchain-anthropic`
+- **LLM:** `claude-sonnet-4-5` via `langchain-anthropic`
 - **Memory:** ChromaDB vector store (semantic retrieval over embedded health score descriptions)
 - **Tools registered (hybrid architecture — 5 curated + 1 flexible + 1 RAG + 1 deprivation):**
   - `get_borough_health(borough)` — full score breakdown for a single borough (curated)
@@ -148,7 +148,7 @@ python ingestion/run_pipeline.py   # runs full chain once and exits
 
 ### LLM
 
-- **Model:** `claude-haiku-4-5` via Anthropic API
+- **Model:** `claude-sonnet-4-5` via Anthropic API
 - **Used for:** Doctor agent reasoning, Bulletin synthesis
 - **Not used for:** Sentiment scoring (handled locally)
 - **Privacy justification:** Gold-layer scores and silver-layer contextual detail (crime categories, tube line statuses, station readings, headline titles) reach the external model — no PII, no raw post body content
@@ -172,7 +172,7 @@ CREATE TABLE agent_logs (
     sources_cited  VARCHAR,            -- JSON: sources included in the response
     final_response VARCHAR,            -- full LLM answer
     latency_ms     INTEGER,            -- total wall time
-    model_used     VARCHAR             -- e.g. "claude-haiku-4-5"
+    model_used     VARCHAR             -- e.g. "claude-sonnet-4-5"
 );
 ```
 
