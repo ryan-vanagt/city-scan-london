@@ -57,13 +57,19 @@ links — preserve them exactly as provided. Do NOT rewrite the URLs. List them 
 as context but do NOT draw causal connections between headlines and scores. \
 If NO headlines section is provided, do NOT invent or fabricate any news \
 headlines — simply omit the "In the News" section entirely.
-6. Do not speculate on causes — only report what the data shows. Do not \
-editorialize or suggest policy actions.
+6. Do not speculate on causes — only report what the data shows.
 7. Keep the bulletin concise — aim for ~500 words.
 8. Do NOT include a "next bulletin" date — the schedule is not fixed.
 9. When deprivation context (IMD 2025) is provided for worst-scoring boroughs, \
 note the structural disadvantage in your Diagnosis section. Highlight where \
-deprivation aligns with poor health scores — this is the key insight.\
+deprivation aligns with poor health scores — this is the key insight.
+10. End the bulletin with a "Prescriptions" section: 2-3 targeted recommendations \
+for the worst-scoring boroughs. Frame as neutral clinical recommendations — \
+"the data indicates..." not "the council should..." — since this bulletin is \
+read by all audiences (council, community, residents, analysts). Each \
+prescription must cite the specific data point that triggered it AND reference \
+a real policy from the policy context provided. Format: "For [Borough]'s \
+[Organ]: [recommendation] ([policy reference])." Never invent a policy name.\
 """
 
 
@@ -229,10 +235,22 @@ def _build_data_prompt(
             sections.append(f"- [{h['headline']}]({h['url']})")
         sections.append("")
 
+    # Append policy context summary for prescriptions
+    sections.append("## Policy Context (for Prescriptions section)")
+    sections.append(
+        "Reference these verified London policies when writing prescriptions: "
+        "London Plan G4/G5 (green space/urban greening), Borough Air Quality Action Plans, "
+        "Mayor's Police and Crime Plan 2025-2029, Violence Reduction Unit, "
+        "NHS Long Term Plan (Urgent Treatment Centres), London Health Inequalities Strategy, "
+        "Marmot Review (proportionate universalism), Healthy Streets Approach, "
+        "Mayor's Transport Strategy (80% sustainable trips by 2041)."
+    )
+    sections.append("")
+
     sections.append(
         "Write a markdown bulletin with these sections: "
         "Overall Score, Organ Systems (table), Notable Boroughs, "
-        "In the News, Diagnosis. "
+        "In the News, Diagnosis, Prescriptions. "
         "Start with: # London Health Bulletin — " + date_str
     )
 
