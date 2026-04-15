@@ -44,8 +44,8 @@ class AgentQuery(BaseModel):
     question: str = Field(..., min_length=1, max_length=500)
     role: str | None = Field(
         None,
-        pattern=r"^(council|community|resident|analyst)$",
-        description="Optional role context: council, community, resident, or analyst",
+        pattern=r"^(policy|public)$",
+        description="Optional role context: policy or public",
     )
 
 

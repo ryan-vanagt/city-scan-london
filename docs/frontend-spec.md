@@ -233,11 +233,7 @@ Slide-in panel (35% width desktop, 90% mobile). Fixed position, right-0, top-0, 
 "Good [morning/afternoon/evening]. London's overall health is [score]/100 today. What would you like to know?"
 ```
 
-**Suggestion chips** (shown only before first user query):
-- "How is London doing today?"
-- "Which boroughs need attention?"
-- "Compare air quality across boroughs"
-- "What types of crime are common in Camden?"
+**Suggestion chips:** Two static prompts shown on initial load — one policy-oriented, one public-oriented. Auto-detect handles role differentiation.
 
 **Chat behaviour:**
 - User submits question → POST /agent/query (SSE)
@@ -248,8 +244,6 @@ Slide-in panel (35% width desktop, 90% mobile). Fixed position, right-0, top-0, 
 **Source cards:** Collapsible, show tool name + raw JSON data on expand.
 
 **Rate limiting:** 3-second cooldown between queries. Send button disabled during cooldown. Prevents rapid-fire API calls.
-
-**Role chips:** 4 togglable pills displayed above the input field: `council`, `community`, `resident`, `analyst`. Only one can be active at a time (click to toggle on/off). The selected role is sent as the `role` field in the `POST /agent/query` request body. When a role is active, suggestion chips update to role-appropriate prompts. Pill styling: rounded, small text, border toggle between slate-700 (inactive) and sky-500 (active).
 
 **Input:** maxLength 500 (matches backend validation). JetBrains Mono. AutoComplete off.
 
@@ -362,7 +356,7 @@ frontend/
 │   │   ├── VitalSigns.tsx       ← sticky header (5 metrics + composite, metric filter)
 │   │   └── EkgLine.tsx          ← animated SVG EKG waveform (5 variants)
 │   ├── panels/
-│   │   ├── DoctorChat.tsx       ← SSE streaming chat (rate-limited, markdown, source cards, role chips)
+│   │   ├── DoctorChat.tsx       ← SSE streaming chat (rate-limited, markdown, source cards)
 │   │   ├── AnalyticsPanel.tsx   ← analytics panel with Health vs Deprivation scatter chart
 │   │   └── BulletinPanel.tsx    ← full bulletin markdown (landing page only, not in live map)
 │   ├── charts/

@@ -110,8 +110,8 @@ python ingestion/run_pipeline.py   # runs full chain once and exits
   - `get_deprivation(borough)` — IMD 2025 deprivation rank + 7 domain sub-scores (income, employment, education, health, crime, barriers, living) from static JSON
   - `run_sql(query)` — read-only SQL against `gold_scores` / `silver_metrics` / `silver_detail` / `silver_headlines` for analytical questions the curated tools can't answer (flexible, guarded)
   - `search_scores(query, n_results, borough_code)` — semantic similarity search over ChromaDB gold_scores embeddings for RAG context retrieval
-- **Prescriptive capability:** The Doctor diagnoses AND prescribes evidence-based interventions. System prompt loads verified London policy references from `data/static/policy_context.md`. Prescriptions cite specific data + policy. Adapts response style based on question framing (policy/community/resident/analytical) or explicit role field.
-- **Role-aware queries:** API accepts optional `role` field (`council|community|resident|analyst`). Frontend provides toggle chips. Auto-detects from question if no role specified.
+- **Prescriptive capability:** The Doctor diagnoses AND prescribes evidence-based interventions. System prompt loads verified London policy references from `data/static/policy_context.md`. Prescriptions cite specific data + policy. Adapts response style based on question framing (policy/public) or explicit role field.
+- **Role-aware queries:** API accepts optional `role` field (`policy|public`). Auto-detected from question when not specified.
 - **Input:** Natural language question from frontend or API
 - **Output:** Structured JSON with two fields:
   - `answer` — natural language response (streamed via SSE)

@@ -68,7 +68,7 @@ boroughs: which organs are improving, stable, or declining. One line per borough
 11. End the bulletin with a "Prescriptions" section: 2-3 targeted recommendations \
 for the worst-scoring boroughs. Frame as neutral clinical recommendations — \
 "the data indicates..." not "the council should..." — since this bulletin is \
-read by all audiences (council, community, residents, analysts). Each \
+read by all audiences (policymakers and the public). Each \
 prescription must cite the specific data point that triggered it AND reference \
 a real policy from the policy context provided. Format: "For [Borough]'s \
 [Organ]: [recommendation] ([policy reference])." Never invent a policy name.\
