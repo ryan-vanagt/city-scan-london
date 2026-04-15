@@ -112,6 +112,9 @@ def _release_api_read_lock() -> None:
     import urllib.request
     try:
         req = urllib.request.Request("http://api:8000/internal/reset-db", method="POST")
+        internal_token = os.environ.get("INTERNAL_TOKEN", "")
+        if internal_token:
+            req.add_header("X-Internal-Token", internal_token)
         urllib.request.urlopen(req, timeout=5)
         logger.info("API read-only connection released")
     except Exception as exc:

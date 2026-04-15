@@ -6,9 +6,10 @@ GET /london/score    — current overall London composite health score
 """
 
 import logging
+import os
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 import duckdb
 
@@ -35,15 +36,19 @@ def health_check() -> dict:
     }
 
 
+_INTERNAL_TOKEN = os.environ.get("INTERNAL_TOKEN", "")
+
+
 @router.post("/internal/reset-db")
-def reset_db() -> dict:
+def reset_db(request: Request) -> dict:
     """Release the read-only DuckDB connection so ingestion can write.
 
     Called by the ingestion scheduler before each pipeline write cycle.
-    Only reachable from the Docker internal network (port 8000 is bound
-    to 127.0.0.1 on the host, and this endpoint is not used by the frontend).
+    Protected by INTERNAL_TOKEN env var — if set, requests must include
+    a matching X-Internal-Token header.
     """
-    # Security: relies on network isolation (Docker internal). Add auth header if exposed publicly.
+    if _INTERNAL_TOKEN and request.headers.get("X-Internal-Token") != _INTERNAL_TOKEN:
+        raise HTTPException(status_code=403, detail="Forbidden")
     reset_connection()
     close_tools_connection()
     return {"status": "reset"}

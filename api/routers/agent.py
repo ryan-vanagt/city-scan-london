@@ -136,12 +136,18 @@ async def bulletin_latest():
 
 
 @router.post("/bulletin/generate")
-async def bulletin_generate():
+async def bulletin_generate(request: Request):
     """Trigger on-demand bulletin generation.
 
     Note: each call invokes an LLM (Claude Haiku) and incurs API cost.
     Rate-limited to one call per 60 seconds to prevent accidental cost spikes.
+    Protected by DOCTOR_ACCESS_CODE if set.
     """
+    if _DOCTOR_ACCESS_CODE:
+        body = await request.json() if request.headers.get("content-type", "").startswith("application/json") else {}
+        if body.get("access_code") != _DOCTOR_ACCESS_CODE:
+            raise HTTPException(status_code=403, detail="Access code required for bulletin generation")
+
     global _last_bulletin_time
     now = time.time()
     if now - _last_bulletin_time < _BULLETIN_COOLDOWN_SECONDS:
