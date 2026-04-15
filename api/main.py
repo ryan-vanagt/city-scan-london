@@ -6,6 +6,7 @@ All health scores returned are in the range 0-100 (100 = healthiest).
 """
 
 import logging
+import os
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
@@ -37,9 +38,10 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+_cors_origins = os.environ.get("CORS_ORIGINS", "http://localhost:3000").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=_cors_origins,
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["Content-Type"],
 )

@@ -10,6 +10,7 @@ COPY ingestion/ ./ingestion/
 COPY pipeline/ ./pipeline/
 COPY sentiment/ ./sentiment/
 COPY agents/ ./agents/
+COPY data/static/ ./data/static/
 
 RUN mkdir -p /app/data /app/embeddings /app/.cache && \
     useradd --no-create-home --system appuser && \

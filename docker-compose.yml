@@ -20,7 +20,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile.api
     ports:
-      - "127.0.0.1:8000:8000"
+      - "0.0.0.0:8000:8000"
     volumes:
       - app_data:/app/data
       - app_embeddings:/app/embeddings
@@ -28,6 +28,7 @@ services:
     environment:
       CHROMADB_HOST: chromadb
       CHROMADB_PORT: "8000"
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
     depends_on:
       chromadb:
         condition: service_healthy
@@ -61,10 +62,11 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.frontend
+      args:
+        # Set to your public VPS URL for remote access (e.g. http://YOUR_IP:8000)
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
     ports:
-      - "127.0.0.1:3000:3000"
-    environment:
-      NEXT_PUBLIC_API_URL: http://api:8000
+      - "0.0.0.0:3000:3000"
     depends_on:
       api:
         condition: service_healthy

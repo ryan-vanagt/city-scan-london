@@ -1,5 +1,7 @@
 .git
 data/
+!data/static/
+!data/static/**
 embeddings/
 node_modules/
 .next/

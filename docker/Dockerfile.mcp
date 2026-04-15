@@ -10,6 +10,7 @@ COPY pipeline/schemas.py ./pipeline/schemas.py
 COPY pipeline/__init__.py ./pipeline/__init__.py
 COPY pipeline/lookups.json ./pipeline/lookups.json
 COPY agents/ ./agents/
+COPY data/static/ ./data/static/
 
 RUN mkdir -p /app/data && \
     useradd --no-create-home --system appuser && \
