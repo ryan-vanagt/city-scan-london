@@ -60,7 +60,8 @@ export async function fetchTrends(): Promise<Record<string, TrendInfo>> {
 export async function* streamDoctorQuery(
   question: string,
   role?: string | null,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  accessCode?: string
 ): AsyncGenerator<
   | { type: "token"; content: string }
   | { type: "sources"; sources: Array<{ type: string; tool: string; data: Record<string, unknown> }> }
@@ -68,6 +69,7 @@ export async function* streamDoctorQuery(
 > {
   const body: Record<string, string> = { question };
   if (role) body.role = role;
+  if (accessCode) body.access_code = accessCode;
 
   const res = await fetch(`${BASE_URL}/agent/query`, {
     method: "POST",

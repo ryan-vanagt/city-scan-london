@@ -12,6 +12,7 @@ POST /bulletin/generate  — trigger on-demand bulletin generation
 import asyncio
 import json
 import logging
+import os
 import time
 from pathlib import Path
 
@@ -38,6 +39,9 @@ _BULLETIN_COOLDOWN_SECONDS = 60
 _last_bulletin_time: float = 0
 
 
+_DOCTOR_ACCESS_CODE = os.environ.get("DOCTOR_ACCESS_CODE", "")
+
+
 class AgentQuery(BaseModel):
     """Request body for the Doctor Agent endpoint."""
 
@@ -47,6 +51,7 @@ class AgentQuery(BaseModel):
         pattern=r"^(policy|public)$",
         description="Optional role context: policy or public",
     )
+    access_code: str | None = Field(None, description="Access code for Doctor consultations")
 
 
 async def _guarded_sse_stream(question: str, request: Request):
@@ -74,6 +79,10 @@ async def _guarded_sse_stream(question: str, request: Request):
 @router.post("/agent/query")
 async def agent_query(body: AgentQuery, request: Request):
     """Stream a Doctor Agent response as Server-Sent Events."""
+    # Access code check (if DOCTOR_ACCESS_CODE is set in env)
+    if _DOCTOR_ACCESS_CODE and body.access_code != _DOCTOR_ACCESS_CODE:
+        raise HTTPException(status_code=403, detail="Invalid access code. The Doctor requires an access code for consultations.")
+
     # Rate limiting (per-IP + global daily cap)
     forwarded = request.headers.get("X-Forwarded-For")
     client_ip = forwarded.split(",")[0].strip() if forwarded else (request.client.host if request.client else "unknown")

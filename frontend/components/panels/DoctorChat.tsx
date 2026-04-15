@@ -89,6 +89,8 @@ export default function DoctorChat({
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [cooldown, setCooldown] = useState(false);
+  const [accessCode, setAccessCode] = useState("");
+  const [needsCode, setNeedsCode] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const hasAutofiredRef = useRef(false);
@@ -149,7 +151,7 @@ export default function DoctorChat({
     abortControllerRef.current = controller;
 
     try {
-      const stream = streamDoctorQuery(question.trim(), undefined, controller.signal);
+      const stream = streamDoctorQuery(question.trim(), undefined, controller.signal, accessCode || undefined);
       let pendingSources: SSESourcesEvent["sources"] | undefined;
 
       for await (const event of stream) {
@@ -187,18 +189,35 @@ export default function DoctorChat({
     } catch (err) {
       const errorText =
         err instanceof Error ? err.message : "An error occurred.";
-      setMessages((prev) => {
-        const updated = [...prev];
-        const last = updated[updated.length - 1];
-        if (last.role === "assistant" && last.isStreaming) {
-          updated[updated.length - 1] = {
-            ...last,
-            content: `Sorry, I encountered an error: ${errorText}`,
-            isStreaming: false,
-          };
-        }
-        return updated;
-      });
+      // If 403, prompt for access code
+      if (errorText.includes("403")) {
+        setNeedsCode(true);
+        setMessages((prev) => {
+          const updated = [...prev];
+          const last = updated[updated.length - 1];
+          if (last.role === "assistant" && last.isStreaming) {
+            updated[updated.length - 1] = {
+              ...last,
+              content: "The Doctor requires an access code for consultations. Please enter it below.",
+              isStreaming: false,
+            };
+          }
+          return updated;
+        });
+      } else {
+        setMessages((prev) => {
+          const updated = [...prev];
+          const last = updated[updated.length - 1];
+          if (last.role === "assistant" && last.isStreaming) {
+            updated[updated.length - 1] = {
+              ...last,
+              content: `Sorry, I encountered an error: ${errorText}`,
+              isStreaming: false,
+            };
+          }
+          return updated;
+        });
+      }
     } finally {
       setIsStreaming(false);
       inputRef.current?.focus();
@@ -336,6 +355,32 @@ export default function DoctorChat({
               {q}
             </button>
           ))}
+        </div>
+      )}
+
+      {/* Access code input — shown when Doctor requires authentication */}
+      {needsCode && (
+        <div className="flex items-center gap-2 px-4 py-2" style={{ borderTop: "1px solid #1e293b" }}>
+          <input
+            type="text"
+            value={accessCode}
+            onChange={(e) => setAccessCode(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && accessCode.trim()) {
+                setNeedsCode(false);
+              }
+            }}
+            placeholder="Enter access code…"
+            className="flex-1 bg-transparent text-sm text-slate-200 font-mono outline-none placeholder:text-slate-600"
+          />
+          <button
+            type="button"
+            onClick={() => { if (accessCode.trim()) setNeedsCode(false); }}
+            className="text-[10px] font-mono px-3 py-1 rounded"
+            style={{ color: "#0ea5e9", border: "1px solid #0ea5e9" }}
+          >
+            Unlock
+          </button>
         </div>
       )}
 
