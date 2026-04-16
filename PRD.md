@@ -255,7 +255,7 @@ Single-page application with panel-based navigation. All interactions happen on 
 - Header: vital signs with EKG lines, metric filter buttons
 - Floating action buttons: "Analytics" and "Ask the Doctor"
 - Panels slide in from the right when activated:
-  - **Analytics panel** — Health vs Deprivation scatter plot (Recharts) showing 33 boroughs with IMD rank vs composite score, thermal-coloured dots, labelled outliers, trend line
+  - **Analytics panel** — scrollable analytics suite with five views: (1) Health vs Deprivation scatter plot with labelled outliers and trend line, (2) cross-domain correlation insight (Pearson r, auto-computed on page load), (3) borough radar comparison (two boroughs, five axes), (4) organ history time series (per-borough, 7/14/30d window), (5) critical organs triage table (sortable, filterable by organ)
   - **Doctor chat panel** — natural language input with SSE streaming response
 
 ### Design principles
@@ -350,14 +350,13 @@ Ideas validated during development but deferred to keep scope manageable:
 - **Multi-modal transit scoring** — TfL's status API supports bus, Overground, Elizabeth line, and DLR in the same endpoint. Adding these modes gives transit scores to the 7 boroughs currently missing tube coverage.
 - **Borough-level sentiment via NER** — Named Entity Recognition to extract borough names from headlines and assign per-borough sentiment scores instead of city-wide.
 - **Correlation engine** — algorithmically discover which IMD domains correlate most strongly with which organ scores across all 33 boroughs.
+- **Trend minimum data guard** — suppress trend arrows and bulletin trend narratives when `data_points < 24` (less than 1 day of hourly data). With few data points, score changes reflect input volatility (tube disruptions clearing, different headlines), not real urban health trends. Mark as `"insufficient"` instead of `"improving"/"declining"`.
 - **TfL reason text for RAG** — surface the TfL `reason` field (e.g. "points failure at Queen's Park") to explain why a line is disrupted.
 
 ### Frontend & UX
 
-- **Radar/pentagon chart** — click a borough to see all 5 organ scores as a radar chart at a glance.
 - **IMD overlay on map** — toggle deprivation as border thickness on borough paths.
 - **Time slider** — drag to see how the thermal map changed over days/weeks using accumulated gold_scores history.
-- **Borough comparison mode** — select 2 boroughs for side-by-side radar charts + deprivation breakdown.
 - **Notification/alerting** — subscribe to a borough, get email when any organ drops below a threshold.
 - **Embed mode** — `<iframe>` embed code for council websites to display their borough health card.
 - **Mobile-responsive redesign** — proper layout for 5-metric header on narrow screens.
@@ -458,6 +457,9 @@ city-scan-london/
 │   └── (Next.js app — see docs/frontend-spec.md)
 │       ├── components/panels/AnalyticsPanel.tsx   ← Health vs Deprivation scatter panel
 │       ├── components/charts/DeprivationScatter.tsx ← Recharts scatter: IMD rank vs health score
+│       ├── components/charts/BoroughRadar.tsx ← Recharts radar: 2-borough comparison across 5 organs
+│       ├── components/charts/BoroughTimeSeries.tsx ← Recharts line: organ score history over time
+│       ├── components/charts/WorstOrganTable.tsx ← Sortable triage table: worst organ per borough
 │       └── ...
 ├── data/
 │   ├── bronze/

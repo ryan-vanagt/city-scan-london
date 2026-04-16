@@ -251,20 +251,21 @@ Slide-in panel (35% width desktop, 90% mobile). Fixed position, right-0, top-0, 
 
 ### State B: Analytics Panel (on "ANALYTICS" FAB)
 
-**Component:** `AnalyticsPanel` — Health vs Deprivation scatter plot.
+**Component:** `AnalyticsPanel` — scrollable analytics suite with five views.
 
 **Header:** "ANALYTICS" (uppercase, tracking-widest). Close button.
 
-**Content:** `DeprivationScatter` chart (Recharts `ScatterChart`) plotting all 33 boroughs:
-- X-axis: IMD 2025 deprivation rank (1 = most deprived)
-- Y-axis: Composite health score (0-100)
-- Each dot: thermal-coloured by composite score (uses `scoreToColour`), sized for visibility
-- Outlier boroughs are labelled directly on the chart
-- Trend line shows correlation between deprivation and health
+**Content (scrollable, stacked vertically with 32px gaps):**
 
-**Data source:** `GET /boroughs/deprivation` for IMD data, merged with borough scores already loaded.
+1. `DeprivationScatter` — Recharts scatter: IMD rank vs composite score, thermal dots, labelled outliers, trend line
+2. Cross-domain correlation insight — auto-computed Pearson r between IMD rank and each organ score. Template sentence: "{organ} has the strongest link to deprivation (r={value}): {direction}." Updates on each page load as scores change.
+3. `BoroughRadar` — two dropdown selectors, overlapping radar polygons (cyan + orange) across 5 axes. Defaults to worst and best borough.
+4. `BoroughTimeSeries` — dropdown + 7d/14d/30d toggle. Fetches `GET /borough/{name}/trend?days=N`. 5 coloured lines (Air blue, Transit red, Sentiment purple, Immune green, Green Space lime). Shows "insufficient data" message when < 2 data points.
+5. `WorstOrganTable` — each borough's weakest organ, sorted by score ascending. Filter by organ type. Thermal-coloured scores. Sticky header, 300px max scroll.
 
-**Empty state:** "No deprivation data available." centred text.
+**Data sources:** `GET /boroughs`, `GET /boroughs/deprivation`, `GET /borough/{name}/trend`
+
+**Empty state:** "No deprivation data available." centred text (scatter only).
 
 Only one panel can be open at a time — opening one closes the other.
 
@@ -277,7 +278,7 @@ Only one panel can be open at a time — opening one closes the other.
 **Component:** `FloatingActions` — fixed bottom-right (bottom: 56px, right: 24px, z-50).
 
 Two pill-shaped buttons stacked vertically (12px gap):
-1. **"ANALYTICS"** — toggles analytics panel (Health vs Deprivation scatter plot)
+1. **"ANALYTICS"** — toggles analytics suite (scatter, correlation, radar, time series, triage table)
 2. **"ASK THE DOCTOR"** — toggles doctor chat panel
 
 **Button style:** Rounded (24px radius), dark background (`#0f172a`), 1px border. Text: uppercase Inter 11px, font-weight 600, tracking 0.1em.
@@ -326,7 +327,8 @@ On initial page load, before API data arrives:
 | `/boroughs` | GET | Map fills, tooltips, header on hover | Runtime array validation |
 | `/bulletin/latest` | GET | Landing bulletin, bulletin panel | Returns null on 404 |
 | `/agent/query` | POST (SSE) | Doctor chat | Manual stream parsing, type-guarded events |
-| `/boroughs/deprivation` | GET | Analytics panel scatter chart | IMD 2025 data for all boroughs |
+| `/boroughs/deprivation` | GET | Analytics panel scatter + correlation | IMD 2025 data for all boroughs |
+| `/borough/{name}/trend` | GET | Organ history time series | Score history over N days |
 
 **Base URL:** `NEXT_PUBLIC_API_URL` env var (default `http://localhost:8000`).
 
@@ -360,7 +362,10 @@ frontend/
 │   │   ├── AnalyticsPanel.tsx   ← analytics panel with Health vs Deprivation scatter chart
 │   │   └── BulletinPanel.tsx    ← full bulletin markdown (landing page only, not in live map)
 │   ├── charts/
-│   │   └── DeprivationScatter.tsx ← Recharts scatter: IMD rank vs health score
+│   │   ├── DeprivationScatter.tsx ← Recharts scatter: IMD rank vs health score
+│   │   ├── BoroughRadar.tsx      ← Recharts radar: 2-borough comparison across 5 organs
+│   │   ├── BoroughTimeSeries.tsx  ← Recharts line: organ score history over time
+│   │   └── WorstOrganTable.tsx    ← Sortable triage table: worst organ per borough
 │   ├── ui/
 │   │   └── FloatingActions.tsx  ← FAB buttons (analytics, doctor)
 │   └── Footer.tsx               ← attribution bar with social links
@@ -395,7 +400,11 @@ RootLayout (layout.tsx)
    │  ├─ DoctorChat [conditional]
    │  │  └─ SourceCard (xN)
    │  └─ AnalyticsPanel [conditional]
-   │     └─ DeprivationScatter
+   │     ├─ DeprivationScatter
+   │     ├─ Correlation insight (inline)
+   │     ├─ BoroughRadar
+   │     ├─ BoroughTimeSeries
+   │     └─ WorstOrganTable
    ├─ FloatingActions [conditional]
    │  └─ FabButton (x2)
    ├─ Footer [conditional]
