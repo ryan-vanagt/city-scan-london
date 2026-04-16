@@ -2,7 +2,7 @@
 
 ## Overview
 
-CityScan is a live urban health diagnostic platform that models London as a human body. Each data source maps to a biological system — air quality to lungs, transport to arteries, public sentiment to the brain, crime to the immune system, green space coverage to the skin. The system produces a real-time health score per London borough and an overall city health score, queryable via a natural language agent interface and summarised in a daily LLM-generated bulletin.
+CityScan is a live urban health monitoring platform that models London as a human body. Each data source maps to a biological system — air quality to lungs, transport to arteries, public sentiment to the brain, crime to the immune system, green space coverage to the skin. The system produces a health score per London borough (updated hourly; some sources carry institutional lag — see Data Lag note below) and an overall city health score, queryable via a natural language agent interface and summarised in a daily LLM-generated bulletin.
 
 **Tagline:** *A CT scan for the city.*
 
@@ -367,7 +367,7 @@ Ideas validated during development but deferred to keep scope manageable:
 - **Sonnet/Opus as default** — compatibility fixes in place (timeout, recursion limit, max_tokens). Blocked by API cost ($0.15-0.25/query vs $0.03 for Haiku). Viable when query volume justifies the quality improvement.
 - **Conversation memory** — Doctor remembers prior questions within a session for multi-turn context.
 - **Voice input/output** — Web Speech API for spoken queries and diagnosis narration.
-- **Structured treatment plans** — dedicated output format: Diagnosis → Prognosis → Recommendations → Monitoring schedule.
+- **Structured report format** — dedicated output: Summary → Organ Breakdown → Trends → Key Findings.
 - **Citation links** — recommendations link to relevant policy documents.
 - **Confidence scores** — Doctor indicates "high confidence" on fresh data, "lower confidence" on stale readings.
 
