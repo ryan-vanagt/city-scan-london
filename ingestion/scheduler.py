@@ -110,15 +110,17 @@ def _release_api_read_lock() -> None:
     so ingestion can acquire the write lock.
     """
     import urllib.request
+    import time as _time
     try:
         req = urllib.request.Request("http://api:8000/internal/reset-db", method="POST")
         internal_token = os.environ.get("INTERNAL_TOKEN", "")
         if internal_token:
             req.add_header("X-Internal-Token", internal_token)
         urllib.request.urlopen(req, timeout=5)
-        logger.info("API read-only connection released")
+        logger.info("API read-only connection released — waiting 3s for file lock release")
+        _time.sleep(3)  # Wait for OS-level file locks to fully release
     except Exception as exc:
-        logger.debug("Could not reset API connection (may not be running yet): %s", exc)
+        logger.warning("Could not reset API connection: %s", exc)
 
 
 def _run_pipeline_chain() -> None:
