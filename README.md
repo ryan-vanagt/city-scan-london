@@ -2,7 +2,7 @@
 
 A live urban health diagnostic platform that models London as a human body.
 
-Seven public data sources map to five biological systems, producing a real-time health score per London borough — queryable via a natural language agent interface that diagnoses and prescribes evidence-based interventions, and summarised in a daily LLM-generated bulletin.
+Seven public data sources map to five biological systems, producing a real-time health score per London borough — queryable via a natural language agent that provides cross-domain evidence synthesis — in plain English — and summarised in a daily LLM-generated bulletin.
 
 | System | Data Source | Signal |
 |---|---|---|
@@ -48,8 +48,8 @@ docker compose up
 | Agent tools (5 curated + `run_sql` + `search_scores` + `get_deprivation`) | **Working** |
 | ChromaDB embedding (gold → vector store) | **Working** |
 | pytest test suite (`pytest tests/`) | **Working** |
-| Doctor Agent (LangGraph ReAct + SSE streaming + 7 tools + prescriptions) | **Working** |
-| Bulletin Agent (LangChain prompt chain + prescriptions) | **Working** |
+| Doctor Agent (LangGraph ReAct + SSE streaming + 7 tools) | **Working** |
+| Bulletin Agent (LangChain prompt chain + Signal of the Day) | **Working** |
 | IMD deprivation context (7 domains per borough) | **Working** |
 | Scheduler (APScheduler) | **Working** |
 | MCP Server | **Working** |

@@ -233,7 +233,7 @@ Slide-in panel (35% width desktop, 90% mobile). Fixed position, right-0, top-0, 
 "Good [morning/afternoon/evening]. London's overall health is [score]/100 today. What would you like to know?"
 ```
 
-**Suggestion chips:** Two static prompts shown on initial load — one policy-oriented, one public-oriented. Auto-detect handles role differentiation.
+**Suggestion chips:** Two static prompts shown on initial load — one evidence-oriented, one public-oriented. Auto-detect handles role differentiation.
 
 **Chat behaviour:**
 - User submits question → POST /agent/query (SSE)

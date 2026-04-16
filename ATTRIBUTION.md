@@ -44,7 +44,7 @@ The following sources publish data under the [Open Government License v3.0](http
 
 - **MHCLG** — English Indices of Deprivation 2025 (IMD)
   https://www.gov.uk/government/statistics/english-indices-of-deprivation-2025
-  Borough-level deprivation ranks and domain sub-scores. Used for equity-aware prescriptions.
+  Borough-level deprivation ranks and domain sub-scores. Used for equity-aware analysis.
 
 - **ONS Nomis** — Mid-year population estimates by London borough
   https://www.nomisweb.co.uk

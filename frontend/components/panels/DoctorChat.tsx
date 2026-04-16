@@ -331,7 +331,7 @@ export default function DoctorChat({
       {messages.length === 1 && !isStreaming && (
         <div className="flex flex-wrap gap-2 px-4 pb-2">
           {[
-            "What should Tower Hamlets prioritise?",
+            "How is Tower Hamlets doing across all organs?",
             "Where's the greenest area in Camden?",
           ].map((q) => (
             <button

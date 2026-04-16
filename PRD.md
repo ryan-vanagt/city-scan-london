@@ -6,7 +6,7 @@ CityScan is a live urban health diagnostic platform that models London as a huma
 
 **Tagline:** *A CT scan for the city.*
 
-**Target users (enterprise framing):** Urban planners, city councils, emergency services, property analysts, public health researchers.
+**Target users:** Urban planners, public health researchers, city councils, emergency services, civic data analysts.
 
 **GitHub repo:** `city-scan-london` (public)
 
@@ -110,7 +110,7 @@ python ingestion/run_pipeline.py   # runs full chain once and exits
   - `get_deprivation(borough)` — IMD 2025 deprivation rank + 7 domain sub-scores (income, employment, education, health, crime, barriers, living) from static JSON
   - `run_sql(query)` — read-only SQL against `gold_scores` / `silver_metrics` / `silver_detail` / `silver_headlines` for analytical questions the curated tools can't answer (flexible, guarded)
   - `search_scores(query, n_results, borough_code)` — semantic similarity search over ChromaDB gold_scores embeddings for RAG context retrieval
-- **Prescriptive capability:** The Doctor diagnoses AND prescribes evidence-based interventions. System prompt loads verified London policy references from `data/static/policy_context.md`. Prescriptions cite specific data + policy. Adapts response style based on question framing (policy/public) or explicit role field.
+- **Evidence synthesis:** The Doctor synthesises cross-domain data with policy-grounded context. System prompt loads verified London policy references from `data/static/policy_context.md` for hallucination prevention and contextual grounding. Adapts response depth based on question framing (policy/public) or explicit role field.
 - **Role-aware queries:** API accepts optional `role` field (`policy|public`). Auto-detected from question when not specified.
 - **Input:** Natural language question from frontend or API
 - **Output:** Structured JSON with two fields:
@@ -317,6 +317,7 @@ AGENT_RATE_LIMIT_GLOBAL_DAY=150
 - Cloud deployment (runs locally via Docker)
 - Real-time WebSocket bidirectional streaming (SSE one-way streaming is in scope)
 - GraphRAG (borough graph relationships — noted as future enhancement)
+- **Prescriptive policy engine** — CityScan surfaces evidence and patterns, not policy directives. Policy context is for grounding, not prescription.
 
 ---
 
@@ -367,8 +368,8 @@ Ideas validated during development but deferred to keep scope manageable:
 - **Sonnet/Opus as default** — compatibility fixes in place (timeout, recursion limit, max_tokens). Blocked by API cost ($0.15-0.25/query vs $0.03 for Haiku). Viable when query volume justifies the quality improvement.
 - **Conversation memory** — Doctor remembers prior questions within a session for multi-turn context.
 - **Voice input/output** — Web Speech API for spoken queries and diagnosis narration.
-- **Structured treatment plans** — dedicated output format: Diagnosis → Prognosis → Prescriptions → Monitoring schedule.
-- **Citation links** — prescriptions link directly to policy document URLs.
+- **Structured treatment plans** — dedicated output format: Diagnosis → Prognosis → Recommendations → Monitoring schedule.
+- **Citation links** — recommendations link to relevant policy documents.
 - **Confidence scores** — Doctor indicates "high confidence" on fresh data, "lower confidence" on stale readings.
 
 ### Infrastructure & Deployment
@@ -381,6 +382,10 @@ Ideas validated during development but deferred to keep scope manageable:
 - **API keys for external consumers** — other tools query CityScan's scored data.
 - **Automated data quality checks** — flag when a source returns suspiciously few rows or scores shift >20 points in one cycle.
 - **Real-time WebSocket** — push score updates to frontend as the pipeline runs.
+
+### Vision
+
+Designed for London, architected for any city where open data exists. The pipeline is source-agnostic — swap source modules for local equivalents (OpenAQ is global, police/health APIs exist per country, GTFS is a transit standard). Policy context is a pluggable document, community-maintainable. IMD data covers all 296 English local authorities. Multi-city deployment requires only new geo mappings and source adapters.
 
 ---
 
