@@ -8,7 +8,7 @@ Schedule:
   - Hourly at :00  — fast sources (OpenAQ, TfL, Guardian, BBC, Reddit)
   - Daily  03:00 UTC — silver retention cleanup (rows older than 90 days)
   - Daily  06:05 UTC — slow sources (Met Police, NHS A&E) — data updates monthly
-  - Daily  09:00 UTC — bulletin generation via LLM
+  - Daily  09:30 UTC — bulletin generation via LLM (after 09:00 pipeline completes)
 
 On startup, runs a full pipeline cycle (all sources) so that the first
 ``docker compose up`` populates the database immediately.
@@ -296,12 +296,12 @@ def main() -> None:
         coalesce=True,
     )
 
-    # Daily at 09:00 UTC: bulletin generation
+    # Daily at 09:30 UTC: bulletin generation (after 09:00 hourly pipeline finishes)
     scheduler.add_job(
         job_daily_bulletin,
         "cron",
         hour=9,
-        minute=0,
+        minute=30,
         misfire_grace_time=300,
         id="daily_bulletin",
         max_instances=1,
@@ -325,7 +325,7 @@ def main() -> None:
     signal.signal(signal.SIGTERM, _handle_sigterm)
 
     logger.info(
-        "Scheduler started — hourly pipeline, 03:00 silver retention, 06:05 slow pipeline, 09:00 bulletin"
+        "Scheduler started — hourly pipeline, 03:00 silver retention, 06:05 slow pipeline, 09:30 bulletin"
     )
     try:
         scheduler.start()
