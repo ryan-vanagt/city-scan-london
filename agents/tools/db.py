@@ -18,7 +18,7 @@ import duckdb
 logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DB_PATH = str(PROJECT_ROOT / "data" / "cityscan.duckdb")
+DB_PATH = str(PROJECT_ROOT / "data" / "cityscan_read.duckdb")
 
 _con: duckdb.DuckDBPyConnection | None = None
 _lock = threading.Lock()

@@ -15,7 +15,9 @@ On startup, runs a full pipeline cycle (all sources) so that the first
 """
 
 import logging
+import os
 import signal
+import shutil
 import sys
 import threading
 from pathlib import Path
@@ -61,6 +63,7 @@ SLOW_SOURCES: dict[str, ModuleType] = {
 }
 
 DB_PATH = str(PROJECT_ROOT / "data" / "cityscan.duckdb")
+DB_READ_PATH = str(PROJECT_ROOT / "data" / "cityscan_read.duckdb")
 
 _db_write_lock = threading.Lock()
 
@@ -123,13 +126,27 @@ def _release_api_read_lock() -> None:
         logger.warning("Could not reset API connection: %s", exc)
 
 
+def _copy_to_read_replica() -> None:
+    """Copy the write DB to a read replica after pipeline completes.
+
+    The API and agent tools read from the replica, so they never lock
+    the write DB. Uses atomic rename to prevent partial reads.
+    """
+    try:
+        tmp_path = DB_READ_PATH + ".tmp"
+        shutil.copy2(DB_PATH, tmp_path)
+        os.rename(tmp_path, DB_READ_PATH)  # atomic on Linux
+        logger.info("Read replica updated: %s", DB_READ_PATH)
+    except Exception as exc:
+        logger.error("Failed to update read replica: %s", exc)
+
+
 def _run_pipeline_chain() -> None:
     """Execute Silver -> Gold -> Embed chain.
 
     Opens a write-mode DuckDB connection, runs all three stages,
-    and always closes the connection in finally.
+    closes the connection, then copies to read replica for the API.
     """
-    _release_api_read_lock()
     with _db_write_lock:
         con = _connect_with_retry(DB_PATH)
         try:
@@ -154,6 +171,9 @@ def _run_pipeline_chain() -> None:
             logger.error("Pipeline chain failed: %s", exc)
         finally:
             con.close()
+
+    # Copy to read replica AFTER write connection is closed
+    _copy_to_read_replica()
 
 
 # ---------------------------------------------------------------------------
@@ -186,7 +206,6 @@ def job_silver_retention() -> None:
     Gold rows are kept forever (tiny footprint, needed for long-term trends).
     """
     logger.info("=== Silver retention: starting ===")
-    _release_api_read_lock()
     with _db_write_lock:
         con = _connect_with_retry(DB_PATH)
         try:
@@ -214,6 +233,7 @@ def job_silver_retention() -> None:
             logger.error("Silver retention failed: %s", exc)
         finally:
             con.close()
+    _copy_to_read_replica()
     logger.info("=== Silver retention: complete ===")
 
 

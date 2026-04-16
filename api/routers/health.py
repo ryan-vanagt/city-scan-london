@@ -51,12 +51,7 @@ def reset_db(request: Request) -> dict:
         raise HTTPException(status_code=403, detail="Forbidden")
     reset_connection()
     close_tools_connection()
-    # Brief pause to ensure OS-level file locks are fully released
-    import time
-    time.sleep(1)
-    import gc
-    gc.collect()  # Force garbage collection of any lingering cursors
-    logger.info("DuckDB connections reset + GC collected")
+    logger.info("DuckDB connections reset")
     return {"status": "reset"}
 
 

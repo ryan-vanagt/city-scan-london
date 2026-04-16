@@ -14,7 +14,8 @@ import duckdb
 logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DB_PATH = str(PROJECT_ROOT / "data" / "cityscan.duckdb")
+DB_PATH = str(PROJECT_ROOT / "data" / "cityscan_read.duckdb")
+DB_WRITE_PATH = str(PROJECT_ROOT / "data" / "cityscan.duckdb")  # Used only for existence check
 
 _con: duckdb.DuckDBPyConnection | None = None
 
@@ -64,6 +65,9 @@ def get_connection() -> duckdb.DuckDBPyConnection:
     if _con is None:
         db_path = Path(DB_PATH)
         if not db_path.exists():
+            # Check if write DB exists but read replica hasn't been created yet
+            if Path(DB_WRITE_PATH).exists():
+                raise RuntimeError("Pipeline ran but read replica not yet created — try again shortly")
             raise RuntimeError("Database not created yet — ingestion pipeline has not run")
         try:
             _con = duckdb.connect(DB_PATH, read_only=True)
