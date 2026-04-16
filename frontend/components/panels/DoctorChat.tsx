@@ -327,8 +327,8 @@ export default function DoctorChat({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Suggestion chips — shown when only the initial greeting exists */}
-      {messages.length === 1 && !isStreaming && (
+      {/* Suggestion chips — shown when no successful Q&A has happened yet */}
+      {messages.filter((m) => m.role === "assistant" && m.content && !m.content.includes("access code")).length <= 1 && !isStreaming && (
         <div className="flex flex-wrap gap-2 px-4 pb-2">
           {[
             "How is Tower Hamlets doing across all organs?",
