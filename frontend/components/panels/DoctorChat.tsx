@@ -89,8 +89,18 @@ export default function DoctorChat({
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [cooldown, setCooldown] = useState(false);
-  const [accessCode, setAccessCode] = useState("");
-  const [needsCode, setNeedsCode] = useState(false);
+  const [accessCode, setAccessCode] = useState(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("doctor_access_code") || "";
+    }
+    return "";
+  });
+  const [needsCode, setNeedsCode] = useState(() => {
+    if (typeof window !== "undefined") {
+      return !sessionStorage.getItem("doctor_access_code");
+    }
+    return true;
+  });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const hasAutofiredRef = useRef(false);
@@ -189,8 +199,10 @@ export default function DoctorChat({
     } catch (err) {
       const errorText =
         err instanceof Error ? err.message : "An error occurred.";
-      // If 403, prompt for access code
+      // If 403, prompt for access code and clear bad stored code
       if (errorText.includes("403")) {
+        sessionStorage.removeItem("doctor_access_code");
+        setAccessCode("");
         setNeedsCode(true);
         setMessages((prev) => {
           const updated = [...prev];
@@ -327,8 +339,8 @@ export default function DoctorChat({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Suggestion chips — shown when no successful Q&A has happened yet */}
-      {messages.filter((m) => m.role === "assistant" && m.content && !m.content.includes("access code")).length <= 1 && !isStreaming && (
+      {/* Suggestion chips — shown when code is set and only the greeting exists */}
+      {!needsCode && messages.length === 1 && !isStreaming && (
         <div className="flex flex-wrap gap-2 px-4 pb-2">
           {[
             "How is Tower Hamlets doing across all organs?",
@@ -367,6 +379,7 @@ export default function DoctorChat({
             onChange={(e) => setAccessCode(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && accessCode.trim()) {
+                sessionStorage.setItem("doctor_access_code", accessCode.trim());
                 setNeedsCode(false);
               }
             }}
@@ -375,7 +388,7 @@ export default function DoctorChat({
           />
           <button
             type="button"
-            onClick={() => { if (accessCode.trim()) setNeedsCode(false); }}
+            onClick={() => { if (accessCode.trim()) { sessionStorage.setItem("doctor_access_code", accessCode.trim()); setNeedsCode(false); } }}
             className="text-[10px] font-mono px-3 py-1 rounded"
             style={{ color: "#0ea5e9", border: "1px solid #0ea5e9" }}
           >
