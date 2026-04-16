@@ -86,10 +86,10 @@ function useCorrelationInsight(
     const label = ORGAN_LABELS[strongest.organ] || strongest.organ;
     const absR = Math.abs(strongest.r).toFixed(2);
     const direction = strongest.r > 0
-      ? "less deprived boroughs tend to have better scores"
-      : "more deprived boroughs tend to have better scores";
+      ? "poorer boroughs score worse"
+      : "poorer boroughs score better";
 
-    return `${label} has the strongest link to deprivation (r=${absR}): ${direction}.`;
+    return `${label} has the strongest link to deprivation (r=${absR}) — ${direction}.`;
   }, [boroughs, deprivation]);
 }
 
