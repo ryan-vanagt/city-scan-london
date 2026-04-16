@@ -58,7 +58,7 @@ export default function BulletinPanel({
                 {bulletin.date}
               </span>
               <span className="text-[10px] text-[#475569] ml-2">
-                Generated every day at 09:00 UTC
+                Generated every day at 09:30 UTC
               </span>
             </div>
 

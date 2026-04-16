@@ -68,7 +68,7 @@ export default function BulletinReport({
           Daily Health Scan &mdash; {dateStr}
         </div>
         <div className="text-[10px] text-slate-600 mt-0.5">
-          Generated every day at 09:00 UTC
+          Generated every day at 09:30 UTC
         </div>
         {displayScore !== null && displayScore !== undefined && (
           <div className="mt-3 flex items-baseline gap-2">
