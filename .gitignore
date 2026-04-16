@@ -73,3 +73,9 @@ logs/
 # Local sandbox (scratch scripts — tests moved to tests/)
 sandbox/
 .aider*
+
+# Generated reports
+report/
+
+# Root package-lock (frontend has its own)
+/package-lock.json

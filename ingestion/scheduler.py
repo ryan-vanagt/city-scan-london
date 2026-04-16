@@ -147,6 +147,7 @@ def _run_pipeline_chain() -> None:
     Opens a write-mode DuckDB connection, runs all three stages,
     closes the connection, then copies to read replica for the API.
     """
+    success = False
     with _db_write_lock:
         con = _connect_with_retry(DB_PATH)
         try:
@@ -167,13 +168,17 @@ def _run_pipeline_chain() -> None:
 
             embedded = embed_gold_scores(con)
             logger.info("Embed: %d documents upserted", embedded)
+            success = True
         except Exception as exc:
             logger.error("Pipeline chain failed: %s", exc)
         finally:
             con.close()
 
-    # Copy to read replica AFTER write connection is closed
-    _copy_to_read_replica()
+    # Copy to read replica only on success — avoids serving inconsistent state
+    if success:
+        _copy_to_read_replica()
+    else:
+        logger.warning("Skipping read replica update due to pipeline failure")
 
 
 # ---------------------------------------------------------------------------

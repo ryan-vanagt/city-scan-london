@@ -48,7 +48,7 @@ docker compose up
 | Agent tools (5 curated + `run_sql` + `search_scores` + `get_deprivation`) | **Working** |
 | ChromaDB embedding (gold → vector store) | **Working** |
 | pytest test suite (`pytest tests/`) | **Working** |
-| Doctor Agent (LangGraph ReAct + SSE streaming + 7 tools) | **Working** |
+| Doctor Agent (LangGraph ReAct + SSE streaming + 8 tools) | **Working** |
 | Bulletin Agent (LangChain prompt chain + Signal of the Day) | **Working** |
 | IMD deprivation context (7 domains per borough) | **Working** |
 | Scheduler (APScheduler) | **Working** |

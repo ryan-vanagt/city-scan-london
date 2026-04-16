@@ -187,7 +187,7 @@ async def stream_doctor_response(question: str) -> AsyncGenerator[str, None]:
         async for event in agent.astream_events(
             {"messages": [HumanMessage(content=question)]},
             version="v2",
-            config={"run_id": str(uuid.uuid4()), "recursion_limit": 50},
+            config={"run_id": str(uuid.uuid4()), "recursion_limit": 20},
         ):
             kind = event.get("event")
 

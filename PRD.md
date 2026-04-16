@@ -18,7 +18,7 @@ CityScan is a live urban health monitoring platform that models London as a huma
 | Organ             | Data Source                                     | Signal                                      | Update Cadence | Data Lag                          |
 | ----------------- | ----------------------------------------------- | ------------------------------------------- | -------------- | --------------------------------- |
 | 🫁 Lungs          | OpenAQ API                                      | PM2.5, NO2 per borough                       | Hourly         | ~1 hour                           |
-| 🩸 Arteries       | TfL Unified API                                 | Tube line status & severity scores          | Hourly         | Real-time                         |
+| 🩸 Arteries       | TfL Unified API                                 | Tube line status & severity scores          | Hourly         | Near-real-time (fetched hourly)                         |
 | 🧠 Brain          | Guardian API + BBC News RSS                     | NLP sentiment score from headlines           | Hourly         | ~1 hour                           |
 | 🛡️ Immune System | Met Police API + NHS England A&E stats          | Per-capita crime (winsorised) + A&E pressure index | Monthly        | Crime: ~2 months · A&E: ~2 months |
 | 🌿 Skin           | GLA Green Cover 2024                            | Green space coverage per borough (satellite NDVI)  | Yearly         | Static (2024 snapshot)            |
@@ -309,7 +309,7 @@ AGENT_RATE_LIMIT_GLOBAL_DAY=150
 
 ---
 
-## Out of Scope (for this submission)
+## Out of Scope
 
 - Predictive / forecasting layer (architecture leaves room for it)
 - User authentication

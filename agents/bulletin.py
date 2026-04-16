@@ -309,7 +309,7 @@ def generate_bulletin(trigger: str = "manual") -> dict:
         deprivation=deprivation,
     )
 
-    llm = ChatAnthropic(model=MODEL_NAME)
+    llm = ChatAnthropic(model=MODEL_NAME, max_tokens=4096)
     response = llm.invoke([
         SystemMessage(content=SYSTEM_PROMPT),
         HumanMessage(content=data_prompt),
