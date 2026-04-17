@@ -177,6 +177,7 @@ def _run_pipeline_chain() -> None:
     # Copy to read replica only on success — avoids serving inconsistent state
     if success:
         _copy_to_read_replica()
+        _release_api_read_lock()  # Force API to reopen on the new replica
     else:
         logger.warning("Skipping read replica update due to pipeline failure")
 
