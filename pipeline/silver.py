@@ -34,9 +34,44 @@ from sentiment.scorer import score_texts
 logger = logging.getLogger(__name__)
 
 BRONZE_BASE = Path(__file__).resolve().parent.parent / "data" / "bronze"
+_WARD_POPS_PATH = Path(__file__).resolve().parent.parent / "data" / "static" / "ward_populations.json"
 
 # Readings older than this are considered stale and filtered out
 _MAX_READING_AGE_DAYS = 7
+
+# Ward populations are loaded lazily on first access — file may not exist in
+# older checkouts or during tests. Missing file => empty dict => access-weighted
+# green score falls back to raw borough green_pct (see _transform_green_space).
+_ward_pops_cache: dict[str, int] | None = None
+
+
+def _get_ward_populations() -> dict[str, int]:
+    """Lazy-load ward populations from data/static/ward_populations.json.
+
+    Returns a dict mapping ward ONS code (E05xxxxxxx) to population count.
+    Empty dict if the file is missing (enables graceful fallback to raw
+    borough-level green cover).
+    """
+    global _ward_pops_cache
+    if _ward_pops_cache is not None:
+        return _ward_pops_cache
+    if not _WARD_POPS_PATH.exists():
+        logger.warning(
+            "Ward populations file not found at %s — access-weighted green cover will fall back to raw borough green_pct. "
+            "Run: python scripts/fetch_population.py --wards",
+            _WARD_POPS_PATH,
+        )
+        _ward_pops_cache = {}
+        return _ward_pops_cache
+    try:
+        with open(_WARD_POPS_PATH, encoding="utf-8") as f:
+            payload = json.load(f)
+        _ward_pops_cache = {k: int(v) for k, v in payload.get("wards", {}).items()}
+        logger.info("Loaded %d ward populations for access-weighted green", len(_ward_pops_cache))
+    except (json.JSONDecodeError, ValueError, OSError) as e:
+        logger.warning("Failed to load ward populations: %s — falling back", e)
+        _ward_pops_cache = {}
+    return _ward_pops_cache
 
 
 # ---------------------------------------------------------------------------
@@ -489,16 +524,21 @@ def _transform_sentiment_source(
 def _transform_green_space(data: dict, timestamp: str) -> list[tuple]:
     """Transform green space bronze data to silver rows.
 
-    metric_name: 'green_space'
-    raw_value: green cover percentage (e.g. 42.9)
-    normalised_score: min-max normalisation across the 33 boroughs
+    Emits TWO metrics per borough:
+      - 'green_space':        raw GLA borough-level green cover % (min-max normalised)
+      - 'green_space_access': ward-population-weighted green cover % (min-max normalised)
+
+    The access-weighted variant weights each ward's green_pct by its residential
+    population, so parks in low-population wards (e.g. Hyde Park in Westminster)
+    contribute less to the borough score. Falls back to the raw borough value
+    for any borough with no ward-population coverage.
     """
     results = data.get("results", [])
     if not results:
         logger.warning("Silver green_space: no results in bronze data")
         return []
 
-    # Collect valid borough data
+    # --- Pass 1: raw borough-level green cover (existing behaviour) ---
     borough_pcts: dict[str, float] = {}
     for item in results:
         bc = item.get("borough_code")
@@ -510,12 +550,9 @@ def _transform_green_space(data: dict, timestamp: str) -> list[tuple]:
         logger.warning("Silver green_space: no valid borough data")
         return []
 
-    # Min-max normalisation across all boroughs
     pcts = list(borough_pcts.values())
-    min_pct = min(pcts)
-    max_pct = max(pcts)
+    min_pct, max_pct = min(pcts), max(pcts)
     range_pct = max_pct - min_pct
-
     if range_pct == 0:
         logger.warning(
             "Silver green_space: all %d boroughs have identical green cover (%.1f%%) — "
@@ -523,14 +560,105 @@ def _transform_green_space(data: dict, timestamp: str) -> list[tuple]:
             len(borough_pcts), min_pct,
         )
 
-    rows = []
+    rows: list[tuple] = []
     for bc, pct in borough_pcts.items():
-        raw_value = pct
         normalised = _clamp((pct - min_pct) / range_pct * 100.0) if range_pct > 0 else 100.0
-        rows.append(_make_row(bc, timestamp, "green_space", raw_value, normalised, "green_space"))
+        rows.append(_make_row(bc, timestamp, "green_space", pct, normalised, "green_space"))
 
-    logger.info("Silver green_space: %d borough rows", len(rows))
+    # --- Pass 2: ward-population-weighted access metric ---
+    access_pcts = _compute_access_weighted(data, borough_pcts)
+    if access_pcts:
+        a_values = list(access_pcts.values())
+        a_min, a_max = min(a_values), max(a_values)
+        a_range = a_max - a_min
+        if a_range == 0:
+            logger.warning(
+                "Silver green_space_access: all %d boroughs have identical access-weighted "
+                "green (%.1f%%) — all will score 100",
+                len(access_pcts), a_min,
+            )
+        for bc, apct in access_pcts.items():
+            normalised = _clamp((apct - a_min) / a_range * 100.0) if a_range > 0 else 100.0
+            rows.append(_make_row(bc, timestamp, "green_space_access", apct, normalised, "green_space"))
+
+    logger.info(
+        "Silver green_space: %d coverage rows, %d access-weighted rows",
+        len(borough_pcts), len(access_pcts),
+    )
     return rows
+
+
+def _compute_access_weighted(data: dict, borough_raw_pct: dict[str, float]) -> dict[str, float]:
+    """Compute ward-population-weighted green cover per borough.
+
+    For each borough: Σ(ward_green_pct × ward_pop) / Σ(ward_pop) across that
+    borough's wards with known population. Wards with missing or zero population
+    are excluded from both numerator and denominator.
+
+    Falls back to the raw borough green_pct for any borough with no ward
+    population coverage (so the pipeline still emits a value).
+
+    Args:
+        data: Bronze green-space payload with a 'wards' list.
+        borough_raw_pct: Borough-level raw green_pct (fallback source).
+
+    Returns:
+        Dict of borough_code → access-weighted green cover percentage.
+    """
+    wards = data.get("wards", [])
+    if not wards:
+        logger.warning(
+            "Silver green_space_access: no ward data in bronze — falling back to raw for all boroughs"
+        )
+        return dict(borough_raw_pct)
+
+    ward_pops = _get_ward_populations()
+
+    # Accumulate Σ(pct×pop) and Σ(pop) per borough
+    numerator: dict[str, float] = defaultdict(float)
+    denominator: dict[str, float] = defaultdict(float)
+    per_borough_total: dict[str, int] = defaultdict(int)
+    per_borough_matched: dict[str, int] = defaultdict(int)
+
+    for w in wards:
+        bc = w.get("borough_code")
+        if bc not in BOROUGHS:
+            continue
+        per_borough_total[bc] += 1
+        wc = w.get("ward_code")
+        pct = w.get("green_pct")
+        pop = ward_pops.get(wc) if wc else None
+        if pct is None or pop is None or pop <= 0:
+            continue
+        numerator[bc] += float(pct) * pop
+        denominator[bc] += pop
+        per_borough_matched[bc] += 1
+
+    result: dict[str, float] = {}
+    fallback_used: list[str] = []
+    for bc in borough_raw_pct:
+        den = denominator.get(bc, 0.0)
+        total_wards = per_borough_total.get(bc, 0)
+        matched_wards = per_borough_matched.get(bc, 0)
+        if den > 0:
+            result[bc] = numerator[bc] / den
+            if total_wards and matched_wards / total_wards < 0.50:
+                logger.warning(
+                    "Silver green_space_access: %s has only %d/%d wards with population coverage — result may be skewed",
+                    bc, matched_wards, total_wards,
+                )
+        else:
+            # No ward pop data at all — fall back to raw borough value
+            result[bc] = borough_raw_pct[bc]
+            fallback_used.append(bc)
+
+    if fallback_used:
+        logger.warning(
+            "Silver green_space_access: fell back to raw borough green_pct for %d boroughs (no ward pop coverage): %s",
+            len(fallback_used), fallback_used,
+        )
+
+    return result
 
 
 def _transform_reddit(data: dict, timestamp: str) -> list[tuple]:

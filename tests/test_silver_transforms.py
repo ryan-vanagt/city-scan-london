@@ -53,8 +53,13 @@ def silver_rows():
 # Helper
 # ---------------------------------------------------------------------------
 
-def _validate_rows(rows: list[tuple], source_name: str, expected_metric: str) -> None:
-    """Raise AssertionError if any invariant is violated."""
+def _validate_rows(rows: list[tuple], source_name: str, expected_metric) -> None:
+    """Raise AssertionError if any invariant is violated.
+
+    expected_metric may be a single string or a set of strings (for sources
+    that emit multiple metric rows per borough, like green_space which emits
+    both raw coverage and access-weighted variants).
+    """
     assert len(rows) > 0, f"{source_name}: empty result"
 
     for row in rows:
@@ -72,7 +77,8 @@ def _validate_rows(rows: list[tuple], source_name: str, expected_metric: str) ->
         )
 
     metrics = {r[3] for r in rows}
-    assert metrics == {expected_metric}, f"{source_name}: metric_name — got {metrics}"
+    expected_set = expected_metric if isinstance(expected_metric, set) else {expected_metric}
+    assert metrics == expected_set, f"{source_name}: metric_name — got {metrics}, expected {expected_set}"
 
     sources = {r[6] for r in rows}
     assert sources == {source_name}, f"{source_name}: source tag — got {sources}"
@@ -87,7 +93,7 @@ SOURCES = [
     ("tfl",         _transform_tfl,         "transit"),
     ("met_police",  _transform_met_police,  "crime"),
     ("openaq",      _transform_openaq,      "air_quality"),
-    ("green_space", _transform_green_space, "green_space"),
+    ("green_space", _transform_green_space, {"green_space", "green_space_access"}),
     ("reddit",      _transform_reddit,      "sentiment"),
     ("bbc",         _transform_bbc,         "sentiment"),
     ("guardian",    _transform_guardian,    "sentiment"),
@@ -197,3 +203,84 @@ def test_db_scores_in_range(silver_rows):
     ).fetchone()
     con.close()
     assert r[0] >= 0 and r[1] <= 100, f"scores out of range: [{r[0]}, {r[1]}]"
+
+
+# ---------------------------------------------------------------------------
+# Green-space access-weighted aggregation (Task 1 addition)
+# ---------------------------------------------------------------------------
+
+def _green_bronze(borough_rows, ward_rows):
+    """Helper: construct a bronze-shaped green_space payload."""
+    return {
+        "results": borough_rows,
+        "wards": ward_rows,
+        "fetched_at": "2026-04-19T20:00:00+00:00",
+    }
+
+
+def test_access_weighted_green_formula_correct(monkeypatch):
+    """Weighted mean: (80×1000 + 20×9000) / 10000 = 26.0"""
+    from pipeline import silver as silver_mod
+
+    # Stub ward populations: two wards in one borough, one high/low ratio
+    monkeypatch.setattr(silver_mod, "_ward_pops_cache", {"W1": 1000, "W2": 9000})
+
+    payload = _green_bronze(
+        borough_rows=[{"borough_code": "E09000001", "green_pct": 50.0}],
+        ward_rows=[
+            {"ward_code": "W1", "borough_code": "E09000001", "green_pct": 80.0},
+            {"ward_code": "W2", "borough_code": "E09000001", "green_pct": 20.0},
+        ],
+    )
+    rows = silver_mod._transform_green_space(payload, "2026-04-19T20:00:00+00:00")
+
+    # Expect both metrics
+    by_metric = {r[3]: r for r in rows}
+    assert "green_space" in by_metric
+    assert "green_space_access" in by_metric
+    # Raw stays at 50.0
+    assert by_metric["green_space"][4] == 50.0
+    # Access-weighted = (80*1000 + 20*9000) / 10000 = 26.0
+    assert abs(by_metric["green_space_access"][4] - 26.0) < 0.01, \
+        f"expected 26.0, got {by_metric['green_space_access'][4]}"
+
+
+def test_access_weighted_green_falls_back_when_no_ward_pop(monkeypatch):
+    """Zero ward population coverage -> access-weighted uses raw borough %."""
+    from pipeline import silver as silver_mod
+
+    monkeypatch.setattr(silver_mod, "_ward_pops_cache", {})  # empty → no matches
+
+    payload = _green_bronze(
+        borough_rows=[{"borough_code": "E09000001", "green_pct": 42.0}],
+        ward_rows=[
+            {"ward_code": "W_UNKNOWN", "borough_code": "E09000001", "green_pct": 10.0},
+        ],
+    )
+    rows = silver_mod._transform_green_space(payload, "2026-04-19T20:00:00+00:00")
+
+    by_metric = {r[3]: r for r in rows}
+    # Access-weighted should fall back to the raw borough value
+    assert by_metric["green_space_access"][4] == 42.0, \
+        f"expected fallback to 42.0, got {by_metric['green_space_access'][4]}"
+
+
+def test_access_weighted_green_excludes_unknown_wards(monkeypatch):
+    """Wards without population data are excluded from num + denom, not zeroed."""
+    from pipeline import silver as silver_mod
+
+    # Only W1 has population data
+    monkeypatch.setattr(silver_mod, "_ward_pops_cache", {"W1": 5000})
+
+    payload = _green_bronze(
+        borough_rows=[{"borough_code": "E09000001", "green_pct": 30.0}],
+        ward_rows=[
+            {"ward_code": "W1",         "borough_code": "E09000001", "green_pct": 60.0},
+            {"ward_code": "W_UNKNOWN",  "borough_code": "E09000001", "green_pct": 0.0},
+        ],
+    )
+    rows = silver_mod._transform_green_space(payload, "2026-04-19T20:00:00+00:00")
+    by_metric = {r[3]: r for r in rows}
+    # W_UNKNOWN is dropped; access-weighted = 60.0 (from W1 alone), not diluted
+    assert by_metric["green_space_access"][4] == 60.0, \
+        f"expected 60.0, got {by_metric['green_space_access'][4]}"

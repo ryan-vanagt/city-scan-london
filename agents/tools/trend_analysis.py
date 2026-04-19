@@ -17,6 +17,11 @@ logger = logging.getLogger(__name__)
 # Score change must exceed this threshold to be classified as improving/declining
 _DIRECTION_THRESHOLD = 2.0
 
+# Green space metrics derive from a yearly static snapshot (GLA Green Cover 2024).
+# Any apparent trend in these is a data-vintage artefact, not a real-world change.
+# We force a stable response so the agent can never narrate a spurious movement.
+_STATIC_METRICS = frozenset({"green_space_score", "green_space_access_score"})
+
 
 def get_trend(
     borough: str,
@@ -35,7 +40,7 @@ def get_trend(
         borough: Borough name (case-insensitive) or ONS 9-char code.
         metric: Score column to track. Must be one of air_score,
             transit_score, sentiment_score, immune_score,
-            green_space_score, composite_score.
+            green_space_score, green_space_access_score, composite_score.
         days: Lookback window in days (clamped to 1–30).
         con: Optional DuckDB connection. Uses the shared lazy connection if None.
 
@@ -87,6 +92,22 @@ def get_trend(
         {"timestamp": str(r[0]), "score": r[1]}
         for r in rows
     ]
+
+    # Static signals never move; override to stable to prevent the LLM from
+    # inventing trend narratives when minor numerical noise is present.
+    if metric in _STATIC_METRICS:
+        return {
+            "found": True,
+            "borough_code": borough_code,
+            "borough_name": borough_name,
+            "metric": metric,
+            "days": days,
+            "data_points": len(trend),
+            "direction": "stable",
+            "delta": 0.0,
+            "note": "Static signal (yearly snapshot) — does not trend on daily/weekly scales.",
+            "trend": trend,
+        }
 
     # Compute direction from first to last non-None score
     scores = [p["score"] for p in trend if p["score"] is not None]

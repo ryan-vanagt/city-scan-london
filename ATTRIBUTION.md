@@ -46,9 +46,9 @@ The following sources publish data under the [Open Government License v3.0](http
   https://www.gov.uk/government/statistics/english-indices-of-deprivation-2025
   Borough-level deprivation ranks and domain sub-scores. Used for equity-aware analysis.
 
-- **ONS Nomis** — Mid-year population estimates by London borough
+- **ONS Nomis** — Mid-year population estimates at borough level (dataset NM_31_1) and ward level (dataset NM_2014_1, geography TYPE182 "Wards as of May 2025")
   https://www.nomisweb.co.uk
-  Used for per-capita crime normalisation. Free, no API key required.
+  Borough populations are used for per-capita crime normalisation. Ward populations power the access-weighted green-space metric (Σ ward green_pct × ward pop / Σ ward pop per borough). Free, no API key required.
 
 - **findthatpostcode.uk** — Ward-to-borough geographic mapping
   https://findthatpostcode.uk

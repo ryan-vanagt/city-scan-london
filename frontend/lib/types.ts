@@ -7,6 +7,7 @@ export interface LondonScore {
   sentiment_score: number | null;
   immune_score: number | null;
   green_space_score: number | null;
+  green_space_access_score: number | null;
   borough_count: number;
   timestamp: string | null;
 }
@@ -20,6 +21,7 @@ export interface BoroughScore {
   sentiment_score: number | null;
   immune_score: number | null;
   green_space_score: number | null;
+  green_space_access_score: number | null;
   composite_score: number | null;
 }
 

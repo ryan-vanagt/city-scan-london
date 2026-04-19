@@ -21,7 +21,7 @@ CityScan is a live urban health monitoring platform that models London as a huma
 | 🩸 Arteries       | TfL Unified API                                 | Tube line status & severity scores          | Hourly         | Near-real-time (fetched hourly)                         |
 | 🧠 Brain          | Guardian API + BBC News RSS                     | NLP sentiment score from headlines           | Hourly         | ~1 hour                           |
 | 🛡️ Immune System | Met Police API + NHS England A&E stats          | Per-capita crime (winsorised) + A&E pressure index | Monthly        | Crime: ~2 months · A&E: ~2 months |
-| 🌿 Skin           | GLA Green Cover 2024                            | Green space coverage per borough (satellite NDVI)  | Yearly         | Static (2024 snapshot)            |
+| 🌿 Skin           | GLA Green Cover 2024 + ONS ward populations (NM_2014_1) | Green-space **coverage** AND ward-population-weighted **access** per borough | Yearly         | Static (2024 snapshot, manual yearly refresh) |
 
 
 Each signal is normalised to a 0–100 score (100 = healthy). The composite borough health score is a weighted average of all five signals (default 0.20 each, configurable via `SCORE_WEIGHTS`). The overall London score aggregates all boroughs.
@@ -61,10 +61,25 @@ Each signal is normalised to a 0–100 score (100 = healthy). The composite boro
 **Gold layer** — aggregated health scores
 
 - One row per borough per ingestion cycle:
-`(borough_code, borough_name, timestamp, air_score, transit_score, sentiment_score, immune_score, green_space_score, composite_score, ingested_at, pipeline_stage)`
+`(borough_code, borough_name, timestamp, air_score, transit_score, sentiment_score, immune_score, green_space_score, green_space_access_score, composite_score, ingested_at, pipeline_stage)`
 - Stored in DuckDB (structured) and embedded into ChromaDB (vector, for RAG)
-- Composite score = weighted average: air (20%), transit (20%), sentiment (20%), immune (20%), green space (20%)
+- Composite score = weighted average: air (20%), transit (20%), sentiment (20%), immune (20%), green space (20%). **Composite uses raw `green_space_score` (coverage), not the access-weighted variant** — this keeps the headline number stable across a refactor and leaves the access variant as an alternative view.
 - Weights are configurable via environment variable `SCORE_WEIGHTS`
+
+**Green-space methodology: coverage vs access-weighted**
+
+Two green-space scores are computed per borough and surfaced independently:
+
+- `green_space_score` — raw GLA Green Cover 2024 percentage per borough, min-max normalised across the 33 boroughs. Measures total green cover; makes no claim about who can reach it.
+- `green_space_access_score` — the same raw ward-level `green_pct` values weighted by ONS ward populations (Nomis NM_2014_1, TYPE182 "Wards as of May 2025"):
+
+  $$\text{access}_{\text{borough}} = \frac{\sum_{w \in \text{borough}} \text{green\_pct}_w \times \text{pop}_w}{\sum_{w \in \text{borough}} \text{pop}_w}$$
+
+  then min-max normalised. This downweights green cover in low-residential wards — e.g. Hyde Park's ward (~15 residents, ~90% green) contributes almost nothing to Westminster's score, so Westminster is no longer inflated by a park that mostly serves non-residents. 97.9% of GLA ward codes (689/704) match Nomis ward populations; the 15 unmatched are all City of London ceremonial precincts with near-zero population and are gracefully excluded from the weighted mean.
+
+Both are yearly static signals. The `get_trend` tool refuses to classify movement for either (returns "stable" with an explanatory note), the Doctor and Bulletin prompts forbid narrating change over time, and `scripts/backfill_green_space_access.py` overwrites every historical gold row with the current stable value to prevent chart discontinuities post-migration.
+
+The frontend Organ History chart excludes both green-space metrics entirely and renders them as a static badge instead (`frontend/components/charts/BoroughTimeSeries.tsx`) — a yearly snapshot doesn't belong on a daily time-series chart.
 
 ### Pipeline execution model
 
@@ -402,10 +417,11 @@ city-scan-london/
 │   ├── lineage.md               ← Mermaid diagram + transformation notes
 │   └── schema.dbml              ← DuckDB schema for dbdiagram.io
 ├── scripts/
-│   ├── generate_geo_mappings.py ← Fetches borough/TfL/NHS geo data from public APIs
-│   ├── fetch_population.py      ← Downloads ONS population data for per-capita normalisation
-│   ├── fetch_green_space.py     ← Downloads GLA Green Cover 2024 XLSX → data/static/green_space.json
-│   └── fetch_imd.py             ← Downloads IMD 2025 deprivation data → data/static/imd_borough.json
+│   ├── generate_geo_mappings.py      ← Fetches borough/TfL/NHS geo data from public APIs
+│   ├── fetch_population.py           ← Downloads ONS populations. Default: borough (Nomis NM_31_1 → lookups.json). With --wards: ward-level (NM_2014_1 → data/static/ward_populations.json)
+│   ├── fetch_green_space.py          ← Downloads GLA Green Cover 2024 XLSX → data/static/green_space.json
+│   ├── fetch_imd.py                  ← Downloads IMD 2025 deprivation data → data/static/imd_borough.json
+│   └── backfill_green_space_access.py ← One-shot: pin historical gold_scores rows to current stable green-space values (prevents NULL→value chart jump post-deploy of ward-pop-weighted access metric)
 ├── ingestion/
 │   ├── scheduler.py             ← APScheduler: fetch + full pipeline chain
 │   ├── run_pipeline.py          ← one-shot manual trigger (dev only)
@@ -465,7 +481,7 @@ city-scan-london/
 │   ├── bronze/
 │   ├── silver/
 │   ├── gold/
-│   ├── static/                  ← pre-processed reference data (green_space.json, population)
+│   ├── static/                  ← pre-processed reference data (green_space.json, ward_populations.json, imd_borough.json, policy_context.md)
 │   └── bulletins/
 ├── embeddings/
 │   └── (ChromaDB persistence)

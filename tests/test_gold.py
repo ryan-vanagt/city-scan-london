@@ -130,12 +130,17 @@ def test_immune_coverage_at_least_30(real_gold_data):
 
 
 def test_composite_equals_weighted_avg_of_sub_scores(real_gold_data):
+    """Composite is the weighted average of sub-scores using RAW green_space
+    (not the access-weighted variant in column 8)."""
     gold_data, _ = real_gold_data
     weights = _load_weights()
     for row in gold_data:
         bc = row[0]
+        # Schema: 0=borough_code, 1=borough_name, 2=timestamp,
+        # 3=air, 4=transit, 5=sentiment, 6=immune,
+        # 7=green_space, 8=green_space_access, 9=composite
         air, transit, sentiment, immune, green_space, composite = (
-            row[3], row[4], row[5], row[6], row[7], row[8]
+            row[3], row[4], row[5], row[6], row[7], row[9]
         )
         pairs = [(air, weights[0]), (transit, weights[1]),
                  (sentiment, weights[2]), (immune, weights[3]),
@@ -229,5 +234,48 @@ def test_ddl_rejects_null_composite(fresh_db):
     with pytest.raises(duckdb.Error):
         fresh_db.execute(
             "INSERT INTO gold_scores VALUES "
-            "('E09000001','Test','2026-01-01T00:00:00+00',80,90,70,60,50,NULL,'2026-01-01T00:00:00+00','gold')"
+            "('E09000001','Test','2026-01-01T00:00:00+00',80,90,70,60,50,NULL,NULL,'2026-01-01T00:00:00+00','gold')"
         )
+
+
+# ---------------------------------------------------------------------------
+# Access-weighted green space (Task 1 addition)
+# ---------------------------------------------------------------------------
+
+def test_access_weighted_green_populated_when_silver_emits_it(fresh_db):
+    """When silver contains a green_space_access metric row, gold should
+    populate green_space_access_score and keep composite anchored on raw."""
+    BC = "E09000001"
+    insert_silver(fresh_db, BC, "green_space",        40.0, source="green_space")
+    insert_silver(fresh_db, BC, "green_space_access", 25.0, source="green_space")
+
+    aggregate(fresh_db)
+    row = fresh_db.execute(
+        "SELECT green_space_score, green_space_access_score, composite_score "
+        "FROM gold_scores WHERE borough_code = ?",
+        [BC],
+    ).fetchone()
+    assert row is not None
+    assert row[0] == 40.0, f"raw green_space_score should be 40.0, got {row[0]}"
+    assert row[1] == 25.0, f"access-weighted should be 25.0, got {row[1]}"
+    # Composite must use raw (40.0), not access-weighted (25.0)
+    assert abs(row[2] - 40.0) < 0.01, \
+        f"composite should equal raw green (40.0), got {row[2]}"
+
+
+def test_access_weighted_null_when_silver_missing_it(fresh_db):
+    """When silver only contains raw green (no access), gold should have
+    NULL green_space_access_score but still a valid composite."""
+    BC = "E09000002"
+    insert_silver(fresh_db, BC, "green_space", 55.0, source="green_space")
+
+    aggregate(fresh_db)
+    row = fresh_db.execute(
+        "SELECT green_space_score, green_space_access_score, composite_score "
+        "FROM gold_scores WHERE borough_code = ?",
+        [BC],
+    ).fetchone()
+    assert row is not None
+    assert row[0] == 55.0
+    assert row[1] is None
+    assert abs(row[2] - 55.0) < 0.01

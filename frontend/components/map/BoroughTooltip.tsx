@@ -24,12 +24,16 @@ interface MetricDisplay {
   source: string;
 }
 
+// Key is the filter identifier (matches MetricFilter in types.ts).
+// For green space, the filter is "green_space_score" (historical name) but
+// the DISPLAYED value is the ward-pop-weighted access variant when available,
+// with raw coverage rendered below as a subtle secondary line.
 const METRICS: MetricDisplay[] = [
   { label: "Air Quality", key: "air_score", source: "OpenAQ" },
   { label: "Transit", key: "transit_score", source: "TfL" },
   { label: "Sentiment", key: "sentiment_score", source: "Reddit/Guardian/BBC" },
   { label: "Crime & A&E", key: "immune_score", source: "Met Police/NHS" },
-  { label: "Green Space", key: "green_space_score", source: "GLA Green Cover" },
+  { label: "Green Space", key: "green_space_score", source: "GLA Green Cover (access-weighted, with coverage shown)" },
 ];
 
 function formatScore(value: number | null): string {
@@ -59,8 +63,15 @@ export default function BoroughTooltip({
   const visibleMetrics = metricFilter
     ? METRICS.filter(({ key }) => key === metricFilter)
     : METRICS;
+  // For the green-space filter, use the access-weighted value for colouring
+  // (falling back to raw coverage) so the tooltip's border matches the map fill.
+  const filterValue = metricFilter === "green_space_score"
+    ? (borough.green_space_access_score ?? borough.green_space_score)
+    : metricFilter
+      ? (borough[metricFilter] as number | null)
+      : null;
   const borderColour = metricFilter
-    ? scoreToColour(borough[metricFilter] as number | null)
+    ? scoreToColour(filterValue)
     : compositeColour;
 
   return (
@@ -90,19 +101,38 @@ export default function BoroughTooltip({
 
         {/* Metric scores — vertical layout */}
         <div className="flex flex-col gap-0.5">
-          {visibleMetrics.map(({ label, key }) => (
-            <div key={key} className="flex items-center justify-between gap-4">
-              <span
-                className="text-[9px] font-medium"
-                style={{ color: "#0ea5e9", letterSpacing: "0.05em" }}
-              >
-                {label}
-              </span>
-              <span className="text-white font-mono text-[11px]">
-                {formatScore(borough[key] as number | null)}
-              </span>
-            </div>
-          ))}
+          {visibleMetrics.map(({ label, key }) => {
+            const isGreen = key === "green_space_score";
+            // For green space, prefer access-weighted, fall back to raw coverage.
+            const displayValue = isGreen
+              ? (borough.green_space_access_score ?? borough.green_space_score)
+              : (borough[key] as number | null);
+            return (
+              <div key={key} className="flex flex-col">
+                <div className="flex items-center justify-between gap-4">
+                  <span
+                    className="text-[9px] font-medium"
+                    style={{ color: "#0ea5e9", letterSpacing: "0.05em" }}
+                  >
+                    {label}
+                  </span>
+                  <span className="text-white font-mono text-[11px]">
+                    {formatScore(displayValue)}
+                  </span>
+                </div>
+                {isGreen
+                  && borough.green_space_score !== null
+                  && borough.green_space_access_score !== null && (
+                  <div className="flex items-center justify-between gap-4 text-[8px] text-slate-500">
+                    <span style={{ letterSpacing: "0.05em" }}>coverage</span>
+                    <span className="font-mono">
+                      {formatScore(borough.green_space_score)}
+                    </span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {/* Divider */}

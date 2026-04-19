@@ -57,7 +57,8 @@ def get_trend_tool(
     Args:
         borough: Borough name or ONS code.
         metric: One of air_score, transit_score, sentiment_score,
-            immune_score, green_space_score, composite_score.
+            immune_score, green_space_score, green_space_access_score,
+            composite_score.
         days: Lookback window, 1-30 (default 7).
     """
     borough = borough[:100]
@@ -77,7 +78,8 @@ def compare_boroughs_tool(
 
     Args:
         metric: One of air_score, transit_score, sentiment_score,
-            immune_score, green_space_score, composite_score.
+            immune_score, green_space_score, green_space_access_score,
+            composite_score.
         top_n: Number of boroughs to return (1-33, default 5).
         ascending: Sort order. False=best first, True=worst first.
     """
@@ -95,7 +97,12 @@ def run_sql_tool(query: str) -> dict:
     Available tables:
       - gold_scores: borough_code, borough_name, timestamp, air_score,
         transit_score, sentiment_score, immune_score, green_space_score,
-        composite_score, ingested_at, pipeline_stage
+        green_space_access_score, composite_score, ingested_at, pipeline_stage
+        (green_space_score = raw GLA green cover %, min-max normalised 0-100.
+         green_space_access_score = same cover but weighted by ward-level
+         residential population, so low-residential wards like Hyde Park in
+         Westminster contribute less; use this when comparing equitable access
+         to green space.)
       - silver_metrics: borough_code, borough_name, timestamp,
         metric_name, raw_value, normalised_score, source, ingested_at,
         pipeline_stage

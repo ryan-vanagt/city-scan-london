@@ -32,6 +32,12 @@ function getActiveScore(
   filter: MetricFilter
 ): number | null {
   if (filter === null) return borough.composite_score;
+  // When filtering by green space, colour by the ward-pop-weighted access metric
+  // (falling back to raw coverage if access is missing). This surfaces the
+  // methodology improvement on the thermal map itself.
+  if (filter === "green_space_score") {
+    return borough.green_space_access_score ?? borough.green_space_score;
+  }
   return borough[filter];
 }
 

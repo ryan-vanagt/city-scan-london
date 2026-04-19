@@ -10,7 +10,7 @@ Seven public data sources map to five biological systems, producing a health sco
 | 🩸 Arteries | TfL API | Tube line status & severity scores |
 | 🧠 Brain | Guardian + BBC News | Public sentiment (NLP) |
 | 🛡️ Immune system | Met Police API + NHS England A&E | Per-capita crime (winsorised) + A&E pressure |
-| 🌿 Skin | GLA Green Cover 2024 | Green space coverage per borough |
+| 🌿 Skin | GLA Green Cover 2024 + ONS ward populations | Green space **coverage** and **ward-population-weighted access** per borough |
 
 ## Stack
 
@@ -21,10 +21,13 @@ Python 3.11 · DuckDB · ChromaDB · LangChain + LangGraph · Claude Haiku · Fa
 ```bash
 cp .env.example .env   # add your API keys
 python scripts/generate_geo_mappings.py   # fetch borough/TfL/NHS geographic data
-python scripts/fetch_population.py        # fetch ONS population estimates
+python scripts/fetch_population.py        # fetch ONS borough populations (per-capita crime)
+python scripts/fetch_population.py --wards # fetch ONS ward populations (access-weighted green)
 python scripts/fetch_green_space.py       # fetch GLA green cover data
 python scripts/fetch_imd.py              # fetch IMD 2025 deprivation data
 ```
+
+The two `fetch_population.py` invocations are both one-shot — re-run them when ONS publishes new annual estimates. Green cover and IMD are also yearly refreshes.
 
 ## Run
 
@@ -38,6 +41,26 @@ uvicorn api.main:app --port 8000
 # Or run everything via Docker
 docker compose up
 ```
+
+### First-time local setup (without running the full scheduler)
+
+The API reads from `data/cityscan_read.duckdb` (a read replica the scheduler maintains). For local dev without the scheduler, after running the pipeline once:
+
+```bash
+cp data/cityscan.duckdb data/cityscan_read.duckdb   # seed the read replica
+```
+
+### After deploying the access-weighted green patch
+
+Run once on the server after `git pull` + pipeline:
+
+```bash
+python scripts/fetch_population.py --wards               # one-time, populates ward_populations.json
+python scripts/backfill_green_space_access.py            # locks historical rows to stable values
+cp data/cityscan.duckdb data/cityscan_read.duckdb        # refresh read replica (or let scheduler do it)
+```
+
+The backfill prevents a one-off NULL→value step on the Organ History chart for `green_space_access_score`. Green space is a yearly static signal — re-run `fetch_green_space.py` + the backfill whenever GLA releases a new year of Green Cover data.
 
 ## What works now
 

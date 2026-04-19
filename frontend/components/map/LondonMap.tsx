@@ -94,6 +94,7 @@ export default function LondonMap({
               sentiment_score: null,
               immune_score: null,
               green_space_score: null,
+              green_space_access_score: null,
               composite_score: null,
             };
             return (

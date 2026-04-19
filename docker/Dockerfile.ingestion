@@ -10,6 +10,7 @@ COPY ingestion/ ./ingestion/
 COPY pipeline/ ./pipeline/
 COPY sentiment/ ./sentiment/
 COPY agents/ ./agents/
+COPY scripts/ ./scripts/
 COPY data/static/ ./data/static/
 
 RUN mkdir -p /app/data /app/embeddings /app/.cache && \

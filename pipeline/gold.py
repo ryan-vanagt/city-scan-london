@@ -5,8 +5,15 @@ Reads Silver metrics from DuckDB, computes weighted composite health scores
 per borough per cycle, writes to the DuckDB gold_scores table, and embeds
 each row as a text description in ChromaDB for RAG retrieval.
 Schema: (borough_code, borough_name, timestamp, air_score, transit_score,
-         sentiment_score, immune_score, green_space_score, composite_score,
+         sentiment_score, immune_score, green_space_score,
+         green_space_access_score, composite_score,
          ingested_at, pipeline_stage)
+
+green_space_access_score is a ward-population-weighted variant of green cover
+(see pipeline/silver.py:_transform_green_space). It is surfaced alongside the
+raw coverage score but intentionally NOT folded into the composite — the
+headline composite stays anchored on raw coverage so historical comparisons
+and equity-residual computations regress against a stable target.
 """
 
 import functools
@@ -106,7 +113,7 @@ def aggregate(con: duckdb.DuckDBPyConnection) -> int:
     skipped: list[str] = []
 
     # Coverage counters for logging
-    coverage = {"air": 0, "transit": 0, "sentiment": 0, "immune": 0, "green_space": 0}
+    coverage = {"air": 0, "transit": 0, "sentiment": 0, "immune": 0, "green_space": 0, "green_space_access": 0}
 
     for borough_code in BOROUGHS:
         metrics = borough_data.get(borough_code, {})
@@ -128,8 +135,11 @@ def aggregate(con: duckdb.DuckDBPyConnection) -> int:
             immune_parts.extend(metrics["nhs_ae"])
         immune_score = mean(immune_parts) if immune_parts else None
 
-        # Green space (Skin organ)
+        # Green space (Skin organ) — raw coverage + ward-pop-weighted access variant
         green_space_score = mean(metrics["green_space"]) if "green_space" in metrics else None
+        green_space_access_score = (
+            mean(metrics["green_space_access"]) if "green_space_access" in metrics else None
+        )
 
         # Track coverage
         if air_score is not None:
@@ -142,8 +152,12 @@ def aggregate(con: duckdb.DuckDBPyConnection) -> int:
             coverage["immune"] += 1
         if green_space_score is not None:
             coverage["green_space"] += 1
+        if green_space_access_score is not None:
+            coverage["green_space_access"] += 1
 
-        # Composite: weighted average, renormalised over present scores
+        # Composite: weighted average, renormalised over present scores.
+        # NOTE: composite uses the RAW green_space_score (coverage), not the
+        # access-weighted variant — see module docstring.
         pairs = [
             (air_score, weights[0]),
             (transit_score, weights[1]),
@@ -173,6 +187,7 @@ def aggregate(con: duckdb.DuckDBPyConnection) -> int:
             sentiment_score,
             immune_score,
             green_space_score,
+            green_space_access_score,
             round(composite, 2),
             now,
             "gold",
@@ -192,16 +207,17 @@ def aggregate(con: duckdb.DuckDBPyConnection) -> int:
         """
         INSERT INTO gold_scores
         (borough_code, borough_name, timestamp, air_score, transit_score,
-         sentiment_score, immune_score, green_space_score, composite_score,
-         ingested_at, pipeline_stage)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         sentiment_score, immune_score, green_space_score, green_space_access_score,
+         composite_score, ingested_at, pipeline_stage)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         rows,
     )
 
     logger.info(
-        "Gold: %d rows inserted — coverage: air=%d, transit=%d, sentiment=%d, immune=%d, green_space=%d",
+        "Gold: %d rows inserted — coverage: air=%d, transit=%d, sentiment=%d, immune=%d, green_space=%d, green_space_access=%d",
         len(rows), coverage["air"], coverage["transit"],
-        coverage["sentiment"], coverage["immune"], coverage["green_space"],
+        coverage["sentiment"], coverage["immune"],
+        coverage["green_space"], coverage["green_space_access"],
     )
     return len(rows)

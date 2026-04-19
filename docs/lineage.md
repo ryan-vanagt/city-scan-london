@@ -12,6 +12,7 @@ flowchart TD
     MP[Met Police API] -->|"daily (data updates monthly)"| B_MP[bronze/met_police/]
     NHS[NHS England A&E CSV] -->|"daily (data updates monthly)"| B_NHS[bronze/nhs_ae/]
     GS[GLA Green Cover 2024] -->|"daily (static yearly data)"| B_GS[data/static/green_space.json]
+    WP[ONS Nomis NM_2014_1<br>ward populations] -.->|static join at silver| S
 
     B_OQ --> S[Silver layer\nDuckDB: silver_metrics]
     B_TFL --> S
@@ -89,9 +90,9 @@ Every Silver and Gold record carries:
 | Stage       | File                 | What happens                                                                 |
 | ----------- | -------------------- | ---------------------------------------------------------------------------- |
 | Bronze      | `pipeline/bronze.py` | Raw API response saved as timestamped JSON — no transformation               |
-| Silver      | `pipeline/silver.py` | Parsed, validated, normalised to 0–100 score, mapped to ONS borough code     |
+| Silver      | `pipeline/silver.py` | Parsed, validated, normalised to 0–100 score, mapped to ONS borough code. Green space emits TWO metrics per borough: `green_space` (raw coverage) + `green_space_access` (ward-population-weighted, joins `data/static/ward_populations.json`). |
 | Silver Detail | `pipeline/silver.py` | Per-item context (crime categories, tube line statuses, AQ station readings, NHS trust data, ward-level green space coverage, per-headline sentiment) — does NOT feed into gold scores |
-| Gold        | `pipeline/gold.py`   | Per-borough weighted average across all five signals (48h time-bound on silver data); embedded into ChromaDB |
+| Gold        | `pipeline/gold.py`   | Per-borough weighted average across five organ signals (48h time-bound on silver data); embedded into ChromaDB. Composite uses RAW `green_space_score`, not the access-weighted variant, to keep the headline score stable for historical comparison and equity-residual work. Both green columns are persisted. |
 | Embed       | `pipeline/embed.py`  | Gold rows converted to text descriptions and upserted into ChromaDB for RAG  |
 | Agent Tools | `agents/tools/`      | 5 curated DuckDB queries + 1 guarded `run_sql` (13-layer security) + 1 RAG `search_scores` + 1 deprivation lookup |
 

@@ -33,6 +33,7 @@ class SortField(str, Enum):
     sentiment_score = "sentiment_score"
     immune_score = "immune_score"
     green_space_score = "green_space_score"
+    green_space_access_score = "green_space_access_score"
 
 
 def _resolve_borough_code(name_or_code: str, con: duckdb.DuckDBPyConnection) -> str | None:
@@ -72,7 +73,8 @@ def _borough_row_to_dict(row: tuple) -> dict:
         "sentiment_score": row[5],
         "immune_score": row[6],
         "green_space_score": row[7],
-        "composite_score": row[8],
+        "green_space_access_score": row[8],
+        "composite_score": row[9],
     }
 
 
@@ -88,7 +90,8 @@ def list_boroughs(
     rows = con.execute(f"""
         SELECT borough_code, borough_name, timestamp,
                air_score, transit_score, sentiment_score,
-               immune_score, green_space_score, composite_score
+               immune_score, green_space_score, green_space_access_score,
+               composite_score
         FROM (
             SELECT *,
                    ROW_NUMBER() OVER (PARTITION BY borough_code ORDER BY ingested_at DESC) AS rn
@@ -217,7 +220,8 @@ def get_borough(
     row = con.execute("""
         SELECT borough_code, borough_name, timestamp,
                air_score, transit_score, sentiment_score,
-               immune_score, green_space_score, composite_score
+               immune_score, green_space_score, green_space_access_score,
+               composite_score
         FROM (
             SELECT *,
                    ROW_NUMBER() OVER (PARTITION BY borough_code ORDER BY ingested_at DESC) AS rn
@@ -252,7 +256,8 @@ def get_borough_trend(
     # the range, but int() is the injection guard.
     rows = con.execute(f"""
         SELECT timestamp, air_score, transit_score, sentiment_score,
-               immune_score, green_space_score, composite_score
+               immune_score, green_space_score, green_space_access_score,
+               composite_score
         FROM gold_scores
         WHERE borough_code = ?
           AND timestamp >= NOW() - INTERVAL {int(days)} DAY
@@ -271,7 +276,8 @@ def get_borough_trend(
                 "sentiment_score": r[3],
                 "immune_score": r[4],
                 "green_space_score": r[5],
-                "composite_score": r[6],
+                "green_space_access_score": r[6],
+                "composite_score": r[7],
             }
             for r in rows
         ],

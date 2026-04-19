@@ -22,6 +22,7 @@ _VALID_METRICS = frozenset({
     "sentiment_score",
     "immune_score",
     "green_space_score",
+    "green_space_access_score",
     "composite_score",
 })
 
@@ -121,6 +122,7 @@ def get_borough_health(
         "sentiment_score": None,
         "immune_score": None,
         "green_space_score": None,
+        "green_space_access_score": None,
         "composite_score": None,
     }
 
@@ -134,7 +136,8 @@ def get_borough_health(
         row = con.execute("""
             SELECT borough_code, borough_name, timestamp,
                    air_score, transit_score, sentiment_score,
-                   immune_score, green_space_score, composite_score
+                   immune_score, green_space_score, green_space_access_score,
+                   composite_score
             FROM (
                 SELECT *,
                        ROW_NUMBER() OVER (PARTITION BY borough_code ORDER BY ingested_at DESC) AS rn
@@ -159,7 +162,8 @@ def get_borough_health(
         "sentiment_score": row[5],
         "immune_score": row[6],
         "green_space_score": row[7],
-        "composite_score": row[8],
+        "green_space_access_score": row[8],
+        "composite_score": row[9],
     }
 
 

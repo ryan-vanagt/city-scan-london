@@ -8,7 +8,7 @@ Table silver_metrics {
   borough_code     varchar [not null, note: 'ONS 9-char code (E09000001–E09000033)']
   borough_name     varchar [not null]
   timestamp        timestamptz [not null, note: 'UTC']
-  metric_name      varchar [not null, note: 'air_quality | transit | sentiment | crime | nhs_ae | green_space']
+  metric_name      varchar [not null, note: 'air_quality | transit | sentiment | crime | nhs_ae | green_space | green_space_access']
   raw_value        double [note: 'Original value before normalisation (nullable for some sources)']
   normalised_score double [not null, note: '0–100 score, 100 = healthiest, CHECK 0–100']
   source           varchar [not null, note: 'openaq | tfl | reddit | guardian | bbc | met_police | nhs_ae | green_space']
@@ -17,17 +17,18 @@ Table silver_metrics {
 }
 
 Table gold_scores {
-  borough_code     varchar [not null, note: 'ONS 9-char code']
-  borough_name     varchar [not null]
-  timestamp        timestamptz [not null, note: 'UTC']
-  air_score        double [note: '0–100, from OpenAQ PM2.5 + NO2, CHECK 0–100']
-  transit_score    double [note: '0–100, from TfL tube line status, CHECK 0–100']
-  sentiment_score  double [note: '0–100, from Guardian + BBC sentiment (Reddit inactive), CHECK 0–100']
-  immune_score     double [note: '0–100, from Met Police crime + NHS A&E performance, CHECK 0–100']
-  green_space_score double [note: '0–100, from GLA Green Cover 2024 satellite data, CHECK 0–100']
-  composite_score  double [not null, note: 'Weighted average of five system scores, CHECK 0–100']
-  ingested_at      timestamptz [not null, note: 'UTC pipeline run time']
-  pipeline_stage   varchar [default: 'gold']
+  borough_code              varchar [not null, note: 'ONS 9-char code']
+  borough_name              varchar [not null]
+  timestamp                 timestamptz [not null, note: 'UTC']
+  air_score                 double [note: '0–100, from OpenAQ PM2.5 + NO2, CHECK 0–100']
+  transit_score             double [note: '0–100, from TfL tube line status, CHECK 0–100']
+  sentiment_score           double [note: '0–100, from Guardian + BBC sentiment (Reddit inactive), CHECK 0–100']
+  immune_score              double [note: '0–100, from Met Police crime + NHS A&E performance, CHECK 0–100']
+  green_space_score         double [note: '0–100, raw GLA Green Cover 2024 % per borough, CHECK 0–100']
+  green_space_access_score  double [note: '0–100, ward-population-weighted green cover (access proxy), CHECK 0–100. Yearly static; backfilled to stable value by scripts/backfill_green_space_access.py']
+  composite_score           double [not null, note: 'Weighted average of five organ scores; uses RAW green_space_score (not access-weighted) for stability, CHECK 0–100']
+  ingested_at               timestamptz [not null, note: 'UTC pipeline run time']
+  pipeline_stage            varchar [default: 'gold']
 }
 
 // Stored in separate file: data/agent_logs.duckdb (not cityscan.duckdb)

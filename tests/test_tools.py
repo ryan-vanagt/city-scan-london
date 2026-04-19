@@ -31,6 +31,7 @@ def insert_gold(
     sentiment: float | None = None,
     immune: float | None = None,
     green_space: float | None = 45.0,
+    green_space_access: float | None = None,
     composite: float = 50.0,
     timestamp: str = "2026-04-09T12:00:00+00:00",
     ingested_at: str = "2026-04-09T12:00:00+00:00",
@@ -40,13 +41,14 @@ def insert_gold(
         """
         INSERT INTO gold_scores
         (borough_code, borough_name, timestamp, air_score, transit_score,
-         sentiment_score, immune_score, green_space_score, composite_score,
-         ingested_at, pipeline_stage)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         sentiment_score, immune_score, green_space_score, green_space_access_score,
+         composite_score, ingested_at, pipeline_stage)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         [
             borough_code, borough_name, timestamp, air, transit,
-            sentiment, immune, green_space, composite, ingested_at, "gold",
+            sentiment, immune, green_space, green_space_access,
+            composite, ingested_at, "gold",
         ],
     )
 
@@ -574,7 +576,7 @@ def test_run_sql_drop_error_message(db_with_sql_data):
 
 def test_run_sql_insert_blocked(db_with_sql_data):
     result = run_sql(
-        "INSERT INTO gold_scores VALUES ('x','x','x',0,0,0,0,0,'x','x')",
+        "INSERT INTO gold_scores VALUES ('x','x','x',0,0,0,0,0,0,0,'x','x')",
         con=db_with_sql_data,
     )
     assert result["success"] is False
@@ -610,9 +612,9 @@ def test_run_sql_auto_limit_applied(db_with_sql_data):
     # Insert 150 rows so the limit is exercised
     for i in range(150):
         db_with_sql_data.execute(
-            """INSERT INTO gold_scores VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            """INSERT INTO gold_scores VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             [f"E090000{i:02d}", f"Borough{i}", "2026-04-10T00:00:00+00",
-             50.0, 50.0, 50.0, 50.0, 50.0,
+             50.0, 50.0, 50.0, 50.0, 50.0, 45.0, 50.0,
              "2026-04-10T00:00:00+00", "gold"],
         )
     result = run_sql("SELECT * FROM gold_scores", con=db_with_sql_data)
@@ -952,7 +954,8 @@ def test_run_sql_glob_function_blocked():
 def test_valid_metrics_set():
     expected = {
         "air_score", "transit_score", "sentiment_score",
-        "immune_score", "composite_score",
+        "immune_score", "green_space_score", "green_space_access_score",
+        "composite_score",
     }
     assert _VALID_METRICS == expected
 

@@ -165,7 +165,7 @@ All state lives in `app/page.tsx`. No routing — everything is panel-based.
 
 **Layout:** Three sections:
 1. **Left:** Context label — shows abbreviated hovered borough name or "LONDON" (hidden on mobile)
-2. **Centre:** "ALL" button + 5 metric buttons (air, transit, sentiment, immune, green space)
+2. **Centre:** "ALL" button + 5 metric buttons (air, transit, sentiment, immune, green space). The "GREEN SPACE" button displays the ward-population-weighted access score (`green_space_access_score`) with a fallback to raw coverage (`green_space_score`) when access is unavailable. Composite score calculation still uses raw coverage for historical stability; this is a display-only flip.
 3. **Right:** HeartPulse icon (pulsing) + overall composite score
 
 **Each metric button shows:**
@@ -260,7 +260,7 @@ Slide-in panel (35% width desktop, 90% mobile). Fixed position, right-0, top-0, 
 1. `DeprivationScatter` — Recharts scatter: IMD rank vs composite score, thermal dots, labelled outliers, trend line
 2. Cross-domain correlation insight — auto-computed Pearson r between IMD rank and each organ score. Template sentence: "{organ} has the strongest link to deprivation (r={value}): {direction}." Updates on each page load as scores change.
 3. `BoroughRadar` — two dropdown selectors, overlapping radar polygons (cyan + orange) across 5 axes. Defaults to worst and best borough.
-4. `BoroughTimeSeries` — dropdown + 7d/14d/30d toggle. Fetches `GET /borough/{name}/trend?days=N`. 5 coloured lines (Air blue, Transit red, Sentiment purple, Immune green, Green Space lime). Shows "insufficient data" message when < 2 data points.
+4. `BoroughTimeSeries` — dropdown + 7d/14d/30d toggle. Fetches `GET /borough/{name}/trend?days=N`. 4 coloured lines (Air blue, Transit red, Sentiment purple, Immune green). Skin/green-space is excluded from the chart because its source (GLA Green Cover 2024) is a yearly static snapshot; both coverage and access-weighted values are instead rendered as a static badge above the chart with the label "GLA 2024 static snapshot". Shows "insufficient data" message when < 2 data points.
 5. `WorstOrganTable` — each borough's weakest organ, sorted by score ascending. Filter by organ type. Thermal-coloured scores. Sticky header, 300px max scroll.
 
 **Data sources:** `GET /boroughs`, `GET /boroughs/deprivation`, `GET /borough/{name}/trend`

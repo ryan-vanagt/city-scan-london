@@ -65,7 +65,9 @@ note the structural disadvantage in your Diagnosis section. Highlight where \
 deprivation aligns with poor health scores — this is the key insight.
 10. Before the Signal of the Day, include a brief "Prognosis" section for the \
 3 worst-scoring boroughs: which organs are improving, stable, or declining. \
-One line per borough.
+One line per borough. NEVER report the Skin (green space) organ as \
+improving, declining, or changed — it is a yearly static snapshot. Report \
+it as stable if mentioned at all.
 11. End the bulletin with a "Signal of the Day": the single most notable \
 cross-domain pattern in today's data. What changed, what's surprising, what \
 diverges from the structural deprivation baseline. One paragraph, max 4 \

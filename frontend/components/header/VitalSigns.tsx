@@ -62,13 +62,15 @@ export default function VitalSigns({
   onMetricClick,
 }: VitalSignsProps) {
   const activeScores = useMemo(() => {
+    // Green space: prefer access-weighted (reflects who actually lives near green cover),
+    // fall back to raw coverage if access is missing (e.g. all-City-of-London-ward edge case).
     if (hoveredBorough) {
       return {
         air_score: hoveredBorough.air_score,
         transit_score: hoveredBorough.transit_score,
         sentiment_score: hoveredBorough.sentiment_score,
         immune_score: hoveredBorough.immune_score,
-        green_space_score: hoveredBorough.green_space_score,
+        green_space_score: hoveredBorough.green_space_access_score ?? hoveredBorough.green_space_score,
         composite_score: hoveredBorough.composite_score,
       };
     }
@@ -77,7 +79,7 @@ export default function VitalSigns({
       transit_score: londonScore.transit_score,
       sentiment_score: londonScore.sentiment_score,
       immune_score: londonScore.immune_score,
-      green_space_score: londonScore.green_space_score,
+      green_space_score: londonScore.green_space_access_score ?? londonScore.green_space_score,
       composite_score: londonScore.composite_score,
     };
   }, [londonScore, hoveredBorough]);

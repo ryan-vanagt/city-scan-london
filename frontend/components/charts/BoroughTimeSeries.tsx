@@ -4,9 +4,14 @@
  * BoroughTimeSeries — Recharts line chart showing organ score history
  * for a selected borough over 7/14/30 day windows.
  *
- * Five coloured lines represent the five organ systems:
+ * Four coloured lines represent the time-varying organ systems:
  *   Air (Lungs) #3b82f6, Transit (Arteries) #ef4444,
- *   Sentiment (Brain) #a855f7, Immune #22c55e, Green Space (Skin) #84cc16
+ *   Sentiment (Brain) #a855f7, Immune #22c55e.
+ *
+ * Skin (green space) is rendered as a static badge beneath the chart
+ * rather than a line, because the underlying GLA Green Cover data is a
+ * yearly static snapshot — plotting it on a daily chart implies movement
+ * that doesn't exist.
  */
 
 import { useState, useEffect, useMemo } from "react";
@@ -28,12 +33,15 @@ import type { BoroughScore } from "@/lib/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+// Time-varying organs — plotted as lines on the chart.
+// Skin (green space) is excluded: it derives from a yearly static snapshot
+// (GLA Green Cover 2024), so a time-series line is misleading. The current
+// raw + access-weighted values are shown in a static badge beneath the chart.
 const ORGANS = [
   { key: "air_score", name: "Air (Lungs)", colour: "#3b82f6" },
   { key: "transit_score", name: "Transit (Arteries)", colour: "#ef4444" },
   { key: "sentiment_score", name: "Sentiment (Brain)", colour: "#a855f7" },
   { key: "immune_score", name: "Immune", colour: "#22c55e" },
-  { key: "green_space_score", name: "Green Space (Skin)", colour: "#84cc16" },
 ] as const;
 
 const DAY_OPTIONS = [7, 14, 30] as const;
@@ -49,6 +57,7 @@ interface TrendPoint {
   sentiment_score: number | null;
   immune_score: number | null;
   green_space_score: number | null;
+  green_space_access_score: number | null;
   composite_score: number | null;
 }
 
@@ -174,6 +183,15 @@ export default function BoroughTimeSeries({
     return b?.borough_name ?? selectedCode;
   }, [boroughs, selectedCode]);
 
+  // Selected borough's static Skin scores (rendered as a badge, not a line)
+  const skinScores = useMemo(() => {
+    const b = boroughs.find((b) => b.borough_code === selectedCode);
+    return {
+      coverage: b?.green_space_score ?? null,
+      access: b?.green_space_access_score ?? null,
+    };
+  }, [boroughs, selectedCode]);
+
   /* Fetch trend data ------------------------------------------------ */
   useEffect(() => {
     let cancelled = false;
@@ -290,6 +308,44 @@ export default function BoroughTimeSeries({
       {insufficient && (
         <div className="flex items-center justify-center h-[280px] text-slate-500 text-xs font-mono text-center px-4">
           Insufficient data — trends populate as the pipeline runs hourly
+        </div>
+      )}
+
+      {/* Static Skin (green space) badge — rendered above the chart
+          because it derives from a yearly snapshot, not a time series. */}
+      {(skinScores.coverage !== null || skinScores.access !== null) && (
+        <div
+          className="flex items-center gap-3 mb-3 text-xs font-mono"
+          style={{
+            backgroundColor: "#0f172a",
+            border: "1px solid #1e293b",
+            borderRadius: 4,
+            padding: "6px 10px",
+            color: "#94a3b8",
+          }}
+        >
+          <span className="font-semibold" style={{ color: "#cbd5e1" }}>
+            Skin (green space)
+          </span>
+          <span className="text-slate-500">·</span>
+          <span>
+            Coverage:{" "}
+            <span style={{ color: "#84cc16" }}>
+              {skinScores.coverage !== null
+                ? skinScores.coverage.toFixed(1)
+                : "—"}
+            </span>
+          </span>
+          <span className="text-slate-500">·</span>
+          <span>
+            Access-weighted:{" "}
+            <span style={{ color: "#84cc16" }}>
+              {skinScores.access !== null ? skinScores.access.toFixed(1) : "—"}
+            </span>
+          </span>
+          <span className="ml-auto text-slate-500 italic">
+            GLA 2024 static snapshot
+          </span>
         </div>
       )}
 
