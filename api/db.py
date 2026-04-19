@@ -58,17 +58,37 @@ def get_connection() -> duckdb.DuckDBPyConnection:
     explicitly — DuckDB cursors are lightweight and garbage-collected. The
     underlying connection is closed via close_connection() at app shutdown.
 
-    Raises RuntimeError if the database file doesn't exist yet or is locked
-    by the ingestion writer. The caller should handle this gracefully.
+    On cold start (replica missing but write DB present), bootstraps the
+    replica with an atomic copy so the API doesn't 500 for up to an hour
+    waiting for the scheduler's next cycle. Safe because the scheduler's
+    own copy is tempfile+rename atomic — a concurrent scheduler copy will
+    simply replace our bootstrap snapshot with a fresher one.
+
+    Raises RuntimeError if neither DB file exists or if the connection is
+    locked by the ingestion writer. The caller should handle this gracefully.
     """
     global _con
     if _con is None:
         db_path = Path(DB_PATH)
+        write_path = Path(DB_WRITE_PATH)
         if not db_path.exists():
-            # Check if write DB exists but read replica hasn't been created yet
-            if Path(DB_WRITE_PATH).exists():
-                raise RuntimeError("Pipeline ran but read replica not yet created — try again shortly")
-            raise RuntimeError("Database not created yet — ingestion pipeline has not run")
+            if write_path.exists():
+                # Cold-start bootstrap: copy the write DB to the replica so
+                # the API has something to read until the scheduler's next
+                # atomic copy replaces it.
+                try:
+                    import shutil
+                    shutil.copy2(write_path, db_path)
+                    logger.info(
+                        "DuckDB cold-start: bootstrapped read replica from %s",
+                        write_path,
+                    )
+                except OSError as exc:
+                    raise RuntimeError(
+                        f"Could not bootstrap read replica from write DB: {exc}"
+                    ) from exc
+            else:
+                raise RuntimeError("Database not created yet — ingestion pipeline has not run")
         try:
             _con = duckdb.connect(DB_PATH, read_only=True)
             logger.info("DuckDB connection opened (read-only): %s", DB_PATH)

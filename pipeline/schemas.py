@@ -305,14 +305,61 @@ CREATE TABLE IF NOT EXISTS silver_headlines (
 """
 
 
+def _ensure_column(
+    con: duckdb.DuckDBPyConnection,
+    table: str,
+    column: str,
+    dtype: str,
+) -> None:
+    """Idempotently add a column to an existing table.
+
+    Inspects the table's current columns via PRAGMA table_info, issues a plain
+    ALTER TABLE ADD COLUMN only if the column is missing, and verifies the
+    post-condition. Raises if the migration fails for a reason other than
+    concurrent addition — silent migration failures previously bit us in
+    production when `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` support varied
+    by DuckDB version.
+
+    Args:
+        con: Open DuckDB connection.
+        table: Target table name (must already exist).
+        column: Column to add.
+        dtype: SQL type string (e.g. "DOUBLE").
+
+    Raises:
+        RuntimeError: if the column is still missing after the ALTER attempt.
+    """
+    existing = {row[1] for row in con.execute(f"PRAGMA table_info('{table}')").fetchall()}
+    if column in existing:
+        return
+
+    try:
+        con.execute(f"ALTER TABLE {table} ADD COLUMN {column} {dtype}")
+        logger.info("Migration: added %s.%s (%s)", table, column, dtype)
+    except duckdb.Error as exc:
+        # Re-inspect — another process may have added it concurrently.
+        post = {row[1] for row in con.execute(f"PRAGMA table_info('{table}')").fetchall()}
+        if column not in post:
+            raise RuntimeError(
+                f"Migration failed: could not add {table}.{column} ({dtype}). "
+                f"Underlying error: {exc}"
+            ) from exc
+        logger.debug("Column %s.%s was added concurrently by another process", table, column)
+
+
 def init_db(con: duckdb.DuckDBPyConnection) -> None:
-    """Create all DuckDB tables if they do not already exist.
+    """Create all DuckDB tables if they do not already exist, and apply any
+    pending column migrations on existing tables.
 
     Note: agent_logs and bulletin_logs are managed separately
     (agent_logs in data/agent_logs.duckdb via agents/logging_db.py).
 
     Args:
         con: An open DuckDB connection.
+
+    Raises:
+        RuntimeError: if a column migration fails (surfaces as a startup error
+        rather than a silently degraded database — see _ensure_column).
     """
     for ddl in (
         _DDL_SILVER_METRICS,
@@ -322,16 +369,9 @@ def init_db(con: duckdb.DuckDBPyConnection) -> None:
     ):
         con.execute(ddl)
 
-    # Migration: add columns to existing gold_scores tables.
-    # Note: DuckDB ALTER TABLE doesn't support CHECK constraints — the CHECK
-    # is already in the CREATE TABLE DDL above, so new tables get it.
-    for column_ddl in (
-        "ALTER TABLE gold_scores ADD COLUMN IF NOT EXISTS green_space_score DOUBLE",
-        "ALTER TABLE gold_scores ADD COLUMN IF NOT EXISTS green_space_access_score DOUBLE",
-    ):
-        try:
-            con.execute(column_ddl)
-        except (duckdb.CatalogException, duckdb.ParserException) as e:
-            logger.debug("Migration note (%s): %s", column_ddl, e)
+    # Column migrations for pre-existing tables. Order doesn't matter — each
+    # call is independent and idempotent.
+    _ensure_column(con, "gold_scores", "green_space_score", "DOUBLE")
+    _ensure_column(con, "gold_scores", "green_space_access_score", "DOUBLE")
 
     logger.info("DuckDB tables initialised")
