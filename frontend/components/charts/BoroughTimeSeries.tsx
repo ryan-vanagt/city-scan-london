@@ -311,44 +311,6 @@ export default function BoroughTimeSeries({
         </div>
       )}
 
-      {/* Static Skin (green space) badge — rendered above the chart
-          because it derives from a yearly snapshot, not a time series. */}
-      {(skinScores.coverage !== null || skinScores.access !== null) && (
-        <div
-          className="flex items-center gap-3 mb-3 text-xs font-mono"
-          style={{
-            backgroundColor: "#0f172a",
-            border: "1px solid #1e293b",
-            borderRadius: 4,
-            padding: "6px 10px",
-            color: "#94a3b8",
-          }}
-        >
-          <span className="font-semibold" style={{ color: "#cbd5e1" }}>
-            Skin (green space)
-          </span>
-          <span className="text-slate-500">·</span>
-          <span>
-            Coverage:{" "}
-            <span style={{ color: "#84cc16" }}>
-              {skinScores.coverage !== null
-                ? skinScores.coverage.toFixed(1)
-                : "—"}
-            </span>
-          </span>
-          <span className="text-slate-500">·</span>
-          <span>
-            Access-weighted:{" "}
-            <span style={{ color: "#84cc16" }}>
-              {skinScores.access !== null ? skinScores.access.toFixed(1) : "—"}
-            </span>
-          </span>
-          <span className="ml-auto text-slate-500 italic">
-            GLA 2024 static snapshot
-          </span>
-        </div>
-      )}
-
       {/* Chart */}
       {!loading && !insufficient && chartData.length > 0 && (
         <ResponsiveContainer width="100%" height={280}>
@@ -401,6 +363,46 @@ export default function BoroughTimeSeries({
             ))}
           </LineChart>
         </ResponsiveContainer>
+      )}
+
+      {/* Static Skin (green space) badge — rendered BELOW the chart because
+          it derives from a yearly snapshot, not a time series. Placed under
+          the chart/legend so it reads as a supplementary static value rather
+          than competing with the line-chart's moving signals. */}
+      {(skinScores.coverage !== null || skinScores.access !== null) && (
+        <div
+          className="flex items-center gap-3 mt-3 text-xs font-mono"
+          style={{
+            backgroundColor: "#0f172a",
+            border: "1px solid #1e293b",
+            borderRadius: 4,
+            padding: "6px 10px",
+            color: "#94a3b8",
+          }}
+        >
+          <span className="font-semibold" style={{ color: "#cbd5e1" }}>
+            Skin (green space)
+          </span>
+          <span className="text-slate-500">·</span>
+          <span>
+            Coverage:{" "}
+            <span style={{ color: "#84cc16" }}>
+              {skinScores.coverage !== null
+                ? skinScores.coverage.toFixed(1)
+                : "—"}
+            </span>
+          </span>
+          <span className="text-slate-500">·</span>
+          <span>
+            Access-weighted:{" "}
+            <span style={{ color: "#84cc16" }}>
+              {skinScores.access !== null ? skinScores.access.toFixed(1) : "—"}
+            </span>
+          </span>
+          <span className="ml-auto text-slate-500 italic">
+            GLA 2024 static snapshot
+          </span>
+        </div>
       )}
     </div>
   );
