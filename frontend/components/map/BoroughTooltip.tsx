@@ -103,6 +103,7 @@ export default function BoroughTooltip({
         <div className="flex flex-col gap-0.5">
           {visibleMetrics.map(({ label, key }) => {
             const isGreen = key === "green_space_score";
+            const isAir = key === "air_score";
             // For green space, prefer access-weighted, fall back to raw coverage.
             const displayValue = isGreen
               ? (borough.green_space_access_score ?? borough.green_space_score)
@@ -127,6 +128,14 @@ export default function BoroughTooltip({
                     <span style={{ letterSpacing: "0.05em" }}>coverage</span>
                     <span className="font-mono">
                       {formatScore(borough.green_space_score)}
+                    </span>
+                  </div>
+                )}
+                {isAir && borough.air_quality_modelled_score !== null && (
+                  <div className="flex items-center justify-between gap-4 text-[8px] text-slate-500">
+                    <span style={{ letterSpacing: "0.05em" }}>modelled</span>
+                    <span className="font-mono">
+                      {formatScore(borough.air_quality_modelled_score)}
                     </span>
                   </div>
                 )}
