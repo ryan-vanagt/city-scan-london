@@ -18,11 +18,13 @@ import type {
   TrendInfo,
 } from "@/lib/types";
 import { fetchBoroughs, fetchLondonScore, fetchBulletin, fetchTrends } from "@/lib/api";
+import { useIsMobile } from "@/lib/useIsMobile";
 
 // Own components (always loaded)
 import VitalSigns from "@/components/header/VitalSigns";
 import LondonMap from "@/components/map/LondonMap";
 import BulletinReport from "@/components/landing/BulletinReport";
+import MobileNotice from "@/components/landing/MobileNotice";
 
 // Dynamic imports
 const DoctorChat = dynamic(
@@ -43,6 +45,12 @@ const Footer = dynamic(
 );
 
 export default function Home() {
+  // Hard-gate mobile: the dashboard is a desktop tool. We still declare
+  // every hook below unconditionally (rules-of-hooks) and just swap the
+  // render at the end. `useIsMobile()` returns null on the first render
+  // so we avoid flash-of-wrong-content.
+  const isMobile = useIsMobile();
+
   // --- State ---
   const [showLanding, setShowLanding] = useState(true);   // overlay visibility
   const [mapZoomed, setMapZoomed] = useState(true);       // map scale
@@ -184,6 +192,12 @@ export default function Home() {
   }, []);
 
   // --- Render ---
+  // Mobile gate — swap the whole dashboard for the notice. All hooks above
+  // still run (rules-of-hooks), but none of the heavy components mount.
+  if (isMobile === true) {
+    return <MobileNotice />;
+  }
+
   return (
     <div className="min-h-screen flex flex-col relative">
       {/* Header — always rendered, opacity-controlled to avoid layout shift */}
