@@ -29,6 +29,7 @@ class SortField(str, Enum):
     """Allowed sort fields for the boroughs list endpoint."""
     composite_score = "composite_score"
     air_score = "air_score"
+    air_quality_modelled_score = "air_quality_modelled_score"
     transit_score = "transit_score"
     sentiment_score = "sentiment_score"
     immune_score = "immune_score"
@@ -69,12 +70,13 @@ def _borough_row_to_dict(row: tuple) -> dict:
         "borough_name": row[1],
         "timestamp": str(row[2]),
         "air_score": row[3],
-        "transit_score": row[4],
-        "sentiment_score": row[5],
-        "immune_score": row[6],
-        "green_space_score": row[7],
-        "green_space_access_score": row[8],
-        "composite_score": row[9],
+        "air_quality_modelled_score": row[4],
+        "transit_score": row[5],
+        "sentiment_score": row[6],
+        "immune_score": row[7],
+        "green_space_score": row[8],
+        "green_space_access_score": row[9],
+        "composite_score": row[10],
     }
 
 
@@ -89,7 +91,8 @@ def list_boroughs(
     """
     rows = con.execute(f"""
         SELECT borough_code, borough_name, timestamp,
-               air_score, transit_score, sentiment_score,
+               air_score, air_quality_modelled_score,
+               transit_score, sentiment_score,
                immune_score, green_space_score, green_space_access_score,
                composite_score
         FROM (
@@ -219,7 +222,8 @@ def get_borough(
 
     row = con.execute("""
         SELECT borough_code, borough_name, timestamp,
-               air_score, transit_score, sentiment_score,
+               air_score, air_quality_modelled_score,
+               transit_score, sentiment_score,
                immune_score, green_space_score, green_space_access_score,
                composite_score
         FROM (
@@ -255,7 +259,8 @@ def get_borough_trend(
     # in the f-string interpolation. FastAPI's Query(ge=1, le=30) validates
     # the range, but int() is the injection guard.
     rows = con.execute(f"""
-        SELECT timestamp, air_score, transit_score, sentiment_score,
+        SELECT timestamp, air_score, air_quality_modelled_score,
+               transit_score, sentiment_score,
                immune_score, green_space_score, green_space_access_score,
                composite_score
         FROM gold_scores
@@ -272,12 +277,13 @@ def get_borough_trend(
             {
                 "timestamp": str(r[0]),
                 "air_score": r[1],
-                "transit_score": r[2],
-                "sentiment_score": r[3],
-                "immune_score": r[4],
-                "green_space_score": r[5],
-                "green_space_access_score": r[6],
-                "composite_score": r[7],
+                "air_quality_modelled_score": r[2],
+                "transit_score": r[3],
+                "sentiment_score": r[4],
+                "immune_score": r[5],
+                "green_space_score": r[6],
+                "green_space_access_score": r[7],
+                "composite_score": r[8],
             }
             for r in rows
         ],

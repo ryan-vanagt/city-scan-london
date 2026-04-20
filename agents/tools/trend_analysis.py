@@ -17,10 +17,16 @@ logger = logging.getLogger(__name__)
 # Score change must exceed this threshold to be classified as improving/declining
 _DIRECTION_THRESHOLD = 2.0
 
-# Green space metrics derive from a yearly static snapshot (GLA Green Cover 2024).
+# Static-signal metrics: yearly snapshots where daily/weekly trends don't exist.
+#   - green_space_score / green_space_access_score: GLA Green Cover 2024
+#   - air_quality_modelled_score: LAEI 2022 modelled annual mean
 # Any apparent trend in these is a data-vintage artefact, not a real-world change.
 # We force a stable response so the agent can never narrate a spurious movement.
-_STATIC_METRICS = frozenset({"green_space_score", "green_space_access_score"})
+_STATIC_METRICS = frozenset({
+    "green_space_score",
+    "green_space_access_score",
+    "air_quality_modelled_score",
+})
 
 
 def get_trend(
@@ -39,8 +45,9 @@ def get_trend(
     Args:
         borough: Borough name (case-insensitive) or ONS 9-char code.
         metric: Score column to track. Must be one of air_score,
-            transit_score, sentiment_score, immune_score,
-            green_space_score, green_space_access_score, composite_score.
+            air_quality_modelled_score, transit_score, sentiment_score,
+            immune_score, green_space_score, green_space_access_score,
+            composite_score.
         days: Lookback window in days (clamped to 1–30).
         con: Optional DuckDB connection. Uses the shared lazy connection if None.
 

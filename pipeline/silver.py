@@ -672,6 +672,56 @@ def _compute_access_weighted(data: dict, borough_raw_pct: dict[str, float]) -> d
     return result
 
 
+def _transform_laei(data: dict, timestamp: str) -> list[tuple]:
+    """Transform LAEI 2022 modelled air quality bronze data to silver rows.
+
+    metric_name: 'air_quality_modelled'
+    raw_value: PM2.5 annual mean (µg/m³) when available, otherwise NO2
+    normalised_score: WHO-ratio exponential decay, mirroring _transform_openaq
+        so live and modelled scores share the same 0–100 scale and are
+        directly comparable.
+
+    Weighting when both pollutants present: 60% PM2.5, 40% NO2 (same as OpenAQ).
+    Thresholds: PM2.5 WHO-interim 15 µg/m³, NO2 WHO-interim 25 µg/m³.
+    Decay: 100 * exp(-1.5 × ratio).
+
+    Data is static (GLA publishes LAEI every ~3 years) so every cycle produces
+    the same values. This is the intended behaviour: the metric provides a
+    structural air-quality baseline with 33/33 borough coverage, complementing
+    the hourly-but-sparse OpenAQ live signal.
+    """
+    results = data.get("results", [])
+    if not results:
+        logger.warning("Silver LAEI: no results in bronze data")
+        return []
+
+    rows = []
+    for item in results:
+        bc = item.get("borough_code")
+        pm25 = item.get("pm25")
+        no2 = item.get("no2")
+        if bc not in BOROUGHS:
+            continue
+        if pm25 is None and no2 is None:
+            continue
+
+        if pm25 is not None and no2 is not None:
+            who_ratio = (float(pm25) / 15.0) * 0.6 + (float(no2) / 25.0) * 0.4
+            raw_value = float(pm25)
+        elif pm25 is not None:
+            who_ratio = float(pm25) / 15.0
+            raw_value = float(pm25)
+        else:
+            who_ratio = float(no2) / 25.0
+            raw_value = float(no2)
+
+        normalised = _clamp(100.0 * math.exp(-1.5 * who_ratio))
+        rows.append(_make_row(bc, timestamp, "air_quality_modelled", raw_value, normalised, "laei"))
+
+    logger.info("Silver LAEI: %d borough rows", len(rows))
+    return rows
+
+
 def _transform_reddit(data: dict, timestamp: str) -> list[tuple]:
     """Transform Reddit bronze data to silver sentiment rows."""
     return _transform_sentiment_source(data, "reddit", "title", timestamp)
@@ -698,6 +748,7 @@ _SOURCES = [
     ("met_police", _transform_met_police),
     ("openaq", _transform_openaq),
     ("green_space", _transform_green_space),
+    ("laei", _transform_laei),
     ("reddit", _transform_reddit),
     ("bbc", _transform_bbc),
     ("guardian", _transform_guardian),

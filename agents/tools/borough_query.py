@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 _VALID_METRICS = frozenset({
     "air_score",
+    "air_quality_modelled_score",
     "transit_score",
     "sentiment_score",
     "immune_score",
@@ -118,6 +119,7 @@ def get_borough_health(
         "borough_name": None,
         "timestamp": None,
         "air_score": None,
+        "air_quality_modelled_score": None,
         "transit_score": None,
         "sentiment_score": None,
         "immune_score": None,
@@ -135,7 +137,8 @@ def get_borough_health(
 
         row = con.execute("""
             SELECT borough_code, borough_name, timestamp,
-                   air_score, transit_score, sentiment_score,
+                   air_score, air_quality_modelled_score,
+                   transit_score, sentiment_score,
                    immune_score, green_space_score, green_space_access_score,
                    composite_score
             FROM (
@@ -158,12 +161,13 @@ def get_borough_health(
         "borough_name": row[1],
         "timestamp": str(row[2]),
         "air_score": row[3],
-        "transit_score": row[4],
-        "sentiment_score": row[5],
-        "immune_score": row[6],
-        "green_space_score": row[7],
-        "green_space_access_score": row[8],
-        "composite_score": row[9],
+        "air_quality_modelled_score": row[4],
+        "transit_score": row[5],
+        "sentiment_score": row[6],
+        "immune_score": row[7],
+        "green_space_score": row[8],
+        "green_space_access_score": row[9],
+        "composite_score": row[10],
     }
 
 

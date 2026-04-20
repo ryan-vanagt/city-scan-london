@@ -3,6 +3,7 @@
 export interface LondonScore {
   composite_score: number | null;
   air_score: number | null;
+  air_quality_modelled_score: number | null;
   transit_score: number | null;
   sentiment_score: number | null;
   immune_score: number | null;
@@ -17,6 +18,7 @@ export interface BoroughScore {
   borough_name: string;
   timestamp: string | null;
   air_score: number | null;
+  air_quality_modelled_score: number | null;
   transit_score: number | null;
   sentiment_score: number | null;
   immune_score: number | null;

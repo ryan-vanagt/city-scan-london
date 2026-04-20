@@ -26,19 +26,21 @@ def _row_to_document(row: tuple) -> str:
 
     Args:
         row: (borough_code, borough_name, timestamp, air_score,
-              transit_score, sentiment_score, immune_score,
-              green_space_score, green_space_access_score, composite_score,
-              ingested_at)
+              air_quality_modelled_score, transit_score, sentiment_score,
+              immune_score, green_space_score, green_space_access_score,
+              composite_score, ingested_at)
 
     Returns:
         Human-readable text description suitable for embedding.
     """
-    (code, name, ts, air, transit, sentiment, immune,
+    (code, name, ts, air, air_modelled, transit, sentiment, immune,
      green_space, green_space_access, composite, ingested_at) = row
     date_str = str(ts)[:10]
     return (
         f"{name} ({code}) scored {composite:.2f} overall on {date_str}. "
-        f"Air: {_format_score(air)}, Transit: {_format_score(transit)}, "
+        f"Air: {_format_score(air)} (live OpenAQ), "
+        f"{_format_score(air_modelled)} (LAEI 2022 modelled), "
+        f"Transit: {_format_score(transit)}, "
         f"Sentiment: {_format_score(sentiment)}, Immune: {_format_score(immune)}, "
         f"Green Space: {_format_score(green_space)} (coverage), "
         f"{_format_score(green_space_access)} (access-weighted by ward population) "
@@ -62,8 +64,8 @@ def _row_to_metadata(row: tuple) -> dict:
 
     ChromaDB metadata values cannot be None, so NULL scores are omitted.
     """
-    (code, name, ts, air, transit, sentiment, immune,
-     green_space, green_space_access, composite) = row[:10]
+    (code, name, ts, air, air_modelled, transit, sentiment, immune,
+     green_space, green_space_access, composite) = row[:11]
     date_str = str(ts)[:10]
     meta: dict = {
         "borough_code": code,
@@ -73,6 +75,8 @@ def _row_to_metadata(row: tuple) -> dict:
     }
     if air is not None:
         meta["air_score"] = air
+    if air_modelled is not None:
+        meta["air_quality_modelled_score"] = air_modelled
     if transit is not None:
         meta["transit_score"] = transit
     if sentiment is not None:
@@ -110,7 +114,8 @@ def embed_gold_scores(con: duckdb.DuckDBPyConnection) -> int:
 
     rows = con.execute("""
         SELECT borough_code, borough_name, timestamp,
-               air_score, transit_score, sentiment_score,
+               air_score, air_quality_modelled_score,
+               transit_score, sentiment_score,
                immune_score, green_space_score, green_space_access_score,
                composite_score, ingested_at
         FROM (

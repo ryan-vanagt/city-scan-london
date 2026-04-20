@@ -64,7 +64,8 @@ def london_score(con: duckdb.DuckDBPyConnection = Depends(get_connection)) -> di
     """
     try:
         rows = con.execute("""
-            SELECT borough_code, air_score, transit_score, sentiment_score,
+            SELECT borough_code, air_score, air_quality_modelled_score,
+                   transit_score, sentiment_score,
                    immune_score, green_space_score, green_space_access_score,
                    composite_score, timestamp
             FROM (
@@ -85,6 +86,7 @@ def london_score(con: duckdb.DuckDBPyConnection = Depends(get_connection)) -> di
         return {
             "composite_score": None,
             "air_score": None,
+            "air_quality_modelled_score": None,
             "transit_score": None,
             "sentiment_score": None,
             "immune_score": None,
@@ -99,13 +101,14 @@ def london_score(con: duckdb.DuckDBPyConnection = Depends(get_connection)) -> di
         return round(sum(present) / len(present), 2) if present else None
 
     return {
-        "composite_score": _avg([r[7] for r in rows]),
+        "composite_score": _avg([r[8] for r in rows]),
         "air_score": _avg([r[1] for r in rows]),
-        "transit_score": _avg([r[2] for r in rows]),
-        "sentiment_score": _avg([r[3] for r in rows]),
-        "immune_score": _avg([r[4] for r in rows]),
-        "green_space_score": _avg([r[5] for r in rows]),
-        "green_space_access_score": _avg([r[6] for r in rows]),
+        "air_quality_modelled_score": _avg([r[2] for r in rows]),
+        "transit_score": _avg([r[3] for r in rows]),
+        "sentiment_score": _avg([r[4] for r in rows]),
+        "immune_score": _avg([r[5] for r in rows]),
+        "green_space_score": _avg([r[6] for r in rows]),
+        "green_space_access_score": _avg([r[7] for r in rows]),
         "borough_count": len(rows),
-        "timestamp": str(rows[0][8]),
+        "timestamp": str(rows[0][9]),
     }

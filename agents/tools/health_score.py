@@ -33,9 +33,9 @@ def get_london_score(
         con: Optional DuckDB connection. Uses the shared lazy connection if None.
 
     Returns:
-        Dict with composite_score, air_score, transit_score, sentiment_score,
-        immune_score, green_space_score, green_space_access_score,
-        borough_count, and timestamp.
+        Dict with composite_score, air_score, air_quality_modelled_score,
+        transit_score, sentiment_score, immune_score, green_space_score,
+        green_space_access_score, borough_count, and timestamp.
     """
     if con is None:
         con = get_connection()
@@ -43,6 +43,7 @@ def get_london_score(
     _null_result = {
         "composite_score": None,
         "air_score": None,
+        "air_quality_modelled_score": None,
         "transit_score": None,
         "sentiment_score": None,
         "immune_score": None,
@@ -54,7 +55,8 @@ def get_london_score(
 
     try:
         rows = con.execute("""
-            SELECT borough_code, air_score, transit_score, sentiment_score,
+            SELECT borough_code, air_score, air_quality_modelled_score,
+                   transit_score, sentiment_score,
                    immune_score, green_space_score, green_space_access_score,
                    composite_score, timestamp
             FROM (
@@ -72,17 +74,18 @@ def get_london_score(
         return _null_result
 
     # Use MAX(timestamp) for a deterministic timestamp across all boroughs
-    ts_values = [r[8] for r in rows if r[8] is not None]
+    ts_values = [r[9] for r in rows if r[9] is not None]
     max_ts = max(ts_values) if ts_values else None
 
     return {
-        "composite_score": _avg([r[7] for r in rows]),
+        "composite_score": _avg([r[8] for r in rows]),
         "air_score": _avg([r[1] for r in rows]),
-        "transit_score": _avg([r[2] for r in rows]),
-        "sentiment_score": _avg([r[3] for r in rows]),
-        "immune_score": _avg([r[4] for r in rows]),
-        "green_space_score": _avg([r[5] for r in rows]),
-        "green_space_access_score": _avg([r[6] for r in rows]),
+        "air_quality_modelled_score": _avg([r[2] for r in rows]),
+        "transit_score": _avg([r[3] for r in rows]),
+        "sentiment_score": _avg([r[4] for r in rows]),
+        "immune_score": _avg([r[5] for r in rows]),
+        "green_space_score": _avg([r[6] for r in rows]),
+        "green_space_access_score": _avg([r[7] for r in rows]),
         "borough_count": len(rows),
         "timestamp": str(max_ts) if max_ts is not None else None,
     }

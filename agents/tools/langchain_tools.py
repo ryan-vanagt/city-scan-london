@@ -56,9 +56,9 @@ def get_trend_tool(
 
     Args:
         borough: Borough name or ONS code.
-        metric: One of air_score, transit_score, sentiment_score,
-            immune_score, green_space_score, green_space_access_score,
-            composite_score.
+        metric: One of air_score, air_quality_modelled_score, transit_score,
+            sentiment_score, immune_score, green_space_score,
+            green_space_access_score, composite_score.
         days: Lookback window, 1-30 (default 7).
     """
     borough = borough[:100]
@@ -77,9 +77,9 @@ def compare_boroughs_tool(
     Use ascending=True for worst boroughs first (lowest score).
 
     Args:
-        metric: One of air_score, transit_score, sentiment_score,
-            immune_score, green_space_score, green_space_access_score,
-            composite_score.
+        metric: One of air_score, air_quality_modelled_score, transit_score,
+            sentiment_score, immune_score, green_space_score,
+            green_space_access_score, composite_score.
         top_n: Number of boroughs to return (1-33, default 5).
         ascending: Sort order. False=best first, True=worst first.
     """
@@ -96,9 +96,14 @@ def run_sql_tool(query: str) -> dict:
 
     Available tables:
       - gold_scores: borough_code, borough_name, timestamp, air_score,
-        transit_score, sentiment_score, immune_score, green_space_score,
-        green_space_access_score, composite_score, ingested_at, pipeline_stage
-        (green_space_score = raw GLA green cover %, min-max normalised 0-100.
+        air_quality_modelled_score, transit_score, sentiment_score,
+        immune_score, green_space_score, green_space_access_score,
+        composite_score, ingested_at, pipeline_stage
+        (air_score = live OpenAQ hourly readings, 24/33 borough coverage,
+         updates each cycle. air_quality_modelled_score = LAEI 2022 GLA
+         modelled population-weighted annual mean, 33/33 coverage, yearly
+         static — use for equity analysis and cross-borough comparison.
+         green_space_score = raw GLA green cover %, min-max normalised 0-100.
          green_space_access_score = same cover but weighted by ward-level
          residential population, so low-residential wards like Hyde Park in
          Westminster contribute less; use this when comparing equitable access

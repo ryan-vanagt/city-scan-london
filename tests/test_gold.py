@@ -80,13 +80,13 @@ def test_names_match_codes(real_gold_data):
 
 def test_no_null_composite_scores(real_gold_data):
     gold_data, _ = real_gold_data
-    composites = [row[8] for row in gold_data]
+    composites = [row[10] for row in gold_data]
     assert all(c is not None for c in composites)
 
 
 def test_all_composites_in_range(real_gold_data):
     gold_data, _ = real_gold_data
-    composites = [row[8] for row in gold_data]
+    composites = [row[10] for row in gold_data]
     assert all(0 <= c <= 100 for c in composites), \
         f"range: [{min(composites)}, {max(composites)}]"
 
@@ -95,9 +95,11 @@ def test_all_sub_scores_null_or_in_range(real_gold_data):
     gold_data, _ = real_gold_data
     for row in gold_data:
         bc = row[0]
-        for label, val in [("air", row[3]), ("transit", row[4]),
-                            ("sentiment", row[5]), ("immune", row[6]),
-                            ("green_space", row[7])]:
+        # Schema: 3=air, 4=air_modelled, 5=transit, 6=sentiment, 7=immune,
+        # 8=green_space, 9=green_space_access
+        for label, val in [("air", row[3]), ("air_modelled", row[4]),
+                            ("transit", row[5]), ("sentiment", row[6]),
+                            ("immune", row[7]), ("green_space", row[8])]:
             assert val is None or 0 <= val <= 100, \
                 f"{bc} {label}={val} out of [0, 100]"
 
@@ -107,13 +109,13 @@ def test_transit_coverage_matches_mapping(real_gold_data):
     from pipeline.schemas import LINE_TO_BOROUGHS
     expected = len({bc for bcs in LINE_TO_BOROUGHS.values() for bc in bcs})
     gold_data, _ = real_gold_data
-    has_transit = sum(1 for r in gold_data if r[4] is not None)
+    has_transit = sum(1 for r in gold_data if r[5] is not None)
     assert has_transit == expected, f"expected {expected} transit-covered boroughs, got {has_transit}"
 
 
 def test_sentiment_coverage_is_33(real_gold_data):
     gold_data, _ = real_gold_data
-    has_sentiment = sum(1 for r in gold_data if r[5] is not None)
+    has_sentiment = sum(1 for r in gold_data if r[6] is not None)
     assert has_sentiment == 33, f"expected 33 sentiment-covered boroughs, got {has_sentiment}"
 
 
@@ -125,22 +127,22 @@ def test_air_coverage_at_least_10(real_gold_data):
 
 def test_immune_coverage_at_least_30(real_gold_data):
     gold_data, _ = real_gold_data
-    has_immune = sum(1 for r in gold_data if r[6] is not None)
+    has_immune = sum(1 for r in gold_data if r[7] is not None)
     assert has_immune >= 30, f"expected >= 30 immune-covered boroughs, got {has_immune}"
 
 
 def test_composite_equals_weighted_avg_of_sub_scores(real_gold_data):
     """Composite is the weighted average of sub-scores using RAW green_space
-    (not the access-weighted variant in column 8)."""
+    (not access-weighted or the new LAEI air_modelled variant)."""
     gold_data, _ = real_gold_data
     weights = _load_weights()
     for row in gold_data:
         bc = row[0]
         # Schema: 0=borough_code, 1=borough_name, 2=timestamp,
-        # 3=air, 4=transit, 5=sentiment, 6=immune,
-        # 7=green_space, 8=green_space_access, 9=composite
+        # 3=air, 4=air_modelled, 5=transit, 6=sentiment, 7=immune,
+        # 8=green_space, 9=green_space_access, 10=composite
         air, transit, sentiment, immune, green_space, composite = (
-            row[3], row[4], row[5], row[6], row[7], row[9]
+            row[3], row[5], row[6], row[7], row[8], row[10]
         )
         pairs = [(air, weights[0]), (transit, weights[1]),
                  (sentiment, weights[2]), (immune, weights[3]),
@@ -156,7 +158,7 @@ def test_tube_transit_coverage_correct(real_gold_data):
     NO_TUBE = {"E09000004", "E09000006", "E09000008", "E09000012",
                "E09000021", "E09000023", "E09000029"}
     for row in gold_data:
-        bc, transit = row[0], row[4]
+        bc, transit = row[0], row[5]
         if bc in NO_TUBE:
             assert transit is None, \
                 f"{bc} ({BOROUGHS[bc]['name']}) should have NULL transit, got {transit}"
@@ -174,7 +176,7 @@ def test_sentiment_equals_avg_across_sources(real_gold_data):
             sentiment_by_borough.setdefault(bc, []).append(srow[5])
 
     for row in gold_data:
-        bc, sentiment = row[0], row[5]
+        bc, sentiment = row[0], row[6]
         if bc in sentiment_by_borough and sentiment is not None:
             expected_avg = mean(sentiment_by_borough[bc])
             assert abs(sentiment - expected_avg) <= 0.01, \
@@ -234,7 +236,7 @@ def test_ddl_rejects_null_composite(fresh_db):
     with pytest.raises(duckdb.Error):
         fresh_db.execute(
             "INSERT INTO gold_scores VALUES "
-            "('E09000001','Test','2026-01-01T00:00:00+00',80,90,70,60,50,NULL,NULL,'2026-01-01T00:00:00+00','gold')"
+            "('E09000001','Test','2026-01-01T00:00:00+00',80,85,90,70,60,50,NULL,NULL,'2026-01-01T00:00:00+00','gold')"
         )
 
 

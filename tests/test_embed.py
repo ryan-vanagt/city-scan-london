@@ -104,23 +104,23 @@ def in_memory_chroma():
 def sample_row():
     """A fully-populated gold_scores row tuple.
 
-    Schema: (borough_code, borough_name, timestamp, air_score, transit_score,
-    sentiment_score, immune_score, green_space_score, green_space_access_score,
-    composite_score, ingested_at)
+    Schema: (borough_code, borough_name, timestamp, air_score,
+    air_quality_modelled_score, transit_score, sentiment_score, immune_score,
+    green_space_score, green_space_access_score, composite_score, ingested_at)
     """
     return (
         "E09000007", "Camden", "2026-04-10T12:00:00+00:00",
-        34.2, 82.0, 61.5, 55.6, 45.0, 40.0, 58.3,
+        34.2, 36.1, 82.0, 61.5, 55.6, 45.0, 40.0, 58.3,
         "2026-04-10T12:00:00+00:00",
     )
 
 
 @pytest.fixture
 def sample_row_nulls():
-    """A gold_scores row tuple with NULL air and transit scores."""
+    """A gold_scores row tuple with NULL live air + transit scores."""
     return (
         "E09000006", "Bromley", "2026-04-10T12:00:00+00:00",
-        None, None, 43.5, 71.2, 48.0, 42.0, 62.5,
+        None, 42.5, None, 43.5, 71.2, 48.0, 42.0, 62.5,
         "2026-04-10T12:00:00+00:00",
     )
 

@@ -11,6 +11,7 @@ from pipeline.silver import (
     _transform_bbc,
     _transform_green_space,
     _transform_guardian,
+    _transform_laei,
     _transform_met_police,
     _transform_nhs_ae,
     _transform_openaq,
@@ -94,6 +95,7 @@ SOURCES = [
     ("met_police",  _transform_met_police,  "crime"),
     ("openaq",      _transform_openaq,      "air_quality"),
     ("green_space", _transform_green_space, {"green_space", "green_space_access"}),
+    ("laei",        _transform_laei,        "air_quality_modelled"),
     ("reddit",      _transform_reddit,      "sentiment"),
     ("bbc",         _transform_bbc,         "sentiment"),
     ("guardian",    _transform_guardian,    "sentiment"),
@@ -125,6 +127,7 @@ EXPECTED_COVERAGE = {
     "met_police":  ("exact", 33),
     "openaq":      ("min",   15),
     "green_space": ("exact", 33),
+    "laei":        ("exact", 33),
     "reddit":      ("exact", 33),
     "bbc":         ("exact", 33),
     "guardian":    ("exact", 33),
@@ -263,6 +266,55 @@ def test_access_weighted_green_falls_back_when_no_ward_pop(monkeypatch):
     # Access-weighted should fall back to the raw borough value
     assert by_metric["green_space_access"][4] == 42.0, \
         f"expected fallback to 42.0, got {by_metric['green_space_access'][4]}"
+
+
+def test_laei_both_pollutants_use_weighted_who_ratio():
+    """LAEI transform: when both PM2.5 + NO2 present, use 60/40 weighted ratio."""
+    from pipeline.silver import _transform_laei
+    payload = {
+        "results": [
+            {"borough_code": "E09000001", "borough_name": "City of London",
+             "pm25": 10.82, "no2": 30.19},
+            {"borough_code": "E09000016", "borough_name": "Havering",
+             "pm25": 8.10, "no2": 16.20},
+        ],
+    }
+    rows = _transform_laei(payload, "2026-04-20T12:00:00+00:00")
+    assert len(rows) == 2
+    # Both metrics rows tagged consistently
+    assert {r[3] for r in rows} == {"air_quality_modelled"}
+    assert {r[6] for r in rows} == {"laei"}
+    # Verify the WHO-ratio decay: Havering should score higher than City of London
+    # (lower pollution = higher score)
+    by_borough = {r[0]: r[5] for r in rows}
+    assert by_borough["E09000016"] > by_borough["E09000001"], \
+        f"Havering ({by_borough['E09000016']}) should score higher than City of London ({by_borough['E09000001']})"
+    # Both scores within [0, 100]
+    assert all(0 <= r[5] <= 100 for r in rows)
+    # raw_value should be the PM2.5 value (PM2.5 takes precedence)
+    city_raw = next(r[4] for r in rows if r[0] == "E09000001")
+    assert abs(city_raw - 10.82) < 0.01
+
+
+def test_laei_missing_pollutant_falls_back_to_the_other():
+    """LAEI transform: when only one pollutant is present, use its own WHO ratio."""
+    from pipeline.silver import _transform_laei
+    payload = {
+        "results": [
+            {"borough_code": "E09000001", "borough_name": "City of London",
+             "pm25": 10.0, "no2": None},
+            {"borough_code": "E09000016", "borough_name": "Havering",
+             "pm25": None, "no2": 25.0},
+        ],
+    }
+    rows = _transform_laei(payload, "2026-04-20T12:00:00+00:00")
+    assert len(rows) == 2
+    # PM2.5-only row: raw = PM2.5
+    pm_row = next(r for r in rows if r[0] == "E09000001")
+    assert abs(pm_row[4] - 10.0) < 0.01
+    # NO2-only row: raw = NO2
+    no2_row = next(r for r in rows if r[0] == "E09000016")
+    assert abs(no2_row[4] - 25.0) < 0.01
 
 
 def test_access_weighted_green_excludes_unknown_wards(monkeypatch):

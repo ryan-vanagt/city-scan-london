@@ -268,6 +268,7 @@ CREATE TABLE IF NOT EXISTS gold_scores (
     borough_name              VARCHAR NOT NULL,
     timestamp                 TIMESTAMPTZ NOT NULL,
     air_score                 DOUBLE CHECK (air_score >= 0 AND air_score <= 100),
+    air_quality_modelled_score DOUBLE CHECK (air_quality_modelled_score >= 0 AND air_quality_modelled_score <= 100),
     transit_score             DOUBLE CHECK (transit_score >= 0 AND transit_score <= 100),
     sentiment_score           DOUBLE CHECK (sentiment_score >= 0 AND sentiment_score <= 100),
     immune_score              DOUBLE CHECK (immune_score >= 0 AND immune_score <= 100),
@@ -373,5 +374,6 @@ def init_db(con: duckdb.DuckDBPyConnection) -> None:
     # call is independent and idempotent.
     _ensure_column(con, "gold_scores", "green_space_score", "DOUBLE")
     _ensure_column(con, "gold_scores", "green_space_access_score", "DOUBLE")
+    _ensure_column(con, "gold_scores", "air_quality_modelled_score", "DOUBLE")
 
     logger.info("DuckDB tables initialised")

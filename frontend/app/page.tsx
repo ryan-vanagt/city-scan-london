@@ -54,6 +54,7 @@ export default function Home() {
   const [londonScore, setLondonScore] = useState<LondonScore>({
     composite_score: null,
     air_score: null,
+    air_quality_modelled_score: null,
     transit_score: null,
     sentiment_score: null,
     immune_score: null,

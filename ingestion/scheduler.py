@@ -40,7 +40,7 @@ logger = logging.getLogger(__name__)
 
 from agents.bulletin import generate_bulletin  # noqa: E402
 from agents.logging_db import ensure_bulletin_logs_table  # noqa: E402
-from ingestion.sources import bbc, green_space, guardian, met_police, nhs_ae, openaq, reddit, tfl  # noqa: E402
+from ingestion.sources import bbc, green_space, guardian, laei, met_police, nhs_ae, openaq, reddit, tfl  # noqa: E402
 from pipeline import bronze, gold, silver  # noqa: E402
 from pipeline.embed import embed_gold_scores  # noqa: E402
 from pipeline.schemas import init_db  # noqa: E402
@@ -60,6 +60,7 @@ SLOW_SOURCES: dict[str, ModuleType] = {
     "met_police": met_police,
     "nhs_ae": nhs_ae,
     "green_space": green_space,
+    "laei": laei,
 }
 
 DB_PATH = str(PROJECT_ROOT / "data" / "cityscan.duckdb")

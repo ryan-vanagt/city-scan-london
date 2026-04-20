@@ -90,6 +90,7 @@ export default function LondonMap({
               borough_name: geo.name,
               timestamp: null,
               air_score: null,
+              air_quality_modelled_score: null,
               transit_score: null,
               sentiment_score: null,
               immune_score: null,

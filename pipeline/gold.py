@@ -113,7 +113,7 @@ def aggregate(con: duckdb.DuckDBPyConnection) -> int:
     skipped: list[str] = []
 
     # Coverage counters for logging
-    coverage = {"air": 0, "transit": 0, "sentiment": 0, "immune": 0, "green_space": 0, "green_space_access": 0}
+    coverage = {"air": 0, "air_modelled": 0, "transit": 0, "sentiment": 0, "immune": 0, "green_space": 0, "green_space_access": 0}
 
     for borough_code in BOROUGHS:
         metrics = borough_data.get(borough_code, {})
@@ -121,6 +121,9 @@ def aggregate(con: duckdb.DuckDBPyConnection) -> int:
 
         # Pivot: each sub-score is the average of its constituent metric_names
         air_score = mean(metrics["air_quality"]) if "air_quality" in metrics else None
+        air_quality_modelled_score = (
+            mean(metrics["air_quality_modelled"]) if "air_quality_modelled" in metrics else None
+        )
         transit_score = mean(metrics["transit"]) if "transit" in metrics else None
 
         # Sentiment: average across up to 3 sources (reddit, bbc, guardian)
@@ -144,6 +147,8 @@ def aggregate(con: duckdb.DuckDBPyConnection) -> int:
         # Track coverage
         if air_score is not None:
             coverage["air"] += 1
+        if air_quality_modelled_score is not None:
+            coverage["air_modelled"] += 1
         if transit_score is not None:
             coverage["transit"] += 1
         if sentiment_score is not None:
@@ -183,6 +188,7 @@ def aggregate(con: duckdb.DuckDBPyConnection) -> int:
             borough_name,
             now,
             air_score,
+            air_quality_modelled_score,
             transit_score,
             sentiment_score,
             immune_score,
@@ -206,17 +212,17 @@ def aggregate(con: duckdb.DuckDBPyConnection) -> int:
     con.executemany(
         """
         INSERT INTO gold_scores
-        (borough_code, borough_name, timestamp, air_score, transit_score,
-         sentiment_score, immune_score, green_space_score, green_space_access_score,
-         composite_score, ingested_at, pipeline_stage)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (borough_code, borough_name, timestamp, air_score, air_quality_modelled_score,
+         transit_score, sentiment_score, immune_score, green_space_score,
+         green_space_access_score, composite_score, ingested_at, pipeline_stage)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         rows,
     )
 
     logger.info(
-        "Gold: %d rows inserted — coverage: air=%d, transit=%d, sentiment=%d, immune=%d, green_space=%d, green_space_access=%d",
-        len(rows), coverage["air"], coverage["transit"],
+        "Gold: %d rows inserted — coverage: air=%d, air_modelled=%d, transit=%d, sentiment=%d, immune=%d, green_space=%d, green_space_access=%d",
+        len(rows), coverage["air"], coverage["air_modelled"], coverage["transit"],
         coverage["sentiment"], coverage["immune"],
         coverage["green_space"], coverage["green_space_access"],
     )
