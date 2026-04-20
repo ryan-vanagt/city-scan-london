@@ -38,7 +38,7 @@ export default function MobileNotice() {
             CityScan London
           </h1>
           <p className="text-xs text-slate-400 uppercase tracking-widest">
-            Desktop dashboard
+            Desktop experience
           </p>
         </div>
 
