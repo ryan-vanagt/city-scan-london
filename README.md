@@ -6,10 +6,10 @@ Seven public data sources map to five biological systems, producing a health sco
 
 | System | Data Source | Signal |
 |---|---|---|
-| 🫁 Lungs | OpenAQ | Air quality (PM2.5, NO2) |
+| 🫁 Lungs | OpenAQ (live) + GLA LAEI 2022 (modelled) | Air quality (PM2.5, NO2) — live sensor readings **plus** modelled population-weighted annual mean for full 33/33 borough coverage |
 | 🩸 Arteries | TfL API | Tube line status & severity scores |
 | 🧠 Brain | Guardian + BBC News | Public sentiment (NLP) |
-| 🛡️ Immune system | Met Police API + NHS England A&E | Per-capita crime (winsorised) + A&E pressure |
+| 🛡️ Immune system | Met Police API + NHS England A&E | Per-capita crime (log-transformed) + A&E pressure |
 | 🌿 Skin | GLA Green Cover 2024 + ONS ward populations | Green space **coverage** and **ward-population-weighted access** per borough |
 
 ## Stack
@@ -24,6 +24,7 @@ python scripts/generate_geo_mappings.py   # fetch borough/TfL/NHS geographic dat
 python scripts/fetch_population.py        # fetch ONS borough populations (per-capita crime)
 python scripts/fetch_population.py --wards # fetch ONS ward populations (access-weighted green)
 python scripts/fetch_green_space.py       # fetch GLA green cover data
+python scripts/fetch_laei.py              # fetch GLA LAEI 2022 modelled air quality
 python scripts/fetch_imd.py              # fetch IMD 2025 deprivation data
 ```
 

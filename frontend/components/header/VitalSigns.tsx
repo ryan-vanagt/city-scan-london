@@ -10,7 +10,7 @@
 
 import { useMemo } from "react";
 import { HeartPulse } from "lucide-react";
-import type { BoroughScore, LondonScore, MetricFilter } from "@/lib/types";
+import type { BoroughScore, LondonScore, MetricFilter, MetricFilterKey } from "@/lib/types";
 import { scoreToColour, XRAY_BLUE } from "@/lib/colours";
 import EkgLine from "./EkgLine";
 
@@ -22,7 +22,7 @@ interface VitalSignsProps {
 }
 
 interface MetricConfig {
-  key: "air_score" | "transit_score" | "sentiment_score" | "immune_score" | "green_space_score";
+  key: MetricFilterKey;
   label: string;
   ekgVariant: "air" | "transit" | "sentiment" | "immune" | "green_space";
 }

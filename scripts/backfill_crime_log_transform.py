@@ -215,7 +215,7 @@ def backfill(db_path: Path) -> None:
     finally:
         con.close()
 
-    logger.info("Done. Remember to refresh the read replica (copy to cityscan_read.duckdb).")
+    logger.warning("Done. Remember to refresh the read replica (copy to cityscan_read.duckdb).")
 
 
 if __name__ == "__main__":

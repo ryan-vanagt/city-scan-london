@@ -40,6 +40,25 @@ _last_bulletin_time: float = 0
 
 
 _DOCTOR_ACCESS_CODE = os.environ.get("DOCTOR_ACCESS_CODE", "")
+if not _DOCTOR_ACCESS_CODE:
+    logger.warning(
+        "DOCTOR_ACCESS_CODE is unset — /agent/query and /bulletin/generate "
+        "will refuse all callers. Set DOCTOR_ACCESS_CODE to open the endpoints."
+    )
+
+
+def _client_ip(request: Request) -> str:
+    """Rate-limit key: use the real TCP peer, not X-Forwarded-For.
+
+    XFF is trivially spoofed when we are not behind a trusted reverse proxy.
+    The live deployment binds uvicorn directly to 0.0.0.0:8000, so the only
+    trustworthy client identifier is the TCP peer address. Revisit this if
+    we ever add a reverse proxy — at that point we must explicitly parse
+    XFF and trust only the upstream hop.
+    """
+    if request.client:
+        return request.client.host
+    return "unknown"
 
 
 class AgentQuery(BaseModel):
@@ -79,13 +98,12 @@ async def _guarded_sse_stream(question: str, request: Request):
 @router.post("/agent/query")
 async def agent_query(body: AgentQuery, request: Request):
     """Stream a Doctor Agent response as Server-Sent Events."""
-    # Access code check (if DOCTOR_ACCESS_CODE is set in env)
-    if _DOCTOR_ACCESS_CODE and body.access_code != _DOCTOR_ACCESS_CODE:
+    # Fail closed when access code is unset, and reject any mismatch.
+    if not _DOCTOR_ACCESS_CODE or body.access_code != _DOCTOR_ACCESS_CODE:
         raise HTTPException(status_code=403, detail="Invalid access code. The Doctor requires an access code for consultations.")
 
-    # Rate limiting (per-IP + global daily cap)
-    forwarded = request.headers.get("X-Forwarded-For")
-    client_ip = forwarded.split(",")[0].strip() if forwarded else (request.client.host if request.client else "unknown")
+    # Rate limiting (per-IP + global daily cap) keyed on real TCP peer.
+    client_ip = _client_ip(request)
     limit_msg = check_rate_limit(client_ip)
     if limit_msg:
         raise HTTPException(status_code=429, detail=limit_msg)
@@ -139,14 +157,27 @@ async def bulletin_latest():
 async def bulletin_generate(request: Request):
     """Trigger on-demand bulletin generation.
 
-    Note: each call invokes an LLM (Claude Haiku) and incurs API cost.
-    Rate-limited to one call per 60 seconds to prevent accidental cost spikes.
-    Protected by DOCTOR_ACCESS_CODE if set.
+    Each call invokes an LLM (Claude Haiku) and incurs API cost. Protected
+    by DOCTOR_ACCESS_CODE (mandatory — refuses all callers when unset) plus
+    the per-IP rate limiter used by the Doctor endpoint, plus a 60s global
+    cooldown.
     """
-    if _DOCTOR_ACCESS_CODE:
-        body = await request.json() if request.headers.get("content-type", "").startswith("application/json") else {}
-        if body.get("access_code") != _DOCTOR_ACCESS_CODE:
-            raise HTTPException(status_code=403, detail="Access code required for bulletin generation")
+    body: dict = {}
+    if request.headers.get("content-type", "").startswith("application/json"):
+        try:
+            raw = await request.body()
+            if raw:
+                body = json.loads(raw)
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            body = {}
+    if not _DOCTOR_ACCESS_CODE or body.get("access_code") != _DOCTOR_ACCESS_CODE:
+        raise HTTPException(status_code=403, detail="Access code required for bulletin generation")
+
+    # Per-IP rate limit so distributed callers can't hammer the module-global cooldown.
+    client_ip = _client_ip(request)
+    limit_msg = check_rate_limit(client_ip)
+    if limit_msg:
+        raise HTTPException(status_code=429, detail=limit_msg)
 
     global _last_bulletin_time
     now = time.time()

@@ -12,6 +12,7 @@ flowchart TD
     MP[Met Police API] -->|"daily (data updates monthly)"| B_MP[bronze/met_police/]
     NHS[NHS England A&E CSV] -->|"daily (data updates monthly)"| B_NHS[bronze/nhs_ae/]
     GS[GLA Green Cover 2024] -->|"daily (static yearly data)"| B_GS[data/static/green_space.json]
+    LAEI[GLA LAEI 2022<br>modelled air quality] -->|"daily (static yearly data)"| B_LAEI[data/static/laei_air_quality.json]
     WP[ONS Nomis NM_2014_1<br>ward populations] -.->|static join at silver| S
 
     B_OQ --> S[Silver layer\nDuckDB: silver_metrics]
@@ -23,6 +24,7 @@ flowchart TD
     B_MP --> S
     B_NHS --> S
     B_GS --> S
+    B_LAEI --> S
 
     S --> G[Gold layer\nDuckDB: gold_scores]
     G --> CH[ChromaDB\nembeddings]
@@ -68,7 +70,7 @@ Every Silver and Gold record carries:
 
 | Field            | Description                                                                       |
 | ---------------- | --------------------------------------------------------------------------------- |
-| `source`         | Origin API (`openaq`, `tfl`, `reddit`, `guardian`, `bbc`, `met_police`, `nhs_ae`, `green_space`) |
+| `source`         | Origin API (`openaq`, `tfl`, `reddit`, `guardian`, `bbc`, `met_police`, `nhs_ae`, `green_space`, `laei`) |
 | `ingested_at`    | UTC timestamp of when the raw data was fetched                                    |
 | `pipeline_stage` | `bronze`, `silver`, or `gold`                                                     |
 

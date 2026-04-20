@@ -35,10 +35,12 @@ def insert_gold(
     borough_code: str,
     borough_name: str,
     air: float | None = None,
+    air_modelled: float | None = None,
     transit: float | None = None,
     sentiment: float | None = None,
     immune: float | None = None,
     green_space: float | None = 45.0,
+    green_space_access: float | None = None,
     composite: float = 50.0,
     timestamp: str | None = None,
     ingested_at: str | None = None,
@@ -51,14 +53,15 @@ def insert_gold(
     con.execute(
         """
         INSERT INTO gold_scores
-        (borough_code, borough_name, timestamp, air_score, transit_score,
-         sentiment_score, immune_score, green_space_score, composite_score,
-         ingested_at, pipeline_stage)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (borough_code, borough_name, timestamp, air_score, air_quality_modelled_score,
+         transit_score, sentiment_score, immune_score, green_space_score,
+         green_space_access_score, composite_score, ingested_at, pipeline_stage)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         [
-            borough_code, borough_name, timestamp, air, transit,
-            sentiment, immune, green_space, composite, ingested_at, "gold",
+            borough_code, borough_name, timestamp, air, air_modelled, transit,
+            sentiment, immune, green_space, green_space_access, composite,
+            ingested_at, "gold",
         ],
     )
 
@@ -396,14 +399,14 @@ def test_updated_embed_overwrites_doc(fresh_db, in_memory_chroma):
     fresh_db.execute(
         """
         INSERT INTO gold_scores
-        (borough_code, borough_name, timestamp, air_score, transit_score,
-         sentiment_score, immune_score, green_space_score, composite_score,
-         ingested_at, pipeline_stage)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (borough_code, borough_name, timestamp, air_score, air_quality_modelled_score,
+         transit_score, sentiment_score, immune_score, green_space_score,
+         green_space_access_score, composite_score, ingested_at, pipeline_stage)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         [
-            "E09000007", "Camden", now, 50.0, 82.0,
-            61.5, 55.6, 45.0, 62.3, now, "gold",
+            "E09000007", "Camden", now, 50.0, 40.0, 82.0,
+            61.5, 55.6, 45.0, 42.0, 62.3, now, "gold",
         ],
     )
     embed_gold_scores(fresh_db)
@@ -428,14 +431,14 @@ def test_updated_embed_doc_count_unchanged(fresh_db, in_memory_chroma):
     fresh_db.execute(
         """
         INSERT INTO gold_scores
-        (borough_code, borough_name, timestamp, air_score, transit_score,
-         sentiment_score, immune_score, green_space_score, composite_score,
-         ingested_at, pipeline_stage)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (borough_code, borough_name, timestamp, air_score, air_quality_modelled_score,
+         transit_score, sentiment_score, immune_score, green_space_score,
+         green_space_access_score, composite_score, ingested_at, pipeline_stage)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         [
-            "E09000007", "Camden", "2026-04-09T14:00:00+00:00", 50.0, 82.0,
-            61.5, 55.6, 45.0, 62.3, "2026-04-09T14:00:00+00:00", "gold",
+            "E09000007", "Camden", "2026-04-09T14:00:00+00:00", 50.0, 40.0, 82.0,
+            61.5, 55.6, 45.0, 42.0, 62.3, "2026-04-09T14:00:00+00:00", "gold",
         ],
     )
     assert embed_gold_scores(fresh_db) == 2

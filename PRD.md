@@ -17,10 +17,10 @@ CityScan is a live urban health monitoring platform that models London as a huma
 
 | Organ             | Data Source                                     | Signal                                      | Update Cadence | Data Lag                          |
 | ----------------- | ----------------------------------------------- | ------------------------------------------- | -------------- | --------------------------------- |
-| 🫁 Lungs          | OpenAQ API                                      | PM2.5, NO2 per borough                       | Hourly         | ~1 hour                           |
+| 🫁 Lungs          | OpenAQ API + GLA LAEI 2022                      | PM2.5, NO2 per borough (live sensor readings **plus** modelled population-weighted annual mean for 33/33 coverage) | Hourly (live) · Yearly (modelled) | Live: ~1 hour · Modelled: 2022 static |
 | 🩸 Arteries       | TfL Unified API                                 | Tube line status & severity scores          | Hourly         | Near-real-time (fetched hourly)                         |
 | 🧠 Brain          | Guardian API + BBC News RSS                     | NLP sentiment score from headlines           | Hourly         | ~1 hour                           |
-| 🛡️ Immune System | Met Police API + NHS England A&E stats          | Per-capita crime (winsorised) + A&E pressure index | Monthly        | Crime: ~2 months · A&E: ~2 months |
+| 🛡️ Immune System | Met Police API + NHS England A&E stats          | Per-capita crime (log-transformed) + A&E pressure index | Monthly        | Crime: ~2 months · A&E: ~2 months |
 | 🌿 Skin           | GLA Green Cover 2024 + ONS ward populations (NM_2014_1) | Green-space **coverage** AND ward-population-weighted **access** per borough | Yearly         | Static (2024 snapshot, manual yearly refresh) |
 
 
@@ -37,8 +37,8 @@ Each signal is normalised to a 0–100 score (100 = healthy). The composite boro
 **Bronze layer** — raw ingestion
 
 - Raw API responses stored as timestamped JSON files
-- One directory per source: `/data/bronze/openaq/`, `/data/bronze/tfl/`, `/data/bronze/reddit/`, `/data/bronze/guardian/`, `/data/bronze/bbc/`, `/data/bronze/met_police/`
-- Green space data is static (GLA Green Cover 2024) and stored in `/data/static/green_space.json` rather than bronze (no raw API response to capture)
+- One directory per source: `/data/bronze/openaq/`, `/data/bronze/tfl/`, `/data/bronze/reddit/`, `/data/bronze/guardian/`, `/data/bronze/bbc/`, `/data/bronze/met_police/`, `/data/bronze/laei/`
+- Green space data is static (GLA Green Cover 2024) and stored in `/data/static/green_space.json` rather than bronze (no raw API response to capture). LAEI modelled air is similarly a static yearly snapshot stored in `/data/static/laei_air_quality.json`
 - Nothing is transformed at this stage
 - Ingestion runs on a schedule via APScheduler inside the `ingestion` service
 
@@ -61,7 +61,7 @@ Each signal is normalised to a 0–100 score (100 = healthy). The composite boro
 **Gold layer** — aggregated health scores
 
 - One row per borough per ingestion cycle:
-`(borough_code, borough_name, timestamp, air_score, transit_score, sentiment_score, immune_score, green_space_score, green_space_access_score, composite_score, ingested_at, pipeline_stage)`
+`(borough_code, borough_name, timestamp, air_score, air_quality_modelled_score, transit_score, sentiment_score, immune_score, green_space_score, green_space_access_score, composite_score, ingested_at, pipeline_stage)`
 - Stored in DuckDB (structured) and embedded into ChromaDB (vector, for RAG)
 - Composite score = weighted average: air (20%), transit (20%), sentiment (20%), immune (20%), green space (20%). **Composite uses raw `green_space_score` (coverage), not the access-weighted variant** — this keeps the headline number stable across a refactor and leaves the access variant as an alternative view.
 - Weights are configurable via environment variable `SCORE_WEIGHTS`

@@ -234,8 +234,11 @@ def job_silver_retention() -> None:
                     c = r.fetchone()[0]
                     if c > 0:
                         logger.info("Silver retention: deleted %d %s rows", c, table)
-                except Exception:
-                    logger.debug("Silver retention: %s table may not exist yet", table)
+                except duckdb.CatalogException:
+                    # Table may not exist on first boot — only expected miss.
+                    logger.debug("Silver retention: %s table not yet created", table)
+                except duckdb.Error as table_exc:
+                    logger.warning("Silver retention: %s cleanup failed: %s", table, table_exc)
         except Exception as exc:
             logger.error("Silver retention failed: %s", exc)
         finally:

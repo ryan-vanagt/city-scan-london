@@ -20,6 +20,7 @@ import pytest
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 PORT = 18766
 BASE = f"http://127.0.0.1:{PORT}"
+TEST_DOCTOR_ACCESS_CODE = "test-doctor-code"
 
 pytestmark = pytest.mark.api_key
 
@@ -98,11 +99,13 @@ def require_api_key():
 @pytest.fixture(scope="module")
 def api_server():
     """Start API server once for all tests in this module."""
+    env = {**os.environ, "DOCTOR_ACCESS_CODE": TEST_DOCTOR_ACCESS_CODE}
     server = subprocess.Popen(
         [sys.executable, "-m", "uvicorn", "api.main:app", "--port", str(PORT)],
         cwd=str(PROJECT_ROOT),
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        env=env,
     )
 
     ready = False
@@ -131,7 +134,10 @@ def api_server():
 @pytest.fixture(scope="module")
 def camden_response(api_server):
     """Make the Camden SSE request once and share the parsed events."""
-    status, body = post_sse("/agent/query", {"question": "How is Camden doing?"})
+    status, body = post_sse("/agent/query", {
+        "question": "How is Camden doing?",
+        "access_code": TEST_DOCTOR_ACCESS_CODE,
+    })
     return status, parse_sse(body)
 
 
@@ -139,7 +145,10 @@ def camden_response(api_server):
 def london_response(api_server):
     """Make the London score SSE request once and share the parsed events."""
     status, body = post_sse(
-        "/agent/query", {"question": "What is the overall London health score?"}
+        "/agent/query", {
+            "question": "What is the overall London health score?",
+            "access_code": TEST_DOCTOR_ACCESS_CODE,
+        }
     )
     return status, parse_sse(body)
 

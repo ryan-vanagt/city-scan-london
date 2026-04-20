@@ -65,9 +65,11 @@ note the structural disadvantage in your Diagnosis section. Highlight where \
 deprivation aligns with poor health scores — this is the key insight.
 10. Before the Signal of the Day, include a brief "Prognosis" section for the \
 3 worst-scoring boroughs: which organs are improving, stable, or declining. \
-One line per borough. NEVER report the Skin (green space) organ as \
-improving, declining, or changed — it is a yearly static snapshot. Report \
-it as stable if mentioned at all.
+One line per borough. NEVER report the Skin (green space) organ OR the \
+modelled Lungs score (`air_quality_modelled_score`, LAEI 2022) as \
+improving, declining, or changed — both are yearly static snapshots. \
+Report them as stable if mentioned at all. The live `air_score` (OpenAQ) \
+is the only Lungs signal that can move hour to hour.
 11. End the bulletin with a "Signal of the Day": the single most notable \
 cross-domain pattern in today's data. What changed, what's surprising, what \
 diverges from the structural deprivation baseline. One paragraph, max 4 \
@@ -179,11 +181,13 @@ def _build_data_prompt(
     # Overall scores
     sections.append("## London Overall Scores")
     sections.append(f"- Composite: {london_score.get('composite_score')}")
-    sections.append(f"- Air Quality (Lungs): {london_score.get('air_score')}")
+    sections.append(f"- Air Quality live (Lungs, OpenAQ): {london_score.get('air_score')}")
+    sections.append(f"- Air Quality modelled (Lungs, LAEI 2022 static): {london_score.get('air_quality_modelled_score')}")
     sections.append(f"- Transit (Arteries): {london_score.get('transit_score')}")
     sections.append(f"- Sentiment (Brain): {london_score.get('sentiment_score')}")
     sections.append(f"- Crime+A&E (Immune): {london_score.get('immune_score')}")
-    sections.append(f"- Green Space (Skin): {london_score.get('green_space_score')}")
+    sections.append(f"- Green Space coverage (Skin, static): {london_score.get('green_space_score')}")
+    sections.append(f"- Green Space access-weighted (Skin, static): {london_score.get('green_space_access_score')}")
     if immune_period:
         sections.append(f"- Immune data period: {immune_period}")
     sections.append(f"- Borough count: {london_score.get('borough_count')}")

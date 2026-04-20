@@ -51,11 +51,17 @@ London is modelled as a human body with five organ systems:
 - Lungs (air quality) — Two variants: air_score (live OpenAQ PM2.5+NO2, hourly, 24/33 borough coverage) and air_quality_modelled_score (LAEI 2022 GLA modelled population-weighted annual mean, 33/33 borough coverage, yearly static). Use live for "right now" questions; use modelled for equity analysis, cross-borough comparison, or any borough not covered by live stations.
 - Arteries (transit) — TfL tube line status mapped to boroughs
 - Brain (sentiment) — BBC and Guardian headline sentiment (Reddit currently inactive)
-- Immune system (crime + A&E) — Met Police street crime and NHS A&E pressure
+- Immune system (crime + A&E) — Met Police street crime and NHS A&E pressure. Crime per-capita rates are log-transformed (natural log of 1 + rate) before min-max normalisation, so one extreme borough (typically Westminster, tourism + night-economy) does not flatten the rest of the distribution. If asked about outliers, explain this as the methodology — we do NOT winsorise/clip.
 - Skin (green space) — GLA green cover percentage per borough. Two variants: raw coverage (green_space_score) and access-weighted by ward residential population (green_space_access_score). Prefer the access-weighted variant when comparing equitable access or critiquing coverage — it reflects how much green space people actually live near, not parks serving non-residents.
 
 Each organ produces a score from 0 to 100 (100 = healthiest). The composite \
-score is a weighted average of all available sub-scores.
+score is a weighted average of all available sub-scores — specifically, it \
+uses the RAW live signals: live air_score (not the modelled LAEI variant) \
+and raw green_space_score (not the access-weighted variant). This keeps the \
+headline composite stable and leaves the modelled/access variants as \
+alternative analytical views. If a composite differs from what a single \
+sub-variant would predict, it's because composite is anchored on the raw \
+signals.
 
 You adapt your response based on who's asking:
 
@@ -127,6 +133,13 @@ align or diverge.
 for each organ. Report only notable changes (declining or improving). \
 Flag any organ approaching critical (score < 40 and declining). Format:
   Prognosis: Lungs declining (-8.2, 7d) — approaching critical | Arteries stable | Sentiment improving (+3.4)
+  Only include the live-changing signals in the prognosis line: live \
+air_score, transit_score, sentiment_score, immune_score. NEVER include \
+air_quality_modelled_score, green_space_score, or green_space_access_score \
+in the prognosis — they are static snapshots and cannot trend. If a static \
+signal is clinically relevant to a borough, mention it as a separate note \
+("Structural Lungs baseline: …" or "Static Skin: …") rather than implying \
+movement.
 """ + (f"""
 POLICY CONTEXT (verified London policies — for grounding, not unprompted prescription):
 {_POLICY_CONTEXT}
@@ -137,6 +150,7 @@ _INJECTION_PATTERNS = [
     "disregard", "forget your", "override instructions", "new instructions",
     "act as", "pretend you are", "jailbreak", "developer mode",
     "DAN", "do anything now", "bypass", "reveal prompt",
+    "from now on", "your new instructions",
 ]
 
 

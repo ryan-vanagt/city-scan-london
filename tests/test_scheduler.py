@@ -29,8 +29,8 @@ def test_fast_sources_has_5_entries():
     assert len(FAST_SOURCES) == 5, f"got {len(FAST_SOURCES)}"
 
 
-def test_slow_sources_has_2_entries():
-    assert len(SLOW_SOURCES) == 2, f"got {len(SLOW_SOURCES)}"
+def test_slow_sources_has_4_entries():
+    assert len(SLOW_SOURCES) == 4, f"got {len(SLOW_SOURCES)}"
 
 
 def test_fast_sources_keys_correct():
@@ -39,7 +39,7 @@ def test_fast_sources_keys_correct():
 
 
 def test_slow_sources_keys_correct():
-    expected_slow = {"met_police", "nhs_ae"}
+    expected_slow = {"met_police", "nhs_ae", "green_space", "laei"}
     assert set(SLOW_SOURCES.keys()) == expected_slow, f"got {set(SLOW_SOURCES.keys())}"
 
 

@@ -6,6 +6,7 @@ Requires: bronze data on disk (run `python ingestion/run_pipeline.py` first).
 
 import json
 import logging
+import os
 import subprocess
 import sys
 import time
@@ -19,6 +20,10 @@ import pytest
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 PORT = 18765
 BASE = f"http://127.0.0.1:{PORT}"
+# The API now fails closed on unset access code; tests run the server with
+# a known code and pass it through on the endpoints that need it.
+TEST_DOCTOR_ACCESS_CODE = "test-doctor-code"
+TEST_INTERNAL_TOKEN = "test-internal-token"
 
 
 # ============================================================
@@ -83,11 +88,17 @@ def ensure_gold_data():
 @pytest.fixture(scope="module")
 def api_server():
     """Start API server once for all tests in this module."""
+    env = {
+        **os.environ,
+        "DOCTOR_ACCESS_CODE": TEST_DOCTOR_ACCESS_CODE,
+        "INTERNAL_TOKEN": TEST_INTERNAL_TOKEN,
+    }
     server = subprocess.Popen(
         [sys.executable, "-m", "uvicorn", "api.main:app", "--port", str(PORT)],
         cwd=str(PROJECT_ROOT),
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        env=env,
     )
 
     ready = False
@@ -432,7 +443,7 @@ def test_bulletin_generate_rate_limit(api_server):
     def post_bulletin():
         req = Request(
             f"{BASE}/bulletin/generate",
-            data=b"",
+            data=json.dumps({"access_code": TEST_DOCTOR_ACCESS_CODE}).encode(),
             headers={"Content-Type": "application/json"},
             method="POST",
         )

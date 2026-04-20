@@ -50,7 +50,11 @@ export interface SSESourcesEvent {
   }>;
 }
 
-export type SSEEvent = SSETokenEvent | SSESourcesEvent;
+export interface SSEDoneEvent {
+  type: "done";
+}
+
+export type SSEEvent = SSETokenEvent | SSESourcesEvent | SSEDoneEvent;
 
 export interface ChatMessage {
   role: "user" | "assistant";
@@ -65,13 +69,14 @@ export interface TrendInfo {
 }
 
 /** Which metric is currently filtering the map (null = composite/overall) */
-export type MetricFilter =
+export type MetricFilterKey =
   | "air_score"
   | "transit_score"
   | "sentiment_score"
   | "immune_score"
-  | "green_space_score"
-  | null;
+  | "green_space_score";
+
+export type MetricFilter = MetricFilterKey | null;
 
 /** Which panel is open on the right side */
 export type PanelState =

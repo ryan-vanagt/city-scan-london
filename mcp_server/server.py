@@ -71,9 +71,27 @@ except ValueError:
 # Default to localhost; Docker sets MCP_HOST=0.0.0.0 for container networking
 MCP_HOST = os.environ.get("MCP_HOST", "127.0.0.1")
 
-# Security: MCP server relies on network-level access control (localhost binding).
-# In docker-compose, ports are bound to 127.0.0.1 to prevent external access.
-logger.info("MCP security: network-level access control (localhost binding)")
+# Security: MCP server relies on network-level access control. In local dev,
+# MCP_HOST=127.0.0.1 makes the server only reachable from the host. In Docker
+# the container binds to 0.0.0.0 but the compose file maps only
+# 127.0.0.1:8002:8002 to the host, so external callers cannot reach it. If a
+# future typo ever widens that host binding, MCP_AUTH_TOKEN is the safety net.
+# We WARN loudly when a non-loopback bind is requested without a token instead
+# of refusing to start — a startup-time crash in production would be worse
+# than the defense-in-depth gap we're trying to close.
+MCP_AUTH_TOKEN = os.environ.get("MCP_AUTH_TOKEN", "")
+if MCP_HOST not in ("127.0.0.1", "localhost", "::1") and not MCP_AUTH_TOKEN:
+    logger.warning(
+        "MCP security: MCP_HOST=%s but MCP_AUTH_TOKEN is unset. If the host-side "
+        "port binding is ever changed from 127.0.0.1 to 0.0.0.0, run_sql and the "
+        "other MCP tools would be reachable without authentication. Set "
+        "MCP_AUTH_TOKEN to close this gap.",
+        MCP_HOST,
+    )
+elif MCP_AUTH_TOKEN:
+    logger.info("MCP security: MCP_AUTH_TOKEN set")
+else:
+    logger.info("MCP security: network-level access control (loopback binding)")
 
 mcp = FastMCP(
     name="CityScan London",

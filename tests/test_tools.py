@@ -233,8 +233,10 @@ def test_get_borough_health_not_found_all_none(db_with_camden_full):
     result = get_borough_health("NotABorough", con=db_with_camden_full)
     none_fields = [
         "borough_code", "borough_name", "timestamp",
-        "air_score", "transit_score", "sentiment_score",
-        "immune_score", "composite_score",
+        "air_score", "air_quality_modelled_score",
+        "transit_score", "sentiment_score",
+        "immune_score", "green_space_score", "green_space_access_score",
+        "composite_score",
     ]
     assert all(result[k] is None for k in none_fields)
 

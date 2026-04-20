@@ -37,6 +37,11 @@ def health_check() -> dict:
 
 
 _INTERNAL_TOKEN = os.environ.get("INTERNAL_TOKEN", "")
+if not _INTERNAL_TOKEN:
+    logger.warning(
+        "INTERNAL_TOKEN is unset — /internal/reset-db will refuse all callers. "
+        "Set INTERNAL_TOKEN in the ingestion + api env to enable scheduler writes."
+    )
 
 
 @router.post("/internal/reset-db")
@@ -44,10 +49,11 @@ def reset_db(request: Request) -> dict:
     """Release the read-only DuckDB connection so ingestion can write.
 
     Called by the ingestion scheduler before each pipeline write cycle.
-    Protected by INTERNAL_TOKEN env var — if set, requests must include
-    a matching X-Internal-Token header.
+    Requires a valid X-Internal-Token header matching the INTERNAL_TOKEN
+    env var. Fails closed when INTERNAL_TOKEN is unset (previous behaviour
+    accepted all callers, letting any internet peer force a DB reconnect).
     """
-    if _INTERNAL_TOKEN and request.headers.get("X-Internal-Token") != _INTERNAL_TOKEN:
+    if not _INTERNAL_TOKEN or request.headers.get("X-Internal-Token") != _INTERNAL_TOKEN:
         raise HTTPException(status_code=403, detail="Forbidden")
     reset_connection()
     close_tools_connection()

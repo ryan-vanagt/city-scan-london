@@ -246,8 +246,8 @@ export default function BoroughTimeSeries({
       const vs = xs.filter((x): x is number => x !== null);
       return vs.length === 0 ? null : vs.reduce((a, b) => a + b, 0) / vs.length;
     };
-    const days = [...groups.keys()].sort();
-    return days.map((day) => {
+    const sortedDays = [...groups.keys()].sort();
+    return sortedDays.map((day) => {
       const pts = groups.get(day)!;
       return {
         // Use the day's first timestamp for x-axis sorting + tooltip label

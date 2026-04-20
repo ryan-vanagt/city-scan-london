@@ -99,7 +99,8 @@ def test_all_sub_scores_null_or_in_range(real_gold_data):
         # 8=green_space, 9=green_space_access
         for label, val in [("air", row[3]), ("air_modelled", row[4]),
                             ("transit", row[5]), ("sentiment", row[6]),
-                            ("immune", row[7]), ("green_space", row[8])]:
+                            ("immune", row[7]), ("green_space", row[8]),
+                            ("green_space_access", row[9])]:
             assert val is None or 0 <= val <= 100, \
                 f"{bc} {label}={val} out of [0, 100]"
 

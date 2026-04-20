@@ -216,9 +216,9 @@ export default function EquityPatterns({
               dataKey: "rLabel",
             }}
           >
-            {chartData.map((d, i) => (
+            {chartData.map((d) => (
               <Cell
-                key={i}
+                key={d.label}
                 fill={colourForR(d.rRaw)}
                 fillOpacity={d.rRaw === null ? 0.25 : 0.6}
                 stroke={d.rRaw === null ? "#475569" : undefined}

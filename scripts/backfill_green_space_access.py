@@ -80,24 +80,37 @@ def backfill(db_path: Path) -> None:
     with_access = sum(1 for m in by_borough.values() if "green_space_access" in m)
     logger.info("Found stable values for %d boroughs (%d with access-weighted)", n_boroughs, with_access)
 
-    # UPDATE every historical row to today's stable values
+    # UPDATE every historical row to today's stable values. Mirroring the crime
+    # backfill, short-circuit when the stored value already matches today's
+    # within 0.01 — protects against churning UPDATEs on re-runs and avoids
+    # silent re-writes when a future methodology change lands.
     updated_raw = 0
     updated_access = 0
     for bc, metrics in by_borough.items():
         raw = metrics.get("green_space")
         access = metrics.get("green_space_access")
         if raw is not None:
-            r = con.execute(
-                "UPDATE gold_scores SET green_space_score = ? WHERE borough_code = ?",
-                [raw, bc],
-            )
-            updated_raw += 1
+            existing_raw = con.execute(
+                "SELECT green_space_score FROM gold_scores WHERE borough_code = ? LIMIT 1",
+                [bc],
+            ).fetchone()
+            if existing_raw is None or existing_raw[0] is None or abs(existing_raw[0] - raw) >= 0.01:
+                con.execute(
+                    "UPDATE gold_scores SET green_space_score = ? WHERE borough_code = ?",
+                    [raw, bc],
+                )
+                updated_raw += 1
         if access is not None:
-            r = con.execute(
-                "UPDATE gold_scores SET green_space_access_score = ? WHERE borough_code = ?",
-                [access, bc],
-            )
-            updated_access += 1
+            existing_access = con.execute(
+                "SELECT green_space_access_score FROM gold_scores WHERE borough_code = ? LIMIT 1",
+                [bc],
+            ).fetchone()
+            if existing_access is None or existing_access[0] is None or abs(existing_access[0] - access) >= 0.01:
+                con.execute(
+                    "UPDATE gold_scores SET green_space_access_score = ? WHERE borough_code = ?",
+                    [access, bc],
+                )
+                updated_access += 1
 
     # Report
     total_rows = con.execute("SELECT COUNT(*) FROM gold_scores").fetchone()[0]
@@ -111,7 +124,7 @@ def backfill(db_path: Path) -> None:
     )
 
     con.close()
-    logger.info("Done. Remember to refresh the read replica (copy to cityscan_read.duckdb).")
+    logger.warning("Done. Remember to refresh the read replica (copy to cityscan_read.duckdb).")
 
 
 if __name__ == "__main__":

@@ -216,6 +216,19 @@ export default function DoctorChat({
           }
           return updated;
         });
+      } else if (errorText.includes("429")) {
+        setMessages((prev) => {
+          const updated = [...prev];
+          const last = updated[updated.length - 1];
+          if (last.role === "assistant" && last.isStreaming) {
+            updated[updated.length - 1] = {
+              ...last,
+              content: "The Doctor is seeing another patient. Please wait a moment and try again.",
+              isStreaming: false,
+            };
+          }
+          return updated;
+        });
       } else {
         setMessages((prev) => {
           const updated = [...prev];
