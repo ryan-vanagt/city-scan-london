@@ -120,8 +120,6 @@ function CustomTooltip({ active, label, payload }: CustomTooltipProps) {
   const formatted = d.toLocaleString("en-GB", {
     day: "numeric",
     month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
   });
 
   return (
@@ -136,7 +134,7 @@ function CustomTooltip({ active, label, payload }: CustomTooltipProps) {
         className="text-slate-300 font-medium mb-1"
         style={{ letterSpacing: "0.05em" }}
       >
-        {formatted}
+        {formatted} · daily mean
       </div>
       {ORGANS.map((organ) => {
         const entry = payload.find((p) => p.dataKey === organ.key);
@@ -230,13 +228,38 @@ export default function BoroughTimeSeries({
   }, [selectedCode, days, boroughs]);
 
   /* Chart data ------------------------------------------------------ */
+  // Hourly trend points get aggregated to daily means per organ. The chart
+  // window is 7–30 days; hourly resolution on that scale is visually noisy
+  // and the useful signal is structural day-to-day movement, not minute-to-
+  // minute readings. Trade-off: transit disruption spikes within a day get
+  // smoothed out. We accept this for readability — live state is available
+  // via the header/tooltip elsewhere.
   const chartData = useMemo(() => {
     if (!trend?.trend) return [];
-    return trend.trend.map((p) => ({
-      ...p,
-      // Keep raw timestamp for tooltip, formatted for axis
-      ts: p.timestamp,
-    }));
+    const groups = new Map<string, TrendPoint[]>();
+    for (const p of trend.trend) {
+      const day = p.timestamp.slice(0, 10); // YYYY-MM-DD
+      if (!groups.has(day)) groups.set(day, []);
+      groups.get(day)!.push(p);
+    }
+    const mean = (xs: (number | null)[]): number | null => {
+      const vs = xs.filter((x): x is number => x !== null);
+      return vs.length === 0 ? null : vs.reduce((a, b) => a + b, 0) / vs.length;
+    };
+    const days = [...groups.keys()].sort();
+    return days.map((day) => {
+      const pts = groups.get(day)!;
+      return {
+        // Use the day's first timestamp for x-axis sorting + tooltip label
+        ts: pts[0].timestamp,
+        day,
+        air_score: mean(pts.map((p) => p.air_score)),
+        transit_score: mean(pts.map((p) => p.transit_score)),
+        sentiment_score: mean(pts.map((p) => p.sentiment_score)),
+        immune_score: mean(pts.map((p) => p.immune_score)),
+        composite_score: mean(pts.map((p) => p.composite_score)),
+      };
+    });
   }, [trend]);
 
   const insufficient = !loading && (trend === null || (trend?.data_points ?? 0) < 2);

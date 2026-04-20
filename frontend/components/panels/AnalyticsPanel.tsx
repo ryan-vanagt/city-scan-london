@@ -16,9 +16,11 @@
 import { useMemo } from "react";
 import { X } from "lucide-react";
 import type { BoroughScore } from "@/lib/types";
+import { pearson } from "@/lib/stats";
 import DeprivationScatter from "@/components/charts/DeprivationScatter";
 import BoroughRadar from "@/components/charts/BoroughRadar";
 import BoroughTimeSeries from "@/components/charts/BoroughTimeSeries";
+import EquityPatterns from "@/components/charts/EquityPatterns";
 import WorstOrganTable from "@/components/charts/WorstOrganTable";
 
 interface AnalyticsPanelProps {
@@ -38,24 +40,6 @@ const ORGAN_LABELS: Record<string, string> = {
   immune_score: "Crime & A&E",
   green_space_score: "Green space",
 };
-
-/** Pearson correlation between two arrays (skipping pairs with null). */
-function pearson(xs: (number | null)[], ys: (number | null)[]): number | null {
-  const pairs: [number, number][] = [];
-  for (let i = 0; i < xs.length; i++) {
-    if (xs[i] !== null && ys[i] !== null) pairs.push([xs[i]!, ys[i]!]);
-  }
-  if (pairs.length < 5) return null;
-  const n = pairs.length;
-  let sx = 0, sy = 0, sxy = 0, sx2 = 0, sy2 = 0;
-  for (const [x, y] of pairs) {
-    sx += x; sy += y; sxy += x * y; sx2 += x * x; sy2 += y * y;
-  }
-  const num = n * sxy - sx * sy;
-  const den = Math.sqrt((n * sx2 - sx * sx) * (n * sy2 - sy * sy));
-  if (den === 0) return null;
-  return num / den;
-}
 
 function useCorrelationInsight(
   boroughs: BoroughScore[],
@@ -148,7 +132,10 @@ export default function AnalyticsPanel({
           </div>
         )}
 
-        {/* 2. Radar comparison */}
+        {/* 2. Equity patterns — |r| per organ against IMD */}
+        <EquityPatterns boroughs={boroughs} deprivation={deprivation} />
+
+        {/* 3. Radar comparison */}
         <BoroughRadar boroughs={boroughs} />
 
         {/* 3. Time series */}
