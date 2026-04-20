@@ -1,0 +1,179 @@
+{
+  "_metadata": {
+    "source": "LAEI 2022 Population Exposure (GLA, via TfL Strategic Analysis)",
+    "url": "https://data.london.gov.uk/download/2lg5g/f56/LAEI2022-Population-Exposure-and-Proportion-Road-Length-Exceeding-Stats.zip",
+    "baseline_year": 2022,
+    "published": "November 2025 (LAEI 2022 release, dataset updated December 2025)",
+    "units": "µg/m³",
+    "method": "Population-weighted annual mean ground-level concentrations using OA-level concentrations",
+    "fetched": "2026-04-20T12:40:28.626105+00:00",
+    "borough_count": 33
+  },
+  "boroughs": {
+    "E09000001": {
+      "name": "City of London",
+      "no2": 30.19,
+      "pm25": 10.82
+    },
+    "E09000002": {
+      "name": "Barking and Dagenham",
+      "no2": 18.94,
+      "pm25": 8.73
+    },
+    "E09000003": {
+      "name": "Barnet",
+      "no2": 20.6,
+      "pm25": 8.96
+    },
+    "E09000004": {
+      "name": "Bexley",
+      "no2": 18.19,
+      "pm25": 8.59
+    },
+    "E09000005": {
+      "name": "Brent",
+      "no2": 22.65,
+      "pm25": 9.41
+    },
+    "E09000006": {
+      "name": "Bromley",
+      "no2": 17.73,
+      "pm25": 8.52
+    },
+    "E09000007": {
+      "name": "Camden",
+      "no2": 27.19,
+      "pm25": 9.97
+    },
+    "E09000008": {
+      "name": "Croydon",
+      "no2": 19.57,
+      "pm25": 9.02
+    },
+    "E09000009": {
+      "name": "Ealing",
+      "no2": 22.14,
+      "pm25": 9.15
+    },
+    "E09000010": {
+      "name": "Enfield",
+      "no2": 19.91,
+      "pm25": 8.87
+    },
+    "E09000011": {
+      "name": "Greenwich",
+      "no2": 21.06,
+      "pm25": 9.18
+    },
+    "E09000012": {
+      "name": "Hackney",
+      "no2": 24.36,
+      "pm25": 9.94
+    },
+    "E09000013": {
+      "name": "Hammersmith and Fulham",
+      "no2": 24.56,
+      "pm25": 9.87
+    },
+    "E09000014": {
+      "name": "Haringey",
+      "no2": 21.88,
+      "pm25": 9.34
+    },
+    "E09000015": {
+      "name": "Harrow",
+      "no2": 19.08,
+      "pm25": 8.68
+    },
+    "E09000016": {
+      "name": "Havering",
+      "no2": 16.17,
+      "pm25": 8.1
+    },
+    "E09000017": {
+      "name": "Hillingdon",
+      "no2": 20.25,
+      "pm25": 8.53
+    },
+    "E09000018": {
+      "name": "Hounslow",
+      "no2": 22.88,
+      "pm25": 8.99
+    },
+    "E09000019": {
+      "name": "Islington",
+      "no2": 26.02,
+      "pm25": 10.06
+    },
+    "E09000020": {
+      "name": "Kensington and Chelsea",
+      "no2": 26.66,
+      "pm25": 10.15
+    },
+    "E09000021": {
+      "name": "Kingston upon Thames",
+      "no2": 20.16,
+      "pm25": 8.83
+    },
+    "E09000022": {
+      "name": "Lambeth",
+      "no2": 24.58,
+      "pm25": 9.82
+    },
+    "E09000023": {
+      "name": "Lewisham",
+      "no2": 21.91,
+      "pm25": 9.38
+    },
+    "E09000024": {
+      "name": "Merton",
+      "no2": 21.12,
+      "pm25": 9.19
+    },
+    "E09000025": {
+      "name": "Newham",
+      "no2": 21.77,
+      "pm25": 9.39
+    },
+    "E09000026": {
+      "name": "Redbridge",
+      "no2": 19.39,
+      "pm25": 8.87
+    },
+    "E09000027": {
+      "name": "Richmond upon Thames",
+      "no2": 21.11,
+      "pm25": 8.95
+    },
+    "E09000028": {
+      "name": "Southwark",
+      "no2": 25.47,
+      "pm25": 9.89
+    },
+    "E09000029": {
+      "name": "Sutton",
+      "no2": 19.32,
+      "pm25": 8.83
+    },
+    "E09000030": {
+      "name": "Tower Hamlets",
+      "no2": 25.84,
+      "pm25": 9.96
+    },
+    "E09000031": {
+      "name": "Waltham Forest",
+      "no2": 20.69,
+      "pm25": 9.14
+    },
+    "E09000032": {
+      "name": "Wandsworth",
+      "no2": 23.1,
+      "pm25": 9.56
+    },
+    "E09000033": {
+      "name": "Westminster",
+      "no2": 27.6,
+      "pm25": 10.27
+    }
+  }
+}
