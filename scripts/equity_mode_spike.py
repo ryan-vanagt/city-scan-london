@@ -40,9 +40,9 @@ def run(db_path: Path) -> int:
     con = duckdb.connect(str(db_path), read_only=True)
     try:
         gold = con.execute("""
-            SELECT borough_code, borough_name, air_score, transit_score,
-                   sentiment_score, immune_score, green_space_score,
-                   green_space_access_score, composite_score
+            SELECT borough_code, borough_name, air_score, air_quality_modelled_score,
+                   transit_score, sentiment_score, immune_score,
+                   green_space_score, green_space_access_score, composite_score
             FROM (
                 SELECT *, ROW_NUMBER() OVER (
                     PARTITION BY borough_code ORDER BY ingested_at DESC
@@ -56,13 +56,14 @@ def run(db_path: Path) -> int:
     print(f"Gold: {len(gold)} latest-per-borough rows loaded from {db_path.name}\n")
 
     organs = [
-        ("air_score",                2),
-        ("transit_score",            3),
-        ("sentiment_score",          4),
-        ("immune_score",             5),
-        ("green_space_score",        6),
-        ("green_space_access_score", 7),
-        ("composite_score",          8),
+        ("air_score",                 2),
+        ("air_quality_modelled_score", 3),
+        ("transit_score",             4),
+        ("sentiment_score",           5),
+        ("immune_score",              6),
+        ("green_space_score",         7),
+        ("green_space_access_score",  8),
+        ("composite_score",           9),
     ]
 
     print("=" * 82)
