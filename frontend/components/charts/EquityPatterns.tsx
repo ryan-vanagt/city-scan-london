@@ -176,7 +176,9 @@ export default function EquityPatterns({
             width={160}
           />
           <Tooltip
-            cursor={{ fill: "rgba(14, 165, 233, 0.05)" }}
+            cursor={false}
+            allowEscapeViewBox={{ x: false, y: false }}
+            wrapperStyle={{ outline: "none", zIndex: 50 }}
             content={({ active, payload }) => {
               if (!active || !payload || payload.length === 0) return null;
               const d = payload[0].payload as BarDatum;
@@ -187,6 +189,9 @@ export default function EquityPatterns({
                     backgroundColor: "rgba(15, 23, 42, 0.95)",
                     border: "1px solid #1e293b",
                     color: "#94a3b8",
+                    maxWidth: 240,
+                    whiteSpace: "normal",
+                    lineHeight: 1.35,
                   }}
                 >
                   <div className="text-slate-200 font-semibold mb-1">{d.label}</div>
@@ -202,6 +207,7 @@ export default function EquityPatterns({
             dataKey="magR"
             isAnimationActive={false}
             barSize={14}
+            activeBar={false}
             label={{
               position: "right",
               fill: "#94a3b8",
