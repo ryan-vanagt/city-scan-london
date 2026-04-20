@@ -240,8 +240,17 @@ def _transform_met_police(data: dict, timestamp: str) -> list[tuple]:
     """Transform Met Police crime bronze data to silver rows.
 
     metric_name: 'crime'
-    raw_value: crimes per 1,000 residents (per-capita)
-    normalised_score: min-max inverted (lower crime rate = higher score)
+    raw_value: crimes per 1,000 residents (per-capita, un-transformed)
+    normalised_score: log-transformed per-capita rates, then min-max inverted
+        (lower crime rate = higher score).
+
+    A log(1+rate) transform replaces the older 95th-percentile winsorisation:
+    log compresses heavy-tailed distributions smoothly so non-residential
+    outliers (Westminster, City of London — tourist-inflated rates) no longer
+    flatten the whole scale, while deprivation-driven variance across the
+    remaining 31 boroughs is preserved rather than clipped. Equity analysis
+    against IMD is sensitive to this: winsorisation specifically erased the
+    variance we want to measure.
     """
     results = data.get("results", [])
     if not results:
@@ -268,8 +277,10 @@ def _transform_met_police(data: dict, timestamp: str) -> list[tuple]:
         return []
 
     # Convert raw counts to per-capita rates (crimes per 1,000 residents).
-    # This prevents high-footfall boroughs (Westminster, City of London) from
-    # always scoring worst due to volume rather than resident risk.
+    # Per-capita is what prevents high-footfall boroughs from scoring worst
+    # purely on volume; the log-transform below is what handles the remaining
+    # tourist-inflated outliers (City of London has ~15k residents serving
+    # ~500k daily workers; its per-capita rate is genuinely extreme).
     borough_rates: dict[str, float] = {}
     for bc, count in borough_counts.items():
         pop = BOROUGHS[bc].get("population")
@@ -281,29 +292,29 @@ def _transform_met_police(data: dict, timestamp: str) -> list[tuple]:
             )
             continue
 
-    # Winsorise at 95th percentile to prevent non-residential borough outliers
-    # (e.g. City of London: 15k residents, 500k daily workers) from compressing
-    # the score range for all other boroughs.
-    rates_sorted = sorted(borough_rates.values())
-    p95 = rates_sorted[int(len(rates_sorted) * 0.95)]
-    borough_rates = {bc: min(rate, p95) for bc, rate in borough_rates.items()}
+    # Log-transform (log1p = log(1 + rate)) to compress heavy-tailed outliers
+    # without hard-capping. log1p is numerically stable near zero and preserves
+    # relative ordering across the full distribution. Raw per-capita rate is
+    # still reported in raw_value below for transparency.
+    log_rates: dict[str, float] = {bc: math.log1p(rate) for bc, rate in borough_rates.items()}
 
-    # Min-max normalise, inverted: fewer crimes per capita = higher score
-    rates = list(borough_rates.values())
-    min_rate = min(rates)
-    max_rate = max(rates)
-    if max_rate == min_rate:
+    # Min-max normalise the log-transformed rates, inverted:
+    # lower crime = higher score.
+    values = list(log_rates.values())
+    min_v = min(values)
+    max_v = max(values)
+    if max_v == min_v:
         logger.warning(
-            "Silver Met Police: all %d boroughs have identical crime rate (%.1f) — "
+            "Silver Met Police: all %d boroughs have identical log-crime rate (%.3f) — "
             "min-max range is zero; all boroughs will score 100 this cycle",
-            len(borough_rates), min_rate,
+            len(log_rates), min_v,
         )
-    range_rate = max_rate - min_rate if max_rate != min_rate else 1.0
+    range_v = max_v - min_v if max_v != min_v else 1.0
 
     rows = []
-    for bc, rate in borough_rates.items():
-        raw_value = round(rate, 2)
-        normalised = _clamp(100.0 * (1.0 - (rate - min_rate) / range_rate))
+    for bc, log_rate in log_rates.items():
+        raw_value = round(borough_rates[bc], 2)  # original per-capita rate
+        normalised = _clamp(100.0 * (1.0 - (log_rate - min_v) / range_v))
         rows.append(_make_row(bc, timestamp, "crime", raw_value, normalised, "met_police"))
 
     logger.info("Silver Met Police: %d borough rows", len(rows))
