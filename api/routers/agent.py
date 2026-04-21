@@ -48,14 +48,16 @@ if not _DOCTOR_ACCESS_CODE:
 
 
 def _client_ip(request: Request) -> str:
-    """Rate-limit key: use the real TCP peer, not X-Forwarded-For.
+    """Rate-limit key: original client IP as reported by Caddy via X-Forwarded-For.
 
-    XFF is trivially spoofed when we are not behind a trusted reverse proxy.
-    The live deployment binds uvicorn directly to 0.0.0.0:8000, so the only
-    trustworthy client identifier is the TCP peer address. Revisit this if
-    we ever add a reverse proxy — at that point we must explicitly parse
-    XFF and trust only the upstream hop.
+    The api container has no host port publish; the only path to it is through
+    the Caddy reverse proxy on the compose network. Caddy sets X-Forwarded-For,
+    so the leftmost value is the real client. Fall back to the TCP peer only
+    if XFF is absent (should not happen in production).
     """
+    xff = request.headers.get("x-forwarded-for")
+    if xff:
+        return xff.split(",")[0].strip()
     if request.client:
         return request.client.host
     return "unknown"

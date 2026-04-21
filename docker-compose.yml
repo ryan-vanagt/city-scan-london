@@ -19,8 +19,8 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.api
-    ports:
-      - "0.0.0.0:8000:8000"
+    # No host port publish — reachable only via the Caddy reverse proxy on the
+    # compose network. See docker/Caddyfile for the /api/* route.
     volumes:
       - app_data:/app/data
       - app_embeddings:/app/embeddings
@@ -63,13 +63,27 @@ services:
       context: .
       dockerfile: docker/Dockerfile.frontend
       args:
-        # Set to your public VPS URL for remote access (e.g. http://YOUR_IP:8000)
+        # Public URL under which the frontend bundle calls the API (baked at build time).
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
-    ports:
-      - "0.0.0.0:3000:3000"
+    # No host port publish — reachable only via the Caddy reverse proxy on the
+    # compose network.
     depends_on:
       api:
         condition: service_healthy
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "0.0.0.0:80:80"
+      - "0.0.0.0:443:443"
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+      - api
     restart: unless-stopped
 
   chromadb:
@@ -90,3 +104,5 @@ services:
 volumes:
   app_data:
   app_embeddings:
+  caddy_data:
+  caddy_config:
