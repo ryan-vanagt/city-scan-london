@@ -62,7 +62,7 @@ export default function MobileNotice() {
         </div>
 
         <div className="text-[10px] text-slate-600 tracking-widest uppercase mt-2">
-          46.224.230.234:3000 · Open on a laptop
+          cityscan.ryanvanagt.com · Open on a laptop
         </div>
       </div>
     </div>
