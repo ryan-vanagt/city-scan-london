@@ -54,14 +54,28 @@ BOOTSTRAPPABLE_ORGANS = (
     "composite_score",
 )
 
-# Organs that get a static disclosure flag — bootstrap is uninformative
-# because the underlying signal is either invariant across boroughs or
-# annually static.
-STATIC_AMBER_DISCLOSURES: dict[str, str] = {
-    "sentiment_score": "London-wide signal — uniform across boroughs.",
-    "green_space_score": "Static GLA 2024 snapshot — not updated daily.",
-    "green_space_access_score": "Static GLA 2024 (population-weighted).",
-    "air_quality_modelled_score": "LAEI 2022 baseline — annual model.",
+# Organs whose underlying signal is precise but slow-cadence or wide-scope.
+# Bootstrap is uninformative (constant time-series → zero variance), but
+# the SCORE is reliable for what it measures — green space coverage is
+# precisely measured by GIS even if the data refreshes annually, and
+# LAEI is a sophisticated atmospheric model. We flag these GREEN
+# (reliable) with a disclosure note carrying the cadence / scope caveat.
+STATIC_GREEN_NOTES: dict[str, str] = {
+    "sentiment_score": (
+        "London-wide signal — same value across all boroughs. "
+        "Score reliable; not borough-specific."
+    ),
+    "green_space_score": (
+        "GLA 2024 green-cover measurement — precise; updated yearly because "
+        "physical coverage doesn't change daily."
+    ),
+    "green_space_access_score": (
+        "GLA 2024 (population-weighted) — precise; yearly update cycle."
+    ),
+    "air_quality_modelled_score": (
+        "LAEI 2022 atmospheric model — precise for the year modelled; "
+        "annual update."
+    ),
 }
 
 # CI-width thresholds (in composite score points).
@@ -132,15 +146,17 @@ def _process_borough(api_url: str, borough: dict) -> dict:
         values = [r[organ_key] for r in rows if r.get(organ_key) is not None]
         latest_value = borough.get(organ_key)
 
-        # Static-disclosure organs override bootstrap.
-        if organ_key in STATIC_AMBER_DISCLOSURES:
+        # Static-disclosure organs: precise signal but slow-cadence or
+        # wide-scope. Score is reliable; the disclosure note carries
+        # the cadence/scope caveat for the analyst.
+        if organ_key in STATIC_GREEN_NOTES:
             organs_out[organ_key] = {
-                "flag": "amber",
+                "flag": "green",
                 "ci_low": None,
                 "ci_high": None,
                 "width": None,
                 "n": len(values),
-                "note": STATIC_AMBER_DISCLOSURES[organ_key],
+                "note": STATIC_GREEN_NOTES[organ_key],
             }
             continue
 
@@ -228,11 +244,12 @@ def main() -> int:
     payload = {
         "_metadata": {
             "method": (
-                "Per-organ data-quality flag from bootstrap-of-mean CI on the "
-                f"borough's last {TREND_DAYS} days of gold time-series, except "
-                "where the underlying signal is structurally invariant "
-                "(sentiment, green, modelled air) — those are flagged amber "
-                "with a disclosure note."
+                "Per-organ score reliability from bootstrap-of-mean CI on the "
+                f"borough's last {TREND_DAYS} days of gold time-series. "
+                "Static-cadence signals (sentiment, green-space variants, "
+                "modelled air) are flagged green with a disclosure note about "
+                "their cadence or scope — the score is precise, the bootstrap "
+                "is just uninformative on a constant time-series."
             ),
             "bootstrap_resamples": BOOTSTRAP_N,
             "trend_window_days": TREND_DAYS,

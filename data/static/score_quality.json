@@ -1,6 +1,6 @@
 {
   "_metadata": {
-    "method": "Per-organ data-quality flag from bootstrap-of-mean CI on the borough's last 30 days of gold time-series, except where the underlying signal is structurally invariant (sentiment, green, modelled air) \u2014 those are flagged amber with a disclosure note.",
+    "method": "Per-organ score reliability from bootstrap-of-mean CI on the borough's last 30 days of gold time-series. Static-cadence signals (sentiment, green-space variants, modelled air) are flagged green with a disclosure note about their cadence or scope \u2014 the score is precise, the bootstrap is just uninformative on a constant time-series.",
     "bootstrap_resamples": 1000,
     "trend_window_days": 30,
     "thresholds": {
@@ -24,12 +24,12 @@
           "note": "No recent reading \u2014 local sensor coverage gap."
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "red",
@@ -40,12 +40,12 @@
           "note": "No recent reading \u2014 local sensor coverage gap."
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -56,20 +56,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "red",
@@ -95,12 +95,12 @@
           "n": 477
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
@@ -111,12 +111,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -127,20 +127,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
@@ -166,12 +166,12 @@
           "note": "No recent reading \u2014 local sensor coverage gap."
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
@@ -182,12 +182,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -198,20 +198,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "amber",
@@ -237,12 +237,12 @@
           "note": "No recent reading \u2014 local sensor coverage gap."
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
@@ -253,12 +253,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -269,20 +269,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "amber",
@@ -308,12 +308,12 @@
           "n": 477
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
@@ -324,12 +324,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -340,20 +340,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
@@ -379,12 +379,12 @@
           "n": 477
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
@@ -395,12 +395,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -411,20 +411,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
@@ -450,12 +450,12 @@
           "note": "No recent reading \u2014 local sensor coverage gap."
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
@@ -466,12 +466,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -482,20 +482,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "amber",
@@ -521,12 +521,12 @@
           "n": 477
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
@@ -537,12 +537,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -553,20 +553,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
@@ -592,12 +592,12 @@
           "note": "No recent reading \u2014 local sensor coverage gap."
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
@@ -608,12 +608,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -624,20 +624,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "amber",
@@ -663,12 +663,12 @@
           "note": "No recent reading \u2014 local sensor coverage gap."
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
@@ -679,12 +679,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -695,20 +695,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "amber",
@@ -734,12 +734,12 @@
           "n": 477
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
@@ -750,12 +750,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -766,20 +766,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
@@ -805,12 +805,12 @@
           "n": 477
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
@@ -821,12 +821,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -837,20 +837,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
@@ -876,12 +876,12 @@
           "n": 477
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
@@ -892,12 +892,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -908,20 +908,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
@@ -947,12 +947,12 @@
           "n": 477
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "red",
@@ -963,12 +963,12 @@
           "note": "No recent reading \u2014 local sensor coverage gap."
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -979,20 +979,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "amber",
@@ -1018,12 +1018,12 @@
           "n": 477
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "red",
@@ -1034,12 +1034,12 @@
           "note": "No recent reading \u2014 local sensor coverage gap."
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1050,20 +1050,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "amber",
@@ -1089,12 +1089,12 @@
           "n": 477
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "amber",
@@ -1105,12 +1105,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1121,20 +1121,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
@@ -1160,12 +1160,12 @@
           "n": 477
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "red",
@@ -1176,12 +1176,12 @@
           "note": "No recent reading \u2014 local sensor coverage gap."
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1192,20 +1192,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "amber",
@@ -1231,12 +1231,12 @@
           "n": 477
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
@@ -1247,12 +1247,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1263,20 +1263,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
@@ -1302,12 +1302,12 @@
           "note": "No recent reading \u2014 local sensor coverage gap."
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "amber",
@@ -1318,12 +1318,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1334,20 +1334,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "amber",
@@ -1373,12 +1373,12 @@
           "n": 477
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
@@ -1389,12 +1389,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1405,20 +1405,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
@@ -1444,12 +1444,12 @@
           "n": 477
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
@@ -1460,12 +1460,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1476,20 +1476,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
@@ -1515,12 +1515,12 @@
           "n": 477
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "amber",
@@ -1531,12 +1531,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1547,20 +1547,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
@@ -1586,12 +1586,12 @@
           "note": "No recent reading \u2014 local sensor coverage gap."
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
@@ -1602,12 +1602,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1618,20 +1618,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "amber",
@@ -1657,12 +1657,12 @@
           "n": 477
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "red",
@@ -1673,12 +1673,12 @@
           "note": "No recent reading \u2014 local sensor coverage gap."
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1689,20 +1689,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "amber",
@@ -1728,12 +1728,12 @@
           "n": 477
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
@@ -1744,12 +1744,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1760,20 +1760,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
@@ -1799,12 +1799,12 @@
           "n": 477
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
@@ -1815,12 +1815,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1831,20 +1831,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
@@ -1870,12 +1870,12 @@
           "n": 477
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "red",
@@ -1886,12 +1886,12 @@
           "note": "No recent reading \u2014 local sensor coverage gap."
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1902,20 +1902,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "amber",
@@ -1941,12 +1941,12 @@
           "n": 477
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
@@ -1957,12 +1957,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1973,20 +1973,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
@@ -2012,12 +2012,12 @@
           "n": 477
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "red",
@@ -2028,12 +2028,12 @@
           "note": "No recent reading \u2014 local sensor coverage gap."
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -2044,20 +2044,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "amber",
@@ -2083,12 +2083,12 @@
           "n": 477
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
@@ -2099,12 +2099,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -2115,20 +2115,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
@@ -2154,12 +2154,12 @@
           "n": 477
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
@@ -2170,12 +2170,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -2186,20 +2186,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
@@ -2225,12 +2225,12 @@
           "n": 477
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
@@ -2241,12 +2241,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -2257,20 +2257,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
@@ -2296,12 +2296,12 @@
           "note": "No recent reading \u2014 local sensor coverage gap."
         },
         "air_quality_modelled_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 362,
-          "note": "LAEI 2022 baseline \u2014 annual model."
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "amber",
@@ -2312,12 +2312,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 uniform across boroughs."
+          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -2328,20 +2328,20 @@
           "n": 477
         },
         "green_space_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 snapshot \u2014 not updated daily."
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
-          "flag": "amber",
+          "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "Static GLA 2024 (population-weighted)."
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "amber",

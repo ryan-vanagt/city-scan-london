@@ -28,10 +28,15 @@ const COLOURS: Record<QualityFlag, string> = {
   red: "#ef4444",
 };
 
+/**
+ * Reliability levels — describe how STABLE the score is, not whether the
+ * score itself is good or bad. A score of 7.9 with HIGH reliability means
+ * "we are confident the real value is around 7.9" — not "7.9 is a good score".
+ */
 const FLAG_LABELS: Record<QualityFlag, string> = {
-  green: "Trustworthy",
-  amber: "Use with care",
-  red: "Indicative only",
+  green: "HIGH",
+  amber: "MEDIUM",
+  red: "LOW",
 };
 
 interface QualityDotProps {
@@ -71,7 +76,7 @@ export default function QualityDot({ quality, size = 8 }: QualityDotProps) {
     <>
       <span
         ref={dotRef}
-        aria-label={`Data quality: ${FLAG_LABELS[quality.flag]}`}
+        aria-label={`Score reliability: ${FLAG_LABELS[quality.flag]}`}
         className="inline-block"
         style={{
           width: size,
@@ -100,17 +105,22 @@ export default function QualityDot({ quality, size = 8 }: QualityDotProps) {
               lineHeight: 1.45,
             }}
           >
-            <div style={{ color: colour, fontWeight: 600, marginBottom: 4 }}>
-              {FLAG_LABELS[quality.flag]}
+            <div
+              style={{
+                color: colour,
+                fontWeight: 600,
+                marginBottom: 4,
+                letterSpacing: "0.05em",
+              }}
+            >
+              Score reliability: {FLAG_LABELS[quality.flag]}
             </div>
-            {quality.ci_low !== null && quality.ci_high !== null ? (
+            {quality.ci_low !== null && quality.ci_high !== null && quality.width !== null ? (
               <div style={{ color: "#94a3b8" }}>
-                95% CI: {quality.ci_low.toFixed(1)} – {quality.ci_high.toFixed(1)}
-                {quality.width !== null && (
-                  <span style={{ color: "#64748b" }}>
-                    {" "}(width {quality.width.toFixed(1)})
-                  </span>
-                )}
+                Score is stable within ±{(quality.width / 2).toFixed(1)} pts
+                <span style={{ color: "#64748b" }}>
+                  {" "}(95% CI {quality.ci_low.toFixed(1)}–{quality.ci_high.toFixed(1)})
+                </span>
               </div>
             ) : null}
             {quality.note && (
@@ -119,7 +129,9 @@ export default function QualityDot({ quality, size = 8 }: QualityDotProps) {
             {quality.flag_basis && (
               <div style={{ color: "#94a3b8", marginTop: 2 }}>{quality.flag_basis}</div>
             )}
-            <div style={{ color: "#475569", marginTop: 4 }}>n = {quality.n}</div>
+            <div style={{ color: "#475569", marginTop: 4 }}>
+              Based on {quality.n} recent observations
+            </div>
           </div>,
           document.body,
         )}

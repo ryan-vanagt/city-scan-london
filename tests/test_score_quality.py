@@ -70,9 +70,11 @@ def test_all_flags_valid(quality_data: dict) -> None:
             )
 
 
-def test_static_organs_are_amber(quality_data: dict) -> None:
-    """Sentiment, modelled air, and green-space variants are structurally
-    invariant or static — they must always carry an amber flag with a note."""
+def test_static_organs_are_green_with_notes(quality_data: dict) -> None:
+    """Sentiment, modelled air, and green-space variants are precise signals
+    on slow update cadences — flagged green (reliable) with a disclosure note
+    about cadence/scope. The score doesn't lose accuracy because it refreshes
+    annually rather than daily."""
     static_organs = {
         "sentiment_score",
         "air_quality_modelled_score",
@@ -82,19 +84,31 @@ def test_static_organs_are_amber(quality_data: dict) -> None:
     for code, b in quality_data["boroughs"].items():
         for organ in static_organs:
             q = b["organs"][organ]
-            assert q["flag"] == "amber", (
-                f"{b['borough_name']} {organ} should be amber, got {q['flag']}"
+            assert q["flag"] == "green", (
+                f"{b['borough_name']} {organ} should be green (reliable, with "
+                f"cadence note), got {q['flag']}"
             )
             assert q.get("note"), (
-                f"{b['borough_name']} {organ} amber but no disclosure note"
+                f"{b['borough_name']} {organ} green but no disclosure note"
             )
 
 
-def test_bootstrap_ci_present_for_green_organs(quality_data: dict) -> None:
-    """When an organ flag is green, ci_low/ci_high/width should be populated."""
+def test_bootstrap_ci_present_for_bootstrappable_green_organs(quality_data: dict) -> None:
+    """When a bootstrappable organ has a green flag, the CI fields should be
+    populated. Static-cadence organs (sentiment, modelled air, green-space
+    variants) are also flagged green but legitimately don't carry a CI —
+    they have a disclosure note instead."""
+    static_organs = {
+        "sentiment_score",
+        "air_quality_modelled_score",
+        "green_space_score",
+        "green_space_access_score",
+    }
     for code, b in quality_data["boroughs"].items():
         for organ, q in b["organs"].items():
-            if q["flag"] == "green" and organ != "composite_score":
+            if organ in static_organs or organ == "composite_score":
+                continue
+            if q["flag"] == "green":
                 assert q["ci_low"] is not None, (
                     f"{b['borough_name']} {organ} green but no CI"
                 )
