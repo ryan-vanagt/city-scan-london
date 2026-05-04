@@ -21,6 +21,7 @@ import type {
   BoroughScore,
   HousingAffordability,
   HealthIndexEntry,
+  BoroughScoreQuality,
 } from "@/lib/types";
 import DeprivationScatter, {
   type DeprivationXAxisMode,
@@ -36,6 +37,7 @@ interface AnalyticsPanelProps {
   deprivation: Record<string, { imd_rank: number; name: string }>;
   housingAffordability?: Record<string, HousingAffordability>;
   healthIndex?: Record<string, HealthIndexEntry>;
+  scoreQuality?: Record<string, BoroughScoreQuality>;
   onClose: () => void;
 }
 
@@ -44,6 +46,7 @@ export default function AnalyticsPanel({
   deprivation,
   housingAffordability,
   healthIndex,
+  scoreQuality,
   onClose,
 }: AnalyticsPanelProps) {
   const [xAxisMode, setXAxisMode] = useState<DeprivationXAxisMode>("imd");
@@ -83,7 +86,7 @@ export default function AnalyticsPanel({
           the flow into actionable content. */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-8">
         {/* 1. Critical organs table — most actionable view, planner first stop */}
-        <WorstOrganTable boroughs={boroughs} />
+        <WorstOrganTable boroughs={boroughs} scoreQuality={scoreQuality} />
 
         {/* 2. Scatter plot — health vs deprivation/affordability */}
         <div>

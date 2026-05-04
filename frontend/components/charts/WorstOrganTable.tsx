@@ -9,8 +9,9 @@
  */
 
 import { useState, useMemo } from "react";
-import type { BoroughScore } from "@/lib/types";
+import type { BoroughScore, BoroughScoreQuality } from "@/lib/types";
 import { scoreToColour } from "@/lib/colours";
+import QualityDot from "@/components/ui/QualityDot";
 
 const ORGAN_MAP: Record<string, string> = {
   air_score: "LUNGS",
@@ -29,6 +30,7 @@ interface OrganEntry {
 }
 
 interface RowData {
+  borough_code: string;
   borough_name: string;
   worst: OrganEntry;
   secondWorst: OrganEntry | null;
@@ -47,6 +49,7 @@ function extractWorstOrgans(b: BoroughScore): RowData | null {
   entries.sort((a, b) => a.score - b.score);
 
   return {
+    borough_code: b.borough_code,
     borough_name: b.borough_name,
     worst: entries[0],
     secondWorst: entries.length > 1 ? entries[1] : null,
@@ -55,9 +58,10 @@ function extractWorstOrgans(b: BoroughScore): RowData | null {
 
 interface WorstOrganTableProps {
   boroughs: BoroughScore[];
+  scoreQuality?: Record<string, BoroughScoreQuality>;
 }
 
-export default function WorstOrganTable({ boroughs }: WorstOrganTableProps) {
+export default function WorstOrganTable({ boroughs, scoreQuality }: WorstOrganTableProps) {
   const [filter, setFilter] = useState<string>("ALL");
 
   const rows = useMemo(() => {
@@ -198,7 +202,7 @@ export default function WorstOrganTable({ boroughs }: WorstOrganTableProps) {
                   {row.worst.label}
                 </td>
 
-                {/* Worst score */}
+                {/* Worst score + quality dot */}
                 <td
                   className="py-1 px-2"
                   style={{
@@ -208,7 +212,12 @@ export default function WorstOrganTable({ boroughs }: WorstOrganTableProps) {
                     fontWeight: 600,
                   }}
                 >
-                  {Math.round(row.worst.score * 10) / 10}
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                    {Math.round(row.worst.score * 10) / 10}
+                    <QualityDot
+                      quality={scoreQuality?.[row.borough_code]?.organs[row.worst.key]}
+                    />
+                  </span>
                 </td>
 
                 {/* 2nd worst organ label */}
@@ -224,7 +233,7 @@ export default function WorstOrganTable({ boroughs }: WorstOrganTableProps) {
                   {row.secondWorst ? row.secondWorst.label : "\u2014"}
                 </td>
 
-                {/* 2nd worst score */}
+                {/* 2nd worst score + quality dot */}
                 <td
                   className="py-1 px-2"
                   style={{
@@ -236,9 +245,16 @@ export default function WorstOrganTable({ boroughs }: WorstOrganTableProps) {
                     fontWeight: 600,
                   }}
                 >
-                  {row.secondWorst
-                    ? Math.round(row.secondWorst.score * 10) / 10
-                    : "\u2014"}
+                  {row.secondWorst ? (
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                      {Math.round(row.secondWorst.score * 10) / 10}
+                      <QualityDot
+                        quality={scoreQuality?.[row.borough_code]?.organs[row.secondWorst.key]}
+                      />
+                    </span>
+                  ) : (
+                    "\u2014"
+                  )}
                 </td>
               </tr>
             ))}

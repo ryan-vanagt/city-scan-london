@@ -18,6 +18,7 @@ import type {
   TrendInfo,
   HousingAffordability,
   HealthIndexEntry,
+  BoroughScoreQuality,
 } from "@/lib/types";
 import { fetchBoroughs, fetchLondonScore, fetchBulletin, fetchTrends } from "@/lib/api";
 import { useIsMobile } from "@/lib/useIsMobile";
@@ -83,6 +84,7 @@ export default function Home() {
     Record<string, HousingAffordability>
   >({});
   const [healthIndex, setHealthIndex] = useState<Record<string, HealthIndexEntry>>({});
+  const [scoreQuality, setScoreQuality] = useState<Record<string, BoroughScoreQuality>>({});
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -104,7 +106,7 @@ export default function Home() {
 
     async function loadData() {
       const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-      const [boroughResult, scoreResult, bulletinResult, depResult, trendResult, housingResult, healthIndexResult] = await Promise.allSettled([
+      const [boroughResult, scoreResult, bulletinResult, depResult, trendResult, housingResult, healthIndexResult, qualityResult] = await Promise.allSettled([
         fetchBoroughs(),
         fetchLondonScore(),
         fetchBulletin(),
@@ -112,6 +114,7 @@ export default function Home() {
         fetchTrends(),
         fetch(`${BASE_URL}/boroughs/housing-affordability`).then(r => r.ok ? r.json() : Promise.reject(r)),
         fetch(`${BASE_URL}/boroughs/health-index`).then(r => r.ok ? r.json() : Promise.reject(r)),
+        fetch(`${BASE_URL}/boroughs/score-quality`).then(r => r.ok ? r.json() : Promise.reject(r)),
       ]);
       if (cancelled) return;
       if (boroughResult.status === "fulfilled") setBoroughs(boroughResult.value);
@@ -138,6 +141,13 @@ export default function Home() {
           lookup[item.borough_code] = item;
         }
         setHealthIndex(lookup);
+      }
+      if (qualityResult.status === "fulfilled") {
+        // Endpoint returns { _metadata, boroughs: { code: BoroughScoreQuality } }
+        const payload = qualityResult.value as { boroughs?: Record<string, BoroughScoreQuality> };
+        if (payload?.boroughs) {
+          setScoreQuality(payload.boroughs);
+        }
       }
       const anyFailed = [boroughResult, scoreResult, bulletinResult].some(r => r.status === "rejected");
       if (anyFailed) {
@@ -297,6 +307,7 @@ export default function Home() {
               deprivation={deprivation}
               housingAffordability={housingAffordability}
               healthIndex={healthIndex}
+              scoreQuality={scoreQuality}
               onClose={handlePanelClose}
             />
           )}

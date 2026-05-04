@@ -85,6 +85,25 @@ export interface HealthIndexEntry {
   year: number | null;             // most recent year covered (likely 2021)
 }
 
+export type QualityFlag = "green" | "amber" | "red";
+
+export interface OrganQuality {
+  flag: QualityFlag;
+  ci_low: number | null;       // 95% CI lower bound from bootstrap (null for static-disclosure organs)
+  ci_high: number | null;
+  width: number | null;        // ci_high − ci_low; null where bootstrap not run
+  sd?: number;                 // sample standard deviation of recent values
+  n: number;                   // number of underlying observations
+  note?: string;               // human-readable disclosure (e.g. "London-wide signal")
+  flag_basis?: string;         // explanation for derived flags (composite from inputs)
+}
+
+export interface BoroughScoreQuality {
+  borough_code: string;
+  borough_name: string;
+  organs: Record<string, OrganQuality>;  // keyed by organ name (air_score, transit_score, etc.)
+}
+
 /** Which metric is currently filtering the map (null = composite/overall) */
 export type MetricFilterKey =
   | "air_score"
