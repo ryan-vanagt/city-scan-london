@@ -251,21 +251,23 @@ Slide-in panel (35% width desktop, 90% mobile). Fixed position, right-0, top-0, 
 
 ### State B: Analytics Panel (on "ANALYTICS" FAB)
 
-**Component:** `AnalyticsPanel` — scrollable analytics suite with five views.
+**Component:** `AnalyticsPanel` — scrollable analytics suite, planner-first ordering.
 
 **Header:** "ANALYTICS" (uppercase, tracking-widest). Close button.
 
 **Content (scrollable, stacked vertically with 32px gaps):**
 
-1. `DeprivationScatter` — Recharts scatter: IMD rank vs composite score, thermal dots, labelled outliers, trend line
-2. Cross-domain correlation insight — auto-computed Pearson r between IMD rank and each organ score. Template sentence: "{organ} has the strongest link to deprivation (r={value}): {direction}." Updates on each page load as scores change.
-3. `BoroughRadar` — two dropdown selectors, overlapping radar polygons (cyan + orange) across 5 axes. Defaults to worst and best borough.
-4. `BoroughTimeSeries` — dropdown + 7d/14d/30d toggle. Fetches `GET /borough/{name}/trend?days=N`. 4 coloured lines (Air blue, Transit red, Sentiment purple, Immune green). Skin/green-space is excluded from the chart because its source (GLA Green Cover 2024) is a yearly static snapshot; both coverage and access-weighted values are instead rendered as a static badge above the chart with the label "GLA 2024 static snapshot". Shows "insufficient data" message when < 2 data points.
-5. `WorstOrganTable` — each borough's weakest organ, sorted by score ascending. Filter by organ type. Thermal-coloured scores. Sticky header, 300px max scroll.
+1. `WorstOrganTable` — each borough's weakest + 2nd-weakest organ, sorted by score ascending. Filter by organ type. Thermal-coloured scores with `QualityDot` reliability indicators next to each (green/amber/red, portal-rendered hover tooltip with 95% CI, sample size, and disclosure notes). Sticky header, 300px max scroll. **Promoted to top of panel as the most actionable triage view.**
+2. `DeprivationScatter` — Recharts scatter: composite score on Y, configurable X-axis. Toggle between IMD rank and ONS Housing Affordability Ratio (`X-AXIS [ IMD ] [ Housing ]`). Thermal dots, mode-aware labelled outliers, regression trend line, dynamic R² + n in the chart header, data-driven caption (named boroughs + strength word + r²) that updates with the toggle.
+3. `EquityPatterns` — |r| per organ vs IMD sub-domain rank, horizontal bars with green/amber/grey colour bands. Domain dropdown (overall IMD, income, housing & service barriers, living, health, crime, employment, education) reframes the X-axis on the fly; chart title and caption update accordingly. Below the bar chart: **Top-5 Unexpected** — boroughs with the largest leave-one-out (LOO) regression residuals against the selected domain, with the driving organ named per row.
+4. `BoroughRadar` — two dropdown selectors, overlapping radar polygons (cyan + orange) across 5 axes. Defaults to worst and best borough.
+5. `BoroughTimeSeries` — dropdown + 7d/14d/30d toggle. Fetches `GET /borough/{name}/trend?days=N`. 4 coloured lines (Air blue, Transit red, Sentiment purple, Immune green). Skin/green-space is excluded from the chart because its source (GLA Green Cover 2024) is a yearly static snapshot; both coverage and access-weighted values are instead rendered as a static badge above the chart with the label "GLA 2024 static snapshot". Shows "insufficient data" message when < 2 data points.
+6. `HealthIndexValidation` — Recharts scatter: CityScan composite (X) vs ONS Health Index (Y) for 32 boroughs (City of London excluded by ONS). Regression line, R², n, four labelled boroughs (top + bottom by Health Index plus top 2 by |residual|). Data-driven caption frames the relationship as convergent validity from independent inputs (life expectancy, mortality, behaviours), with a retrospective-cadence disclosure. Lives at the bottom of the panel as a methodology / trust artifact.
+7. **Organ-key footnote** — small dashed-border line at the very bottom: *Lungs = air · Arteries = transit · Brain = sentiment · Immune = crime + A&E · Skin = green space*.
 
-**Data sources:** `GET /boroughs`, `GET /boroughs/deprivation`, `GET /borough/{name}/trend`
+**Data sources:** `GET /boroughs`, `GET /boroughs/deprivation`, `GET /borough/{name}/trend`, `GET /boroughs/housing-affordability`, `GET /boroughs/health-index`, `GET /boroughs/score-quality`.
 
-**Empty state:** "No deprivation data available." centred text (scatter only).
+**Empty state:** "No deprivation data available." centred text (scatter only). Components that depend on optional endpoints (housing affordability, health index, score quality) gracefully hide their toggle / chart when the corresponding fetch fails.
 
 Only one panel can be open at a time — opening one closes the other.
 
@@ -327,7 +329,10 @@ On initial page load, before API data arrives:
 | `/boroughs` | GET | Map fills, tooltips, header on hover | Runtime array validation |
 | `/bulletin/latest` | GET | Landing bulletin, bulletin panel | Returns null on 404 |
 | `/agent/query` | POST (SSE) | Doctor chat | Manual stream parsing, type-guarded events |
-| `/boroughs/deprivation` | GET | Analytics panel scatter + correlation | IMD 2025 data for all boroughs |
+| `/boroughs/deprivation` | GET | Analytics panel: scatter, EquityPatterns, divergence | IMD 2025 data + 7 sub-domain ranks per borough |
+| `/boroughs/housing-affordability` | GET | DeprivationScatter X-axis toggle | ONS Table 5c (workplace-based, median) |
+| `/boroughs/health-index` | GET | HealthIndexValidation chart | ONS Health Index, 32 boroughs (CoL excluded) |
+| `/boroughs/score-quality` | GET | QualityDot indicators in WorstOrganTable | Per-organ flag + 95% bootstrap CI per borough |
 | `/borough/{name}/trend` | GET | Organ history time series | Score history over N days |
 
 **Base URL:** `NEXT_PUBLIC_API_URL` env var (default `http://localhost:8000`).
@@ -359,15 +364,18 @@ frontend/
 │   │   └── EkgLine.tsx          ← animated SVG EKG waveform (5 variants)
 │   ├── panels/
 │   │   ├── DoctorChat.tsx       ← SSE streaming chat (rate-limited, markdown, source cards)
-│   │   ├── AnalyticsPanel.tsx   ← analytics panel with Health vs Deprivation scatter chart
+│   │   ├── AnalyticsPanel.tsx   ← planner-first analytics suite (triage table, scatter, equity, radar, timeseries, validation)
 │   │   └── BulletinPanel.tsx    ← full bulletin markdown (landing page only, not in live map)
 │   ├── charts/
-│   │   ├── DeprivationScatter.tsx ← Recharts scatter: IMD rank vs health score
-│   │   ├── BoroughRadar.tsx      ← Recharts radar: 2-borough comparison across 5 organs
-│   │   ├── BoroughTimeSeries.tsx  ← Recharts line: organ score history over time
-│   │   └── WorstOrganTable.tsx    ← Sortable triage table: worst organ per borough
+│   │   ├── DeprivationScatter.tsx     ← Recharts scatter: IMD rank vs health score, with ONS Housing Affordability X-axis toggle
+│   │   ├── EquityPatterns.tsx         ← |r| per organ vs IMD sub-domain rank, with sub-domain dropdown + Top-5 Unexpected divergence list
+│   │   ├── HealthIndexValidation.tsx  ← Recharts scatter: CityScan composite vs ONS Health Index 2021 (convergent validity)
+│   │   ├── BoroughRadar.tsx           ← Recharts radar: 2-borough comparison across 5 organs
+│   │   ├── BoroughTimeSeries.tsx      ← Recharts line: organ score history over time
+│   │   └── WorstOrganTable.tsx        ← Sortable triage table: worst organ per borough, with QualityDot indicators
 │   ├── ui/
-│   │   └── FloatingActions.tsx  ← FAB buttons (analytics, doctor)
+│   │   ├── FloatingActions.tsx  ← FAB buttons (analytics, doctor)
+│   │   └── QualityDot.tsx       ← Per-organ reliability indicator (green/amber/red); portal-rendered hover tooltip with CI + disclosure
 │   └── Footer.tsx               ← attribution bar with social links
 ├── lib/
 │   ├── api.ts              ← fetch wrappers + SSE async generator (type-guarded)
@@ -400,11 +408,14 @@ RootLayout (layout.tsx)
    │  ├─ DoctorChat [conditional]
    │  │  └─ SourceCard (xN)
    │  └─ AnalyticsPanel [conditional]
-   │     ├─ DeprivationScatter
-   │     ├─ Correlation insight (inline)
+   │     ├─ WorstOrganTable
+   │     │  └─ QualityDot (xN, portal-rendered hover tooltip)
+   │     ├─ DeprivationScatter (IMD/Housing toggle)
+   │     ├─ EquityPatterns (sub-domain dropdown + Top-5 Unexpected list)
    │     ├─ BoroughRadar
    │     ├─ BoroughTimeSeries
-   │     └─ WorstOrganTable
+   │     ├─ HealthIndexValidation
+   │     └─ Organ-key footnote
    ├─ FloatingActions [conditional]
    │  └─ FabButton (x2)
    ├─ Footer [conditional]

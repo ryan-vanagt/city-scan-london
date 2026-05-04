@@ -20,15 +20,18 @@ Python 3.11 · DuckDB · ChromaDB · LangChain + LangGraph · Claude Haiku · Fa
 
 ```bash
 cp .env.example .env   # add your API keys
-python scripts/generate_geo_mappings.py   # fetch borough/TfL/NHS geographic data
-python scripts/fetch_population.py        # fetch ONS borough populations (per-capita crime)
-python scripts/fetch_population.py --wards # fetch ONS ward populations (access-weighted green)
-python scripts/fetch_green_space.py       # fetch GLA green cover data
-python scripts/fetch_laei.py              # fetch GLA LAEI 2022 modelled air quality
-python scripts/fetch_imd.py              # fetch IMD 2025 deprivation data
+python scripts/generate_geo_mappings.py             # fetch borough/TfL/NHS geographic data
+python scripts/fetch_population.py                  # fetch ONS borough populations (per-capita crime)
+python scripts/fetch_population.py --wards          # fetch ONS ward populations (access-weighted green)
+python scripts/fetch_green_space.py                 # fetch GLA green cover data
+python scripts/fetch_laei.py                        # fetch GLA LAEI 2022 modelled air quality
+python scripts/fetch_imd.py                         # fetch IMD 2025 deprivation data
+python scripts/refresh_housing_affordability.py     # fetch ONS Housing Affordability Ratio (Table 5c, annual)
+python scripts/refresh_ons_health_index.py          # fetch ONS Health Index for England (used as external validation)
+python -m scripts.compute_score_quality             # bootstrap CIs + per-organ reliability flags from gold time-series
 ```
 
-The two `fetch_population.py` invocations are both one-shot — re-run them when ONS publishes new annual estimates. Green cover and IMD are also yearly refreshes.
+All `fetch_*` and `refresh_*` scripts above are one-shot — re-run when the upstream source publishes a new vintage. Green cover, IMD, housing affordability, and the Health Index are all yearly refreshes. `compute_score_quality.py` is a periodic job (run after the gold layer is repopulated).
 
 ## Run
 
@@ -88,7 +91,11 @@ The backfill prevents a one-off NULL→value step on the Organ History chart for
 - `POST /agent/query` — Doctor Agent, SSE stream (`text/event-stream`)
 - `GET /bulletin/latest` — latest bulletin markdown
 - `POST /bulletin/generate` — trigger bulletin generation
-- `GET /boroughs/deprivation` — IMD 2025 deprivation data for all boroughs
+- `GET /boroughs/deprivation` — IMD 2025 deprivation data + 7 sub-domain ranks for all boroughs
+- `GET /boroughs/housing-affordability` — ONS Table 5c median ratio + 5-year average for all boroughs
+- `GET /boroughs/health-index` — ONS Health Index 2021 for 32 boroughs (City of London excluded by ONS)
+- `GET /boroughs/score-quality` — per-organ reliability flag (green/amber/red) and 95% bootstrap CI per borough
+- `GET /boroughs/trends` — 7-day composite trend direction for all boroughs
 - `POST /internal/reset-db` — release DuckDB read connection (internal)
 
 ## Architecture

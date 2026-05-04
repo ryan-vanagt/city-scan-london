@@ -23,11 +23,13 @@ app/page.tsx              — single page orchestrator (all state + transitions)
 components/landing/       — bulletin report + X-ray map (landing overlay)
 components/map/           — interactive thermal map (LondonMap, BoroughPath, tooltip)
 components/header/        — vital signs bar + EKG animations
-components/panels/        — Doctor chat (SSE) + Bulletin panel
-components/ui/            — floating action buttons
+components/panels/        — Doctor chat (SSE) + AnalyticsPanel (planner-first analytics suite) + Bulletin panel
+components/charts/        — DeprivationScatter, EquityPatterns, HealthIndexValidation, BoroughRadar, BoroughTimeSeries, WorstOrganTable
+components/ui/            — FloatingActions (FABs), QualityDot (per-organ reliability indicator)
 lib/api.ts                — API client + SSE async generator
 lib/colours.ts            — thermal gradient + glow/pulse calculations
 lib/geo.ts                — GeoJSON → SVG path converter (Mercator projection)
+lib/stats.ts              — Pearson r, strengthWord, organ↔IMD correlations, LOO divergence
 lib/types.ts              — TypeScript interfaces
 ```
 

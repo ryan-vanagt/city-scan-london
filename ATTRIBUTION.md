@@ -44,7 +44,15 @@ The following sources publish data under the [Open Government License v3.0](http
 
 - **MHCLG** — English Indices of Deprivation 2025 (IMD)
   https://www.gov.uk/government/statistics/english-indices-of-deprivation-2025
-  Borough-level deprivation ranks and domain sub-scores. Used for equity-aware analysis.
+  Borough-level deprivation ranks and domain sub-scores. Used for equity-aware analysis (overall IMD plus 7 sub-domains: income, employment, education, health, crime, barriers, living).
+
+- **ONS** — Health Index for England (Table 2 — overall index scores)
+  https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/healthandwellbeing/datasets/healthindexscoresengland
+  Composite index covering 2015–2021 (England 2015 = 100 baseline) at Lower-Tier Local Authority level. Built from inputs that don't appear in the CityScan pipeline (life expectancy, mortality, mental-health prevalence, behaviours), so used as an external convergent-validity reference for CityScan composite scores. ONS excludes City of London from this dataset by convention; 32 boroughs covered.
+
+- **ONS** — House Price to Workplace-Based Earnings Ratio (Table 5c, median)
+  https://www.ons.gov.uk/peoplepopulationandcommunity/housing/datasets/ratioofhousepricetoworkplacebasedearningslowerquartileandmedian
+  Annual median house price ÷ median workplace-based gross annual earnings, by Local Authority District. Used as a London-specific affordability overlay on the analytics scatter chart (alternate X-axis to IMD rank).
 
 - **ONS Nomis** — Mid-year population estimates at borough level (dataset NM_31_1) and ward level (dataset NM_2014_1, geography TYPE182 "Wards as of May 2025")
   https://www.nomisweb.co.uk

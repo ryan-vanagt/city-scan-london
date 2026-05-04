@@ -14,6 +14,9 @@ flowchart TD
     GS[GLA Green Cover 2024] -->|"daily (static yearly data)"| B_GS[data/static/green_space.json]
     LAEI[GLA LAEI 2022<br>modelled air quality] -->|"daily (static yearly data)"| B_LAEI[data/static/laei_air_quality.json]
     WP[ONS Nomis NM_2014_1<br>ward populations] -.->|static join at silver| S
+    HOUSE[ONS Housing Affordability Ratio<br>Table 5c, annual] -->|"manual refresh"| B_HOUSE[data/static/housing_affordability.json]
+    HI[ONS Health Index for England<br>Table 2, annual] -->|"manual refresh"| B_HI[data/static/ons_health_index.json]
+    SQ[Bootstrap of gold time-series<br>1000 resamples per borough/organ] -->|"periodic (re-run after gold refresh)"| B_SQ[data/static/score_quality.json]
 
     B_OQ --> S[Silver layer\nDuckDB: silver_metrics]
     B_TFL --> S
@@ -55,6 +58,9 @@ flowchart TD
     FE[Frontend\nNext.js] -->|"HTTP /boroughs, /london/score"| API
     FE -->|"POST /agent/query"| API
     FE -->|"GET /bulletin/latest"| API
+    B_HOUSE -->|"GET /boroughs/housing-affordability"| API
+    B_HI -->|"GET /boroughs/health-index"| API
+    B_SQ -->|"GET /boroughs/score-quality"| API
 
     %% Logging
     DA --> LOGS[agent_logs\nagent_logs.duckdb]
@@ -70,7 +76,7 @@ Every Silver and Gold record carries:
 
 | Field            | Description                                                                       |
 | ---------------- | --------------------------------------------------------------------------------- |
-| `source`         | Origin API (`openaq`, `tfl`, `reddit`, `guardian`, `bbc`, `met_police`, `nhs_ae`, `green_space`, `laei`) |
+| `source`         | Origin API (`openaq`, `tfl`, `reddit`, `guardian`, `bbc`, `met_police`, `nhs_ae`, `green_space`, `laei`). External reference / overlay datasets (`housing_affordability`, `ons_health_index`, `score_quality`) live in `data/static/` and are served directly via the API rather than passing through the bronze→silver→gold pipeline. |
 | `ingested_at`    | UTC timestamp of when the raw data was fetched                                    |
 | `pipeline_stage` | `bronze`, `silver`, or `gold`                                                     |
 

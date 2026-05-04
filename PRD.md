@@ -228,18 +228,22 @@ Base URL: `http://localhost:8000`
 ### Endpoints
 
 
-| Method | Path                    | Description                                             |
-| ------ | ----------------------- | ------------------------------------------------------- |
-| `GET`  | `/health`               | Service health check                                    |
-| `GET`  | `/london/score`         | Current overall London health score                     |
-| `GET`  | `/boroughs`             | List all boroughs with current scores                   |
-| `GET`  | `/borough/{name}`       | Full health breakdown for a borough                     |
-| `GET`  | `/borough/{name}/trend` | 7-day trend for a borough                               |
-| `POST` | `/agent/query`          | Doctor agent — returns SSE stream (`text/event-stream`) |
-| `GET`  | `/bulletin/latest`      | Latest generated bulletin                               |
-| `POST` | `/bulletin/generate`    | Trigger on-demand bulletin generation                   |
-| `GET`  | `/boroughs/deprivation` | IMD 2025 deprivation data for all boroughs              |
-| `POST` | `/internal/reset-db`    | Release DuckDB read connection (internal)               |
+| Method | Path                              | Description                                             |
+| ------ | --------------------------------- | ------------------------------------------------------- |
+| `GET`  | `/health`                         | Service health check                                    |
+| `GET`  | `/london/score`                   | Current overall London health score                     |
+| `GET`  | `/boroughs`                       | List all boroughs with current scores                   |
+| `GET`  | `/borough/{name}`                 | Full health breakdown for a borough                     |
+| `GET`  | `/borough/{name}/trend`           | 7-day trend for a borough                               |
+| `POST` | `/agent/query`                    | Doctor agent — returns SSE stream (`text/event-stream`) |
+| `GET`  | `/bulletin/latest`                | Latest generated bulletin                               |
+| `POST` | `/bulletin/generate`              | Trigger on-demand bulletin generation                   |
+| `GET`  | `/boroughs/deprivation`           | IMD 2025 deprivation data + 7 sub-domain ranks          |
+| `GET`  | `/boroughs/housing-affordability` | ONS Table 5c median ratio + 5-year average              |
+| `GET`  | `/boroughs/health-index`          | ONS Health Index 2021 (32 boroughs; CoL excluded)       |
+| `GET`  | `/boroughs/score-quality`         | Per-organ reliability flag + 95% bootstrap CI per borough |
+| `GET`  | `/boroughs/trends`                | 7-day composite trend direction for all boroughs        |
+| `POST` | `/internal/reset-db`              | Release DuckDB read connection (internal)               |
 
 
 ### Response format
@@ -270,7 +274,7 @@ Single-page application with panel-based navigation. All interactions happen on 
 - Header: vital signs with EKG lines, metric filter buttons
 - Floating action buttons: "Analytics" and "Ask the Doctor"
 - Panels slide in from the right when activated:
-  - **Analytics panel** — scrollable analytics suite with five views: (1) Health vs Deprivation scatter plot with labelled outliers and trend line, (2) cross-domain correlation insight (Pearson r, auto-computed on page load), (3) borough radar comparison (two boroughs, five axes), (4) organ history time series (per-borough, 7/14/30d window), (5) critical organs triage table (sortable, filterable by organ)
+  - **Analytics panel** — scrollable analytics suite, planner-first ordering: (1) **Critical organs triage table** with per-organ reliability dots (sortable, filterable), (2) Health vs Deprivation scatter plot with toggle between IMD rank and ONS Housing Affordability ratio + dynamic R² + labelled outliers + data-driven caption, (3) Equity Patterns bar chart with IMD sub-domain selector (overall / income / barriers / etc.) and Top-5 Unexpected divergence list (LOO regression residuals with driving organ named), (4) Borough radar comparison, (5) organ history time series, (6) ONS Health Index validation scatter with regression line, R², and convergent-validity disclosure. Each per-borough score in the triage table carries a reliability dot (green = bootstrap-stable, amber = use with care or non-borough-specific, red = sparse data) with a portal-rendered hover tooltip showing 95% CI, sample size, and disclosure notes.
   - **Doctor chat panel** — natural language input with SSE streaming response
 
 ### Design principles
@@ -421,6 +425,9 @@ city-scan-london/
 │   ├── fetch_population.py           ← Downloads ONS populations. Default: borough (Nomis NM_31_1 → lookups.json). With --wards: ward-level (NM_2014_1 → data/static/ward_populations.json)
 │   ├── fetch_green_space.py          ← Downloads GLA Green Cover 2024 XLSX → data/static/green_space.json
 │   ├── fetch_imd.py                  ← Downloads IMD 2025 deprivation data → data/static/imd_borough.json
+│   ├── refresh_housing_affordability.py ← Downloads ONS Housing Affordability Ratio (Table 5c) → data/static/housing_affordability.json
+│   ├── refresh_ons_health_index.py   ← Downloads ONS Health Index for England → data/static/ons_health_index.json (used as external validation reference)
+│   ├── compute_score_quality.py      ← Bootstraps per-organ 95% CIs from gold time-series → data/static/score_quality.json (drives reliability dots in the Analytics panel)
 │   └── backfill_green_space_access.py ← One-shot: pin historical gold_scores rows to current stable green-space values (prevents NULL→value chart jump post-deploy of ward-pop-weighted access metric)
 ├── ingestion/
 │   ├── scheduler.py             ← APScheduler: fetch + full pipeline chain
@@ -471,11 +478,14 @@ city-scan-london/
 │       └── agent.py             ← SSE streaming endpoint
 ├── frontend/
 │   └── (Next.js app — see docs/frontend-spec.md)
-│       ├── components/panels/AnalyticsPanel.tsx   ← Health vs Deprivation scatter panel
-│       ├── components/charts/DeprivationScatter.tsx ← Recharts scatter: IMD rank vs health score
-│       ├── components/charts/BoroughRadar.tsx ← Recharts radar: 2-borough comparison across 5 organs
-│       ├── components/charts/BoroughTimeSeries.tsx ← Recharts line: organ score history over time
-│       ├── components/charts/WorstOrganTable.tsx ← Sortable triage table: worst organ per borough
+│       ├── components/panels/AnalyticsPanel.tsx     ← Planner-first analytics suite
+│       ├── components/charts/DeprivationScatter.tsx ← Recharts scatter: IMD rank vs health score, with ONS Housing Affordability toggle
+│       ├── components/charts/EquityPatterns.tsx     ← |r| per organ vs IMD sub-domain rank, with sub-domain selector + Top-5 Unexpected divergence list (LOO regression)
+│       ├── components/charts/HealthIndexValidation.tsx ← Recharts scatter: CityScan composite vs ONS Health Index — convergent validity reference
+│       ├── components/charts/BoroughRadar.tsx       ← Recharts radar: 2-borough comparison across 5 organs
+│       ├── components/charts/BoroughTimeSeries.tsx  ← Recharts line: organ score history over time
+│       ├── components/charts/WorstOrganTable.tsx    ← Sortable triage table: worst organ per borough, with QualityDot reliability indicators
+│       ├── components/ui/QualityDot.tsx             ← Per-organ reliability indicator (green/amber/red), portal-rendered hover tooltip
 │       └── ...
 ├── data/
 │   ├── bronze/

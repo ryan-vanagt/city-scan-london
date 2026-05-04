@@ -44,6 +44,15 @@ pytest tests/ -v
 | `test_silver_transforms.py` | Silver normalisation, score clamping, borough coverage per source |
 | `test_gold.py` | Gold aggregation, composite score weights, 48h time-bound |
 | `test_sentiment.py` | Sentiment scorer output range, batching, positive > negative |
+| `test_imd.py` | IMD 2025 borough JSON shape — 33 codes, 7 domains per borough, valid ranks |
+
+### Reference / overlay dataset tests
+
+| File | What it tests |
+|---|---|
+| `test_housing_affordability.py` | ONS Table 5c JSON shape — 33 boroughs, plausible ratio range, K&C top |
+| `test_health_index.py` | ONS Health Index JSON — 32 boroughs (CoL excluded), Richmond top, plausible 70–130 range |
+| `test_score_quality.py` | Bootstrap output shape — flag distribution, static-organ rules (sentiment amber, GLA-static green), CI present for green bootstrappable organs, composite flag derivation |
 
 ### Agent tool tests
 
