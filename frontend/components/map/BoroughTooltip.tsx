@@ -26,14 +26,15 @@ interface MetricDisplay {
 
 // Key is the filter identifier (matches MetricFilter in types.ts).
 // For green space, the filter is "green_space_score" (historical name) but
-// the DISPLAYED value is the ward-pop-weighted access variant when available,
-// with raw coverage rendered below as a subtle secondary line.
+// the DISPLAYED value is the ward-pop-weighted access variant when available.
+// Variant detail (raw coverage, modelled air) is rendered only when the
+// matching filter is active — the default all-organs tooltip stays clean.
 const METRICS: MetricDisplay[] = [
   { label: "Air Quality", key: "air_score", source: "OpenAQ" },
   { label: "Transit", key: "transit_score", source: "TfL" },
   { label: "Sentiment", key: "sentiment_score", source: "Reddit/Guardian/BBC" },
   { label: "Crime & A&E", key: "immune_score", source: "Met Police/NHS" },
-  { label: "Green Space", key: "green_space_score", source: "GLA Green Cover (access-weighted, with coverage shown)" },
+  { label: "Green Space", key: "green_space_score", source: "GLA Green Cover" },
 ];
 
 function formatScore(value: number | null): string {
@@ -122,6 +123,7 @@ export default function BoroughTooltip({
                   </span>
                 </div>
                 {isGreen
+                  && metricFilter === "green_space_score"
                   && borough.green_space_score !== null
                   && borough.green_space_access_score !== null && (
                   <div className="flex items-center justify-between gap-4 text-[8px] text-slate-500">
@@ -131,7 +133,9 @@ export default function BoroughTooltip({
                     </span>
                   </div>
                 )}
-                {isAir && borough.air_quality_modelled_score !== null && (
+                {isAir
+                  && metricFilter === "air_score"
+                  && borough.air_quality_modelled_score !== null && (
                   <div className="flex items-center justify-between gap-4 text-[8px] text-slate-500">
                     <span style={{ letterSpacing: "0.05em" }}>modelled</span>
                     <span className="font-mono">
