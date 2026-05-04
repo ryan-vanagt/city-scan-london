@@ -1,26 +1,27 @@
 "use client";
 
 /**
- * AnalyticsPanel — side panel with four analytics views:
+ * AnalyticsPanel — planner-first analytics side panel.
  *
- * 1. Health vs Deprivation scatter plot
- * 2. Cross-domain correlation insight (auto-computed)
- * 3. Borough comparison radar chart
- * 4. Organ history time series
- * 5. Critical organs table
+ * Order is intentional:
+ * 1. Critical organs (most actionable triage view)
+ * 2. Health vs Deprivation scatter (with IMD/Housing toggle)
+ * 3. Equity patterns + Top 5 Unexpected divergences
+ * 4. Borough radar comparison
+ * 5. Organ time series
+ * 6. ONS Health Index validation (methodology / trust artifact, last)
  *
  * Follows the same panel structure as DoctorChat:
  * dark background, left border, header with close button, scrollable content.
  */
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { X } from "lucide-react";
 import type {
   BoroughScore,
   HousingAffordability,
   HealthIndexEntry,
 } from "@/lib/types";
-import { pearson } from "@/lib/stats";
 import DeprivationScatter, {
   type DeprivationXAxisMode,
 } from "@/components/charts/DeprivationScatter";
@@ -38,58 +39,6 @@ interface AnalyticsPanelProps {
   onClose: () => void;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Cross-domain correlation insight                                    */
-/* ------------------------------------------------------------------ */
-
-const ORGAN_LABELS: Record<string, string> = {
-  air_score: "Air quality",
-  transit_score: "Transit",
-  sentiment_score: "Sentiment",
-  immune_score: "Crime & A&E",
-  green_space_score: "Green space",
-};
-
-function useCorrelationInsight(
-  boroughs: BoroughScore[],
-  deprivation: Record<string, { imd_rank: number; name: string }>,
-): string | null {
-  return useMemo(() => {
-    const matched = boroughs
-      .filter((b) => deprivation[b.borough_code] && b.composite_score !== null)
-      .map((b) => ({ ...b, imd_rank: deprivation[b.borough_code].imd_rank }));
-
-    if (matched.length < 10) return null;
-
-    const imdRanks = matched.map((b) => b.imd_rank);
-    const organs = ["air_score", "transit_score", "sentiment_score", "immune_score", "green_space_score"] as const;
-
-    let strongest: { organ: string; r: number } | null = null;
-
-    for (const organ of organs) {
-      const scores = matched.map((b) => b[organ]);
-      const r = pearson(imdRanks, scores);
-      if (r !== null && (strongest === null || Math.abs(r) > Math.abs(strongest.r))) {
-        strongest = { organ, r };
-      }
-    }
-
-    if (!strongest) return null;
-
-    const label = ORGAN_LABELS[strongest.organ] || strongest.organ;
-    const absR = Math.abs(strongest.r).toFixed(2);
-    const direction = strongest.r > 0
-      ? "poorer boroughs score worse"
-      : "poorer boroughs score better";
-
-    return `${label} has the strongest link to deprivation (r=${absR}) — ${direction}.`;
-  }, [boroughs, deprivation]);
-}
-
-/* ------------------------------------------------------------------ */
-/*  Component                                                          */
-/* ------------------------------------------------------------------ */
-
 export default function AnalyticsPanel({
   boroughs,
   deprivation,
@@ -97,7 +46,6 @@ export default function AnalyticsPanel({
   healthIndex,
   onClose,
 }: AnalyticsPanelProps) {
-  const correlationInsight = useCorrelationInsight(boroughs, deprivation);
   const [xAxisMode, setXAxisMode] = useState<DeprivationXAxisMode>("imd");
   const housingAvailable =
     !!housingAffordability && Object.keys(housingAffordability).length > 0;
@@ -130,24 +78,10 @@ export default function AnalyticsPanel({
 
       {/* Scrollable content — order is planner-first:
           actionable triage at the top, comparison and context in the
-          middle, methodology + validation at the bottom. */}
+          middle, methodology + validation at the bottom. The organ-key
+          legend lives at the bottom as a footnote so it doesn't break
+          the flow into actionable content. */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-8">
-        {/* Organ key — bridges the metaphor and the underlying data so
-            planners aren't left guessing what "Brain" or "Skin" means.
-            Static, invariant — these labels are part of the brand. */}
-        <div
-          className="text-[10px] font-mono px-3 py-2 rounded"
-          style={{
-            backgroundColor: "rgba(15, 23, 42, 0.6)",
-            border: "1px dashed #1e293b",
-            color: "#64748b",
-            lineHeight: 1.55,
-          }}
-        >
-          Lungs = air · Arteries = transit · Brain = sentiment · Immune =
-          crime + A&E · Skin = green space
-        </div>
-
         {/* 1. Critical organs table — most actionable view, planner first stop */}
         <WorstOrganTable boroughs={boroughs} />
 
@@ -192,22 +126,9 @@ export default function AnalyticsPanel({
           />
         </div>
 
-        {/* Correlation insight */}
-        {correlationInsight && (
-          <div
-            className="text-xs font-mono px-3 py-2 rounded"
-            style={{
-              backgroundColor: "rgba(14, 165, 233, 0.08)",
-              border: "1px solid rgba(14, 165, 233, 0.2)",
-              color: "#94a3b8",
-            }}
-          >
-            <span style={{ color: "#0ea5e9" }}>INSIGHT: </span>
-            {correlationInsight}
-          </div>
-        )}
-
-        {/* 3. Equity patterns — |r| per organ against IMD + Top 5 Unexpected */}
+        {/* 3. Equity patterns — |r| per organ against IMD + Top 5 Unexpected.
+            (Old standalone "INSIGHT" callout removed — its content was
+            duplicated by EquityPatterns chart + caption below.) */}
         <EquityPatterns boroughs={boroughs} deprivation={deprivation} />
 
         {/* 4. Radar comparison */}
@@ -224,6 +145,20 @@ export default function AnalyticsPanel({
             healthIndex={healthIndex}
           />
         )}
+
+        {/* Organ-key footnote — quiet legend at the bottom decodes the
+            metaphor for anyone who skipped the in-context labels above. */}
+        <div
+          className="text-[10px] font-mono pt-2 mt-4"
+          style={{
+            color: "#475569",
+            borderTop: "1px solid #1e293b",
+            lineHeight: 1.55,
+          }}
+        >
+          Key — Lungs: air · Arteries: transit · Brain: sentiment · Immune:
+          crime + A&E · Skin: green space
+        </div>
       </div>
     </div>
   );
