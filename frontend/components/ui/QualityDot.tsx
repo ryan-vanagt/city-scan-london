@@ -7,12 +7,19 @@
  * tooltip surfacing the underlying detail: bootstrap CI for bootstrappable
  * organs, disclosure note for static/invariant signals, sample size, etc.
  *
+ * Tooltip is rendered into a React portal (document.body) and positioned
+ * via getBoundingClientRect so it can escape any `overflow: hidden|auto`
+ * ancestor — important here because WorstOrganTable lives inside a scroll
+ * container that would otherwise clip the tooltip on the right edge and
+ * along the bottom boundary.
+ *
  * Designed for the planner UX: the dot itself is the primary signal
- * ("can I trust this number for fine-grained decisions?"), while the
- * statistical detail is gated behind hover for analyst drilldown.
+ * ("can I trust this number?"), while the statistical detail is gated
+ * behind hover for analyst drilldown.
  */
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import type { OrganQuality, QualityFlag } from "@/lib/types";
 
 const COLOURS: Record<QualityFlag, string> = {
@@ -29,28 +36,44 @@ const FLAG_LABELS: Record<QualityFlag, string> = {
 
 interface QualityDotProps {
   quality: OrganQuality | undefined;
-  size?: number;        // dot diameter in px (default 8)
-  inline?: boolean;     // if true, displays inline-block; otherwise positioned absolute by parent
+  size?: number;
 }
 
-export default function QualityDot({ quality, size = 8, inline = true }: QualityDotProps) {
+const TOOLTIP_WIDTH = 240;
+const TOOLTIP_GAP = 8;
+
+export default function QualityDot({ quality, size = 8 }: QualityDotProps) {
   const [hover, setHover] = useState(false);
+  const [coords, setCoords] = useState<{ left: number; top: number } | null>(null);
+  const dotRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (!hover || !dotRef.current) {
+      setCoords(null);
+      return;
+    }
+    const rect = dotRef.current.getBoundingClientRect();
+    // Default: tooltip centered horizontally on the dot, above it.
+    let left = rect.left + rect.width / 2 - TOOLTIP_WIDTH / 2;
+    // Clamp within the viewport so we never overflow the right edge.
+    const maxLeft = window.innerWidth - TOOLTIP_WIDTH - 8;
+    if (left > maxLeft) left = maxLeft;
+    if (left < 8) left = 8;
+    const top = rect.top - TOOLTIP_GAP;
+    setCoords({ left, top });
+  }, [hover]);
 
   if (!quality) return null;
 
   const colour = COLOURS[quality.flag];
 
   return (
-    <span
-      className="relative"
-      style={{ display: inline ? "inline-block" : "block" }}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-    >
+    <>
       <span
+        ref={dotRef}
         aria-label={`Data quality: ${FLAG_LABELS[quality.flag]}`}
+        className="inline-block"
         style={{
-          display: "inline-block",
           width: size,
           height: size,
           borderRadius: "50%",
@@ -59,47 +82,47 @@ export default function QualityDot({ quality, size = 8, inline = true }: Quality
           verticalAlign: "middle",
           cursor: "help",
         }}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
       />
-      {hover && (
-        <span
-          className="absolute z-50 rounded px-2.5 py-2 text-[10px] font-mono pointer-events-none"
-          style={{
-            backgroundColor: "rgba(15, 23, 42, 0.97)",
-            border: `1px solid ${colour}`,
-            color: "#cbd5e1",
-            minWidth: 200,
-            maxWidth: 260,
-            whiteSpace: "normal",
-            lineHeight: 1.45,
-            bottom: size + 6,
-            left: "50%",
-            transform: "translateX(-50%)",
-          }}
-        >
-          <div style={{ color: colour, fontWeight: 600, marginBottom: 4 }}>
-            {FLAG_LABELS[quality.flag]}
-          </div>
-          {quality.ci_low !== null && quality.ci_high !== null ? (
-            <div style={{ color: "#94a3b8" }}>
-              95% CI: {quality.ci_low.toFixed(1)} – {quality.ci_high.toFixed(1)}
-              {quality.width !== null && (
-                <span style={{ color: "#64748b" }}>
-                  {" "}(width {quality.width.toFixed(1)})
-                </span>
-              )}
+      {hover && coords && typeof document !== "undefined" &&
+        createPortal(
+          <div
+            className="fixed z-[1000] rounded px-3 py-2 text-[10px] font-mono pointer-events-none"
+            style={{
+              left: coords.left,
+              top: coords.top,
+              transform: "translateY(-100%)",
+              width: TOOLTIP_WIDTH,
+              backgroundColor: "rgba(15, 23, 42, 0.97)",
+              border: `1px solid ${colour}`,
+              color: "#cbd5e1",
+              lineHeight: 1.45,
+            }}
+          >
+            <div style={{ color: colour, fontWeight: 600, marginBottom: 4 }}>
+              {FLAG_LABELS[quality.flag]}
             </div>
-          ) : null}
-          {quality.note && (
-            <div style={{ color: "#94a3b8", marginTop: 2 }}>{quality.note}</div>
-          )}
-          {quality.flag_basis && (
-            <div style={{ color: "#94a3b8", marginTop: 2 }}>{quality.flag_basis}</div>
-          )}
-          <div style={{ color: "#475569", marginTop: 4 }}>
-            n = {quality.n}
-          </div>
-        </span>
-      )}
-    </span>
+            {quality.ci_low !== null && quality.ci_high !== null ? (
+              <div style={{ color: "#94a3b8" }}>
+                95% CI: {quality.ci_low.toFixed(1)} – {quality.ci_high.toFixed(1)}
+                {quality.width !== null && (
+                  <span style={{ color: "#64748b" }}>
+                    {" "}(width {quality.width.toFixed(1)})
+                  </span>
+                )}
+              </div>
+            ) : null}
+            {quality.note && (
+              <div style={{ color: "#94a3b8", marginTop: 2 }}>{quality.note}</div>
+            )}
+            {quality.flag_basis && (
+              <div style={{ color: "#94a3b8", marginTop: 2 }}>{quality.flag_basis}</div>
+            )}
+            <div style={{ color: "#475569", marginTop: 4 }}>n = {quality.n}</div>
+          </div>,
+          document.body,
+        )}
+    </>
   );
 }
