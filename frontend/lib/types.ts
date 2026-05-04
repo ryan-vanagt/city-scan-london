@@ -68,6 +68,14 @@ export interface TrendInfo {
   delta: number | null;
 }
 
+export interface HousingAffordability {
+  borough_code: string;
+  borough_name: string;
+  ratio: number | null;            // current-year median ratio (house price / earnings)
+  ratio_5yr_avg: number | null;    // 5-year average for context
+  year: number | null;             // year ending September (e.g. 2025)
+}
+
 /** Which metric is currently filtering the map (null = composite/overall) */
 export type MetricFilterKey =
   | "air_score"

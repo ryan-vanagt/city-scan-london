@@ -1,11 +1,12 @@
 """
 Borough data endpoints.
 
-GET /boroughs              — all 33 boroughs with current composite scores
-GET /boroughs/deprivation  — all 33 boroughs with static IMD deprivation data
-GET /boroughs/trends       — 7-day composite trend direction for all boroughs
-GET /borough/{name}        — full organ breakdown for a single borough
-GET /borough/{name}/trend  — 7-day trend for a single borough
+GET /boroughs                          — all 33 boroughs with current composite scores
+GET /boroughs/deprivation              — all 33 boroughs with static IMD deprivation data
+GET /boroughs/housing-affordability    — all 33 boroughs with ONS housing affordability ratios
+GET /boroughs/trends                   — 7-day composite trend direction for all boroughs
+GET /borough/{name}                    — full organ breakdown for a single borough
+GET /borough/{name}/trend              — 7-day trend for a single borough
 """
 
 import json
@@ -143,6 +144,45 @@ def list_boroughs_deprivation() -> list[dict]:
     except (json.JSONDecodeError, KeyError) as exc:
         logger.error("Failed to parse IMD data file: %s", exc)
         raise HTTPException(status_code=500, detail="IMD deprivation data is malformed")
+
+
+HOUSING_FILE = FilePath(__file__).resolve().parents[2] / "data" / "static" / "housing_affordability.json"
+
+
+@lru_cache(maxsize=1)
+def _load_housing_data() -> list[dict]:
+    """Load and cache ONS housing affordability ratios from the static JSON file.
+
+    Source: ONS Table 5c (median house price ÷ median workplace-based earnings)
+    by local authority district. Annual cadence; static file refreshed via
+    scripts/refresh_housing_affordability.py.
+    """
+    raw = json.loads(HOUSING_FILE.read_text(encoding="utf-8"))
+    metadata = raw.get("_metadata", {})
+    boroughs = raw.get("boroughs", {})
+    result = []
+    for code, data in boroughs.items():
+        result.append({
+            "borough_code": code,
+            "borough_name": data["name"],
+            "ratio": data.get("ratio_2025"),
+            "ratio_5yr_avg": data.get("ratio_5yr_avg"),
+            "year": metadata.get("year"),
+        })
+    return result
+
+
+@router.get("/boroughs/housing-affordability")
+def list_boroughs_housing_affordability() -> list[dict]:
+    """All 33 boroughs with their ONS housing affordability ratios (static)."""
+    try:
+        return _load_housing_data()
+    except FileNotFoundError:
+        logger.error("Housing affordability file not found: %s", HOUSING_FILE)
+        raise HTTPException(status_code=404, detail="Housing affordability data not available")
+    except (json.JSONDecodeError, KeyError) as exc:
+        logger.error("Failed to parse housing affordability file: %s", exc)
+        raise HTTPException(status_code=500, detail="Housing affordability data is malformed")
 
 
 @router.get("/boroughs/trends")

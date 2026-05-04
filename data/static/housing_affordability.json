@@ -1,0 +1,179 @@
+{
+  "_metadata": {
+    "source": "ONS House Price to Workplace-Based Earnings Ratio (Table 5c, median)",
+    "url": "https://www.ons.gov.uk/peoplepopulationandcommunity/housing/datasets/ratioofhousepricetoworkplacebasedearningslowerquartileandmedian",
+    "year": 2025,
+    "year_period": "Year ending September 2025",
+    "released": "2026-03-26",
+    "definition": "Ratio of median house price to median gross annual workplace-based earnings",
+    "geography": "Local authority district (32 London boroughs + City of London = 33)",
+    "table": "5c"
+  },
+  "boroughs": {
+    "E09000001": {
+      "name": "City of London",
+      "ratio_2025": 11.1,
+      "ratio_5yr_avg": 13.04
+    },
+    "E09000002": {
+      "name": "Barking and Dagenham",
+      "ratio_2025": 9.5,
+      "ratio_5yr_avg": 10.49
+    },
+    "E09000003": {
+      "name": "Barnet",
+      "ratio_2025": 14.86,
+      "ratio_5yr_avg": 15.87
+    },
+    "E09000004": {
+      "name": "Bexley",
+      "ratio_2025": 12.22,
+      "ratio_5yr_avg": 12.01
+    },
+    "E09000005": {
+      "name": "Brent",
+      "ratio_2025": 14.49,
+      "ratio_5yr_avg": 14.52
+    },
+    "E09000006": {
+      "name": "Bromley",
+      "ratio_2025": 12.08,
+      "ratio_5yr_avg": 12.95
+    },
+    "E09000007": {
+      "name": "Camden",
+      "ratio_2025": 14.37,
+      "ratio_5yr_avg": 17.17
+    },
+    "E09000008": {
+      "name": "Croydon",
+      "ratio_2025": 10.62,
+      "ratio_5yr_avg": 10.72
+    },
+    "E09000009": {
+      "name": "Ealing",
+      "ratio_2025": 13.68,
+      "ratio_5yr_avg": 14.3
+    },
+    "E09000010": {
+      "name": "Enfield",
+      "ratio_2025": 11.89,
+      "ratio_5yr_avg": 12.94
+    },
+    "E09000011": {
+      "name": "Greenwich",
+      "ratio_2025": 12.01,
+      "ratio_5yr_avg": 12.76
+    },
+    "E09000012": {
+      "name": "Hackney",
+      "ratio_2025": 11.9,
+      "ratio_5yr_avg": 13.31
+    },
+    "E09000013": {
+      "name": "Hammersmith and Fulham",
+      "ratio_2025": 13.88,
+      "ratio_5yr_avg": 17.6
+    },
+    "E09000014": {
+      "name": "Haringey",
+      "ratio_2025": 13.44,
+      "ratio_5yr_avg": 15.55
+    },
+    "E09000015": {
+      "name": "Harrow",
+      "ratio_2025": 14.03,
+      "ratio_5yr_avg": 14.96
+    },
+    "E09000016": {
+      "name": "Havering",
+      "ratio_2025": 10.96,
+      "ratio_5yr_avg": 11.45
+    },
+    "E09000017": {
+      "name": "Hillingdon",
+      "ratio_2025": 12.31,
+      "ratio_5yr_avg": 12.72
+    },
+    "E09000018": {
+      "name": "Hounslow",
+      "ratio_2025": 11.26,
+      "ratio_5yr_avg": 11.79
+    },
+    "E09000019": {
+      "name": "Islington",
+      "ratio_2025": 11.75,
+      "ratio_5yr_avg": 14.0
+    },
+    "E09000020": {
+      "name": "Kensington and Chelsea",
+      "ratio_2025": 25.22,
+      "ratio_5yr_avg": 32.69
+    },
+    "E09000021": {
+      "name": "Kingston upon Thames",
+      "ratio_2025": 12.72,
+      "ratio_5yr_avg": 14.11
+    },
+    "E09000022": {
+      "name": "Lambeth",
+      "ratio_2025": 11.05,
+      "ratio_5yr_avg": 13.27
+    },
+    "E09000023": {
+      "name": "Lewisham",
+      "ratio_2025": 11.1,
+      "ratio_5yr_avg": 12.15
+    },
+    "E09000024": {
+      "name": "Merton",
+      "ratio_2025": 14.17,
+      "ratio_5yr_avg": 14.97
+    },
+    "E09000025": {
+      "name": "Newham",
+      "ratio_2025": 10.15,
+      "ratio_5yr_avg": 10.75
+    },
+    "E09000026": {
+      "name": "Redbridge",
+      "ratio_2025": 14.16,
+      "ratio_5yr_avg": 14.33
+    },
+    "E09000027": {
+      "name": "Richmond upon Thames",
+      "ratio_2025": 17.55,
+      "ratio_5yr_avg": 18.56
+    },
+    "E09000028": {
+      "name": "Southwark",
+      "ratio_2025": 10.8,
+      "ratio_5yr_avg": 12.28
+    },
+    "E09000029": {
+      "name": "Sutton",
+      "ratio_2025": 11.41,
+      "ratio_5yr_avg": 12.23
+    },
+    "E09000030": {
+      "name": "Tower Hamlets",
+      "ratio_2025": 7.5,
+      "ratio_5yr_avg": 9.11
+    },
+    "E09000031": {
+      "name": "Waltham Forest",
+      "ratio_2025": 14.35,
+      "ratio_5yr_avg": 14.62
+    },
+    "E09000032": {
+      "name": "Wandsworth",
+      "ratio_2025": 14.7,
+      "ratio_5yr_avg": 17.32
+    },
+    "E09000033": {
+      "name": "Westminster",
+      "ratio_2025": 16.04,
+      "ratio_5yr_avg": 20.19
+    }
+  }
+}

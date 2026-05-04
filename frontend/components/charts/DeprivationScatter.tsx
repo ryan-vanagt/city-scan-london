@@ -1,10 +1,15 @@
 "use client";
 
 /**
- * DeprivationScatter — Recharts scatter plot showing IMD rank vs composite
- * health score for all 33 London boroughs.
+ * DeprivationScatter — Recharts scatter plot showing a deprivation/affordability
+ * proxy on the X-axis vs composite health score on the Y-axis for all 33
+ * London boroughs.
  *
- * X-axis: IMD rank (reversed so most deprived is on the left).
+ * Two X-axis modes:
+ *   - "imd"     — IMD rank (most deprived on left)
+ *   - "housing" — ONS Housing Affordability Ratio (most affordable on left,
+ *                 least on right)
+ *
  * Y-axis: Composite health score (0-100).
  * Each dot is coloured using the thermal gradient from lib/colours.ts.
  */
@@ -16,10 +21,8 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  ReferenceLine,
-  Label,
 } from "recharts";
-import type { BoroughScore } from "@/lib/types";
+import type { BoroughScore, HousingAffordability } from "@/lib/types";
 import { scoreToColour } from "@/lib/colours";
 
 /** Label the N most extreme points (highest/lowest health, most/least deprived). */
@@ -31,9 +34,13 @@ const LABEL_BOROUGHS = new Set([
   "Bromley",             // high health, low deprivation
 ]);
 
+export type DeprivationXAxisMode = "imd" | "housing";
+
 interface DeprivationScatterProps {
   boroughs: BoroughScore[];
   deprivation: Record<string, { imd_rank: number; name: string }>;
+  housingAffordability?: Record<string, HousingAffordability>;
+  xAxisMode?: DeprivationXAxisMode;
 }
 
 interface ScatterPoint {
@@ -41,7 +48,8 @@ interface ScatterPoint {
   y: number;
   borough_name: string;
   borough_code: string;
-  imd_rank: number;
+  xLabel: string;     // e.g. "IMD Rank" or "Affordability Ratio"
+  xValue: number;
   composite_score: number;
   fill: string;
 }
@@ -49,17 +57,34 @@ interface ScatterPoint {
 function mergeData(
   boroughs: BoroughScore[],
   deprivation: Record<string, { imd_rank: number; name: string }>,
+  housingAffordability: Record<string, HousingAffordability> | undefined,
+  mode: DeprivationXAxisMode,
 ): ScatterPoint[] {
   const points: ScatterPoint[] = [];
   for (const b of boroughs) {
-    const dep = deprivation[b.borough_code];
-    if (!dep || b.composite_score === null) continue;
+    if (b.composite_score === null) continue;
+
+    let xValue: number | null = null;
+    let xLabel = "";
+    if (mode === "imd") {
+      const dep = deprivation[b.borough_code];
+      if (!dep) continue;
+      xValue = dep.imd_rank;
+      xLabel = "IMD Rank";
+    } else {
+      const housing = housingAffordability?.[b.borough_code];
+      if (!housing || housing.ratio === null) continue;
+      xValue = housing.ratio;
+      xLabel = "Affordability Ratio";
+    }
+
     points.push({
-      x: dep.imd_rank,
+      x: xValue,
       y: Math.round(b.composite_score * 10) / 10,
       borough_name: b.borough_name,
       borough_code: b.borough_code,
-      imd_rank: dep.imd_rank,
+      xLabel,
+      xValue,
       composite_score: Math.round(b.composite_score * 10) / 10,
       fill: scoreToColour(b.composite_score),
     });
@@ -126,8 +151,10 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
         {data.borough_name.toUpperCase()}
       </div>
       <div className="flex justify-between gap-4 text-slate-400">
-        <span>IMD Rank</span>
-        <span className="text-white">{data.imd_rank}</span>
+        <span>{data.xLabel}</span>
+        <span className="text-white">
+          {Number.isInteger(data.xValue) ? data.xValue : data.xValue.toFixed(2)}
+        </span>
       </div>
       <div className="flex justify-between gap-4 text-slate-400">
         <span>Health Score</span>
@@ -158,17 +185,27 @@ function linearRegression(points: ScatterPoint[]): { slope: number; intercept: n
 export default function DeprivationScatter({
   boroughs,
   deprivation,
+  housingAffordability,
+  xAxisMode = "imd",
 }: DeprivationScatterProps) {
-  const data = mergeData(boroughs, deprivation);
+  const data = mergeData(boroughs, deprivation, housingAffordability, xAxisMode);
   const regression = linearRegression(data);
 
   if (data.length === 0) {
     return (
       <div className="flex items-center justify-center h-64 text-slate-500 text-xs font-mono">
-        No deprivation data available
+        {xAxisMode === "imd"
+          ? "No deprivation data available"
+          : "No housing affordability data available"}
       </div>
     );
   }
+
+  const title = xAxisMode === "imd" ? "HEALTH vs DEPRIVATION" : "HEALTH vs HOUSING AFFORDABILITY";
+  const xAxisLabel =
+    xAxisMode === "imd"
+      ? "← Most Deprived          IMD Rank          Least Deprived →"
+      : "← More Affordable          Affordability Ratio (× earnings)          Less Affordable →";
 
   return (
     <div>
@@ -177,7 +214,7 @@ export default function DeprivationScatter({
         className="text-xs font-semibold uppercase tracking-wider mb-3"
         style={{ color: "#0ea5e9" }}
       >
-        HEALTH vs DEPRIVATION
+        {title}
       </div>
 
       <ResponsiveContainer width="100%" height={320}>
@@ -185,13 +222,17 @@ export default function DeprivationScatter({
           <XAxis
             type="number"
             dataKey="x"
-            name="IMD Rank"
-            domain={["dataMin - 5", "dataMax + 5"]}
+            name={xAxisMode === "imd" ? "IMD Rank" : "Affordability Ratio"}
+            domain={
+              xAxisMode === "imd"
+                ? ["dataMin - 5", "dataMax + 5"]
+                : ["dataMin - 1", "dataMax + 1"]
+            }
             tick={{ fill: "#64748b", fontSize: 10, fontFamily: "var(--font-jetbrains, monospace)" }}
             axisLine={{ stroke: "#475569" }}
             tickLine={{ stroke: "#475569" }}
             label={{
-              value: "← Most Deprived          IMD Rank          Least Deprived →",
+              value: xAxisLabel,
               position: "bottom",
               offset: 12,
               style: { fill: "#64748b", fontSize: 10, fontFamily: "var(--font-jetbrains, monospace)" },

@@ -13,11 +13,13 @@
  * dark background, left border, header with close button, scrollable content.
  */
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { X } from "lucide-react";
-import type { BoroughScore } from "@/lib/types";
+import type { BoroughScore, HousingAffordability } from "@/lib/types";
 import { pearson } from "@/lib/stats";
-import DeprivationScatter from "@/components/charts/DeprivationScatter";
+import DeprivationScatter, {
+  type DeprivationXAxisMode,
+} from "@/components/charts/DeprivationScatter";
 import BoroughRadar from "@/components/charts/BoroughRadar";
 import BoroughTimeSeries from "@/components/charts/BoroughTimeSeries";
 import EquityPatterns from "@/components/charts/EquityPatterns";
@@ -26,6 +28,7 @@ import WorstOrganTable from "@/components/charts/WorstOrganTable";
 interface AnalyticsPanelProps {
   boroughs: BoroughScore[];
   deprivation: Record<string, { imd_rank: number; name: string }>;
+  housingAffordability?: Record<string, HousingAffordability>;
   onClose: () => void;
 }
 
@@ -84,9 +87,13 @@ function useCorrelationInsight(
 export default function AnalyticsPanel({
   boroughs,
   deprivation,
+  housingAffordability,
   onClose,
 }: AnalyticsPanelProps) {
   const correlationInsight = useCorrelationInsight(boroughs, deprivation);
+  const [xAxisMode, setXAxisMode] = useState<DeprivationXAxisMode>("imd");
+  const housingAvailable =
+    !!housingAffordability && Object.keys(housingAffordability).length > 0;
 
   return (
     <div
@@ -114,8 +121,46 @@ export default function AnalyticsPanel({
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-8">
-        {/* 1. Scatter plot */}
-        <DeprivationScatter boroughs={boroughs} deprivation={deprivation} />
+        {/* 1. Scatter plot — toggle X-axis between IMD and housing */}
+        <div>
+          {housingAvailable && (
+            <div className="flex items-center justify-end gap-1 mb-2">
+              <span className="text-[10px] uppercase tracking-wider text-slate-500 mr-1">
+                X-axis
+              </span>
+              <button
+                onClick={() => setXAxisMode("imd")}
+                className="px-2 py-1 text-[10px] font-mono uppercase tracking-wider rounded transition-colors"
+                style={{
+                  backgroundColor:
+                    xAxisMode === "imd" ? "rgba(14,165,233,0.18)" : "transparent",
+                  color: xAxisMode === "imd" ? "#0ea5e9" : "#64748b",
+                  border: `1px solid ${xAxisMode === "imd" ? "#0ea5e9" : "#1e293b"}`,
+                }}
+              >
+                IMD
+              </button>
+              <button
+                onClick={() => setXAxisMode("housing")}
+                className="px-2 py-1 text-[10px] font-mono uppercase tracking-wider rounded transition-colors"
+                style={{
+                  backgroundColor:
+                    xAxisMode === "housing" ? "rgba(14,165,233,0.18)" : "transparent",
+                  color: xAxisMode === "housing" ? "#0ea5e9" : "#64748b",
+                  border: `1px solid ${xAxisMode === "housing" ? "#0ea5e9" : "#1e293b"}`,
+                }}
+              >
+                Housing
+              </button>
+            </div>
+          )}
+          <DeprivationScatter
+            boroughs={boroughs}
+            deprivation={deprivation}
+            housingAffordability={housingAffordability}
+            xAxisMode={xAxisMode}
+          />
+        </div>
 
         {/* Correlation insight */}
         {correlationInsight && (
