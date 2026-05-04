@@ -314,7 +314,7 @@ export default function EquityPatterns({
             lineHeight: 1.55,
           }}
         >
-          Tracks deprivation most: {captionParts.strongest.label} (
+          Most correlated with deprivation: {captionParts.strongest.label} (
           {strengthWord(captionParts.strongest.r)}). Least:{" "}
           {captionParts.weakest.label} (
           {strengthWord(captionParts.weakest.r)}). Bar values show r.
