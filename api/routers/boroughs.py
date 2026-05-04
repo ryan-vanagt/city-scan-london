@@ -4,6 +4,7 @@ Borough data endpoints.
 GET /boroughs                          — all 33 boroughs with current composite scores
 GET /boroughs/deprivation              — all 33 boroughs with static IMD deprivation data
 GET /boroughs/housing-affordability    — all 33 boroughs with ONS housing affordability ratios
+GET /boroughs/health-index             — 32 boroughs with ONS Health Index scores (CoL excluded by ONS)
 GET /boroughs/trends                   — 7-day composite trend direction for all boroughs
 GET /borough/{name}                    — full organ breakdown for a single borough
 GET /borough/{name}/trend              — 7-day trend for a single borough
@@ -183,6 +184,54 @@ def list_boroughs_housing_affordability() -> list[dict]:
     except (json.JSONDecodeError, KeyError) as exc:
         logger.error("Failed to parse housing affordability file: %s", exc)
         raise HTTPException(status_code=500, detail="Housing affordability data is malformed")
+
+
+HEALTH_INDEX_FILE = FilePath(__file__).resolve().parents[2] / "data" / "static" / "ons_health_index.json"
+
+
+@lru_cache(maxsize=1)
+def _load_health_index_data() -> list[dict]:
+    """Load and cache ONS Health Index scores from the static JSON file.
+
+    Source: ONS Health Index for England (Table 2 — Overall Index). Built
+    from inputs entirely outside CityScan's pipeline (life expectancy,
+    mortality, mental health prevalence, behaviours), so a correlation
+    between CityScan composite and Health Index is convergent validity —
+    the strongest defensive validation we can offer the panel.
+
+    Note: City of London is NOT in this dataset (ONS excludes it by
+    convention because of its tiny resident population). Output has 32
+    boroughs, not 33.
+    """
+    raw = json.loads(HEALTH_INDEX_FILE.read_text(encoding="utf-8"))
+    metadata = raw.get("_metadata", {})
+    year = metadata.get("year")
+    score_key = f"score_{year}"
+    boroughs = raw.get("boroughs", {})
+    result = []
+    for code, data in boroughs.items():
+        result.append({
+            "borough_code": code,
+            "borough_name": data["name"],
+            "score": data.get(score_key),
+            "score_2020": data.get("score_2020"),
+            "score_2015": data.get("score_2015"),
+            "year": year,
+        })
+    return result
+
+
+@router.get("/boroughs/health-index")
+def list_boroughs_health_index() -> list[dict]:
+    """32 London boroughs with their ONS Health Index score (City of London excluded by ONS)."""
+    try:
+        return _load_health_index_data()
+    except FileNotFoundError:
+        logger.error("Health Index file not found: %s", HEALTH_INDEX_FILE)
+        raise HTTPException(status_code=404, detail="Health Index data not available")
+    except (json.JSONDecodeError, KeyError) as exc:
+        logger.error("Failed to parse Health Index file: %s", exc)
+        raise HTTPException(status_code=500, detail="Health Index data is malformed")
 
 
 @router.get("/boroughs/trends")

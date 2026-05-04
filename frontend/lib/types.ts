@@ -76,6 +76,15 @@ export interface HousingAffordability {
   year: number | null;             // year ending September (e.g. 2025)
 }
 
+export interface HealthIndexEntry {
+  borough_code: string;
+  borough_name: string;
+  score: number | null;            // ONS Health Index latest year (England 2015 = 100 baseline)
+  score_2020: number | null;       // for context
+  score_2015: number | null;       // baseline year
+  year: number | null;             // most recent year covered (likely 2021)
+}
+
 /** Which metric is currently filtering the map (null = composite/overall) */
 export type MetricFilterKey =
   | "air_score"

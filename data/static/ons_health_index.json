@@ -1,0 +1,206 @@
+{
+  "_metadata": {
+    "source": "ONS Health Index for England (Table 2)",
+    "url": "https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/healthandwellbeing/datasets/healthindexscoresengland",
+    "year": 2021,
+    "released": "2023-06-16",
+    "definition": "Composite index of population health based on independent inputs: life expectancy, healthy life expectancy, mortality from specific causes, mental health prevalence, behaviours (smoking, drinking, physical activity), and broader health determinants. Baseline England 2015 = 100.",
+    "geography": "Lower-Tier Local Authority (LTLA) \u2014 32 London boroughs + City of London",
+    "table": "Table 2 - Overall Health Index",
+    "lag_note": "Latest published year is 2021 (released June 2023). The Health Index is published with a multi-year delay \u2014 this is the freshest available vintage as of 2026-05."
+  },
+  "boroughs": {
+    "E09000027": {
+      "name": "Richmond upon Thames",
+      "score_2021": 118.5,
+      "score_2020": 119.2,
+      "score_2015": 120.6
+    },
+    "E09000006": {
+      "name": "Bromley",
+      "score_2021": 111.9,
+      "score_2020": 112.6,
+      "score_2015": 109.3
+    },
+    "E09000021": {
+      "name": "Kingston upon Thames",
+      "score_2021": 110.9,
+      "score_2020": 111.3,
+      "score_2015": 108.6
+    },
+    "E09000015": {
+      "name": "Harrow",
+      "score_2021": 110.3,
+      "score_2020": 107.2,
+      "score_2015": 110.4
+    },
+    "E09000003": {
+      "name": "Barnet",
+      "score_2021": 108.8,
+      "score_2020": 108.3,
+      "score_2015": 106.9
+    },
+    "E09000009": {
+      "name": "Ealing",
+      "score_2021": 107.1,
+      "score_2020": 103.0,
+      "score_2015": 103.2
+    },
+    "E09000024": {
+      "name": "Merton",
+      "score_2021": 107.1,
+      "score_2020": 105.7,
+      "score_2015": 105.1
+    },
+    "E09000029": {
+      "name": "Sutton",
+      "score_2021": 106.7,
+      "score_2020": 108.4,
+      "score_2015": 107.8
+    },
+    "E09000016": {
+      "name": "Havering",
+      "score_2021": 104.4,
+      "score_2020": 107.0,
+      "score_2015": 104.0
+    },
+    "E09000031": {
+      "name": "Waltham Forest",
+      "score_2021": 104.3,
+      "score_2020": 100.6,
+      "score_2015": 98.4
+    },
+    "E09000032": {
+      "name": "Wandsworth",
+      "score_2021": 104.1,
+      "score_2020": 101.5,
+      "score_2015": 99.9
+    },
+    "E09000017": {
+      "name": "Hillingdon",
+      "score_2021": 103.3,
+      "score_2020": 100.2,
+      "score_2015": 100.1
+    },
+    "E09000005": {
+      "name": "Brent",
+      "score_2021": 102.0,
+      "score_2020": 98.3,
+      "score_2015": 99.6
+    },
+    "E09000020": {
+      "name": "Kensington and Chelsea",
+      "score_2021": 101.6,
+      "score_2020": 102.3,
+      "score_2015": 101.5
+    },
+    "E09000018": {
+      "name": "Hounslow",
+      "score_2021": 101.3,
+      "score_2020": 99.1,
+      "score_2015": 97.4
+    },
+    "E09000004": {
+      "name": "Bexley",
+      "score_2021": 100.8,
+      "score_2020": 102.5,
+      "score_2015": 103.4
+    },
+    "E09000026": {
+      "name": "Redbridge",
+      "score_2021": 100.4,
+      "score_2020": 101.8,
+      "score_2015": 104.3
+    },
+    "E09000023": {
+      "name": "Lewisham",
+      "score_2021": 99.1,
+      "score_2020": 96.9,
+      "score_2015": 96.5
+    },
+    "E09000008": {
+      "name": "Croydon",
+      "score_2021": 98.6,
+      "score_2020": 98.5,
+      "score_2015": 97.8
+    },
+    "E09000014": {
+      "name": "Haringey",
+      "score_2021": 98.5,
+      "score_2020": 97.3,
+      "score_2015": 93.9
+    },
+    "E09000013": {
+      "name": "Hammersmith and Fulham",
+      "score_2021": 98.4,
+      "score_2020": 99.5,
+      "score_2015": 96.2
+    },
+    "E09000033": {
+      "name": "Westminster",
+      "score_2021": 96.9,
+      "score_2020": 93.7,
+      "score_2015": 88.9
+    },
+    "E09000010": {
+      "name": "Enfield",
+      "score_2021": 96.2,
+      "score_2020": 94.8,
+      "score_2015": 97.7
+    },
+    "E09000019": {
+      "name": "Islington",
+      "score_2021": 96.2,
+      "score_2020": 91.9,
+      "score_2015": 91.2
+    },
+    "E09000007": {
+      "name": "Camden",
+      "score_2021": 95.7,
+      "score_2020": 90.4,
+      "score_2015": 91.0
+    },
+    "E09000002": {
+      "name": "Barking and Dagenham",
+      "score_2021": 93.8,
+      "score_2020": 92.3,
+      "score_2015": 89.0
+    },
+    "E09000025": {
+      "name": "Newham",
+      "score_2021": 93.7,
+      "score_2020": 93.4,
+      "score_2015": 91.8
+    },
+    "E09000022": {
+      "name": "Lambeth",
+      "score_2021": 93.3,
+      "score_2020": 93.7,
+      "score_2015": 90.1
+    },
+    "E09000030": {
+      "name": "Tower Hamlets",
+      "score_2021": 91.1,
+      "score_2020": 87.8,
+      "score_2015": 84.7
+    },
+    "E09000011": {
+      "name": "Greenwich",
+      "score_2021": 90.5,
+      "score_2020": 93.4,
+      "score_2015": 89.8
+    },
+    "E09000012": {
+      "name": "Hackney",
+      "score_2021": 90.5,
+      "score_2020": 89.9,
+      "score_2015": 88.7
+    },
+    "E09000028": {
+      "name": "Southwark",
+      "score_2021": 86.4,
+      "score_2020": 85.7,
+      "score_2015": 86.8
+    }
+  }
+}

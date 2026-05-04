@@ -15,7 +15,11 @@
 
 import { useMemo, useState } from "react";
 import { X } from "lucide-react";
-import type { BoroughScore, HousingAffordability } from "@/lib/types";
+import type {
+  BoroughScore,
+  HousingAffordability,
+  HealthIndexEntry,
+} from "@/lib/types";
 import { pearson } from "@/lib/stats";
 import DeprivationScatter, {
   type DeprivationXAxisMode,
@@ -23,12 +27,14 @@ import DeprivationScatter, {
 import BoroughRadar from "@/components/charts/BoroughRadar";
 import BoroughTimeSeries from "@/components/charts/BoroughTimeSeries";
 import EquityPatterns from "@/components/charts/EquityPatterns";
+import HealthIndexValidation from "@/components/charts/HealthIndexValidation";
 import WorstOrganTable from "@/components/charts/WorstOrganTable";
 
 interface AnalyticsPanelProps {
   boroughs: BoroughScore[];
   deprivation: Record<string, { imd_rank: number; name: string }>;
   housingAffordability?: Record<string, HousingAffordability>;
+  healthIndex?: Record<string, HealthIndexEntry>;
   onClose: () => void;
 }
 
@@ -88,12 +94,15 @@ export default function AnalyticsPanel({
   boroughs,
   deprivation,
   housingAffordability,
+  healthIndex,
   onClose,
 }: AnalyticsPanelProps) {
   const correlationInsight = useCorrelationInsight(boroughs, deprivation);
   const [xAxisMode, setXAxisMode] = useState<DeprivationXAxisMode>("imd");
   const housingAvailable =
     !!housingAffordability && Object.keys(housingAffordability).length > 0;
+  const healthIndexAvailable =
+    !!healthIndex && Object.keys(healthIndex).length > 0;
 
   return (
     <div
@@ -179,6 +188,14 @@ export default function AnalyticsPanel({
 
         {/* 2. Equity patterns — |r| per organ against IMD */}
         <EquityPatterns boroughs={boroughs} deprivation={deprivation} />
+
+        {/* 2b. ONS Health Index validation — convergent validity slide */}
+        {healthIndexAvailable && healthIndex && (
+          <HealthIndexValidation
+            boroughs={boroughs}
+            healthIndex={healthIndex}
+          />
+        )}
 
         {/* 3. Radar comparison */}
         <BoroughRadar boroughs={boroughs} />
