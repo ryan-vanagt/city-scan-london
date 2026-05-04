@@ -29,10 +29,16 @@ export function pearson(
   for (const [x, y] of pairs) {
     sx += x; sy += y; sxy += x * y; sx2 += x * x; sy2 += y * y;
   }
-  const num = n * sxy - sx * sy;
-  const den = Math.sqrt((n * sx2 - sx * sx) * (n * sy2 - sy * sy));
-  if (den === 0) return null;
-  return num / den;
+  // Variance terms — guard against zero AND near-zero (floating-point error
+  // when one variable is constant, e.g. sentiment is identical across all
+  // 33 boroughs; sums of identical floats don't cancel exactly to 0).
+  const xVar = n * sx2 - sx * sx;
+  const yVar = n * sy2 - sy * sy;
+  const VAR_EPSILON = 1e-9;
+  if (xVar < VAR_EPSILON || yVar < VAR_EPSILON) return null;
+  const den = Math.sqrt(xVar * yVar);
+  const r = (n * sxy - sx * sy) / den;
+  return Number.isFinite(r) ? r : null;
 }
 
 /**

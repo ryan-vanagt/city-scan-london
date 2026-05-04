@@ -170,9 +170,11 @@ export default function EquityPatterns({
   // Caption is fully derived from computed values — strongest and weakest
   // organs are picked live, descriptors come from strengthWord(|r|), so
   // prose can never contradict the data even if signals shift.
+  // Filter excludes both null AND NaN/Infinity to avoid sentiment-style
+  // zero-variance artifacts leaking into the caption.
   const captionParts = useMemo(() => {
     const ranked = data
-      .filter((d) => d.rRaw !== null)
+      .filter((d) => d.rRaw !== null && Number.isFinite(d.rRaw))
       .map((d) => ({
         label: d.label,
         r: d.rRaw as number,
@@ -312,11 +314,11 @@ export default function EquityPatterns({
             lineHeight: 1.55,
           }}
         >
-          {captionParts.strongest.label} (r={formatR(captionParts.strongest.r)}){" "}
-          {strengthWord(captionParts.strongest.r)} tracks deprivation —
-          strongest gradient.{" "}
-          {captionParts.weakest.label} (r={formatR(captionParts.weakest.r)}){" "}
-          {strengthWord(captionParts.weakest.r)} — weakest.
+          Strongest gradient: {captionParts.strongest.label} (r=
+          {formatR(captionParts.strongest.r)},{" "}
+          {strengthWord(captionParts.strongest.r)}). Weakest:{" "}
+          {captionParts.weakest.label} (r={formatR(captionParts.weakest.r)},{" "}
+          {strengthWord(captionParts.weakest.r)}).
         </div>
       )}
 
