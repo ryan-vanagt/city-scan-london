@@ -35,6 +35,24 @@ export function pearson(
   return num / den;
 }
 
+/**
+ * Map |r| to a verbal magnitude word using conventional stats thresholds.
+ * Used to keep on-screen captions in lockstep with computed correlation
+ * strength — every adjective in our captions derives from this function so
+ * prose can never contradict the data.
+ *
+ * Thresholds match the standard: |r|<0.1 negligible, 0.1–0.3 weak, 0.3–0.5
+ * moderate, 0.5–0.7 strong, ≥0.7 very strong.
+ */
+export function strengthWord(r: number): "barely" | "weakly" | "moderately" | "strongly" | "very strongly" {
+  const a = Math.abs(r);
+  if (a < 0.1) return "barely";
+  if (a < 0.3) return "weakly";
+  if (a < 0.5) return "moderately";
+  if (a < 0.7) return "strongly";
+  return "very strongly";
+}
+
 export type OrganKey =
   | "air_score"
   | "air_quality_modelled_score"

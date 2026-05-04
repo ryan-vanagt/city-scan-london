@@ -24,7 +24,7 @@ import {
 } from "recharts";
 import type { BoroughScore, HousingAffordability } from "@/lib/types";
 import { scoreToColour } from "@/lib/colours";
-import { pearson } from "@/lib/stats";
+import { pearson, strengthWord } from "@/lib/stats";
 
 export type DeprivationXAxisMode = "imd" | "housing";
 
@@ -232,10 +232,43 @@ export default function DeprivationScatter({
       : null;
   const rSquared = r !== null ? r * r : null;
 
-  const captionText =
-    xAxisMode === "imd"
-      ? "Composite health is largely orthogonal to IMD rank in London — most variation lives off the line. Outliers (Westminster, Bromley) are where integrated monitoring adds value."
-      : "Housing affordability barely predicts composite health. Kensington & Chelsea (most expensive) is mid-pack; Bromley (mid-priced) is among the highest. The lens reveals a different distribution than IMD.";
+  // Caption is built entirely from computed values — no hardcoded interpretive
+  // claims that could go stale or contradict the data.
+  // For IMD mode: x is rank (most-deprived has SMALLEST x). For Housing mode:
+  // x is the ratio (most-affordable has SMALLEST x). Either way, the
+  // smallest-x point is the "most" and the largest-x is the "least".
+  const captionText: string = (() => {
+    if (data.length < 5 || r === null) {
+      return data.length === 0
+        ? ""
+        : `n = ${data.length} — sample too small for stable correlation.`;
+    }
+    const sorted = [...data].sort((a, b) => a.x - b.x);
+    const compositeRanked = [...data].sort((a, b) => b.y - a.y); // best first
+    const rankByCode: Record<string, number> = {};
+    compositeRanked.forEach((p, i) => {
+      rankByCode[p.borough_code] = i + 1;
+    });
+    const lowX = sorted[0];
+    const highX = sorted[sorted.length - 1];
+    const strength = strengthWord(r);
+    const r2Text = (r * r).toFixed(3);
+
+    if (xAxisMode === "imd") {
+      // smallest IMD rank = most deprived
+      return (
+        `IMD rank ${strength} predicts composite health (r² = ${r2Text}, n = ${data.length}). ` +
+        `Most deprived (${lowX.borough_name}) ranks ${rankByCode[lowX.borough_code]}/${data.length} by health; ` +
+        `least deprived (${highX.borough_name}) ranks ${rankByCode[highX.borough_code]}/${data.length}.`
+      );
+    }
+    // housing mode: smallest ratio = most affordable
+    return (
+      `Housing affordability ${strength} predicts composite health (r² = ${r2Text}, n = ${data.length}). ` +
+      `Most expensive (${highX.borough_name}, ${highX.x.toFixed(1)}×) ranks ${rankByCode[highX.borough_code]}/${data.length} by health; ` +
+      `most affordable (${lowX.borough_name}, ${lowX.x.toFixed(1)}×) ranks ${rankByCode[lowX.borough_code]}/${data.length}.`
+    );
+  })();
 
   return (
     <div>

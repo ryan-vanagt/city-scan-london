@@ -27,6 +27,7 @@ import type { BoroughScore } from "@/lib/types";
 import {
   organImdCorrelation,
   boroughDivergence,
+  strengthWord,
   type OrganKey,
 } from "@/lib/stats";
 
@@ -134,16 +135,28 @@ export default function EquityPatterns({
   // Flip order so the strongest signal is visually at the top
   const chartData = useMemo(() => [...data].reverse(), [data]);
 
-  // Pull live r-values for each organ so the caption reflects current data,
-  // not stale hardcoded numbers. Formatting falls back to "—" if null.
-  const captionValues = useMemo(() => {
-    const byOrgan = Object.fromEntries(
-      data.map((d, i) => [ORGANS[i].key, d.rRaw]),
+  // Caption is fully derived from computed values — strongest and weakest
+  // organs are picked live, descriptors come from strengthWord(|r|), so
+  // prose can never contradict the data even if signals shift.
+  const captionParts = useMemo(() => {
+    const labelByKey: Record<string, string> = Object.fromEntries(
+      ORGANS.map((o) => [o.key, o.label]),
     );
+    const ranked = data
+      .filter((d) => d.rRaw !== null)
+      .map((d, i) => ({
+        key: ORGANS.find((o) => o.label === d.label)!.key,
+        label: d.label,
+        r: d.rRaw as number,
+      }))
+      .sort((a, b) => Math.abs(b.r) - Math.abs(a.r));
+    if (ranked.length < 2) return null;
+    const strongest = ranked[0];
+    const weakest = ranked[ranked.length - 1];
     return {
-      green: formatR(byOrgan["green_space_access_score"] ?? null),
-      airModelled: formatR(byOrgan["air_quality_modelled_score"] ?? null),
-      crime: formatR(byOrgan["immune_score"] ?? null),
+      strongest,
+      weakest,
+      labelByKey,
     };
   }, [data]);
 
@@ -241,21 +254,25 @@ export default function EquityPatterns({
         </BarChart>
       </ResponsiveContainer>
 
-      {/* Short data-aware caption — r-values pulled live; specific-borough
-          narrative + significance analysis lives in README, not here. */}
-      <div
-        className="mt-2 text-[11px] font-mono px-3 py-2 rounded"
-        style={{
-          backgroundColor: "rgba(14, 165, 233, 0.05)",
-          border: "1px solid rgba(14, 165, 233, 0.15)",
-          color: "#94a3b8",
-          lineHeight: 1.55,
-        }}
-      >
-        Green (r={captionValues.green}) tracks deprivation · Modelled air
-        (r={captionValues.airModelled}) weaker, inverted in central London ·
-        Crime (r={captionValues.crime}) IMD-independent.
-      </div>
+      {/* Caption — strongest/weakest organs computed live; descriptors derive
+          from strengthWord(|r|) so the prose tracks the data automatically. */}
+      {captionParts && (
+        <div
+          className="mt-2 text-[11px] font-mono px-3 py-2 rounded"
+          style={{
+            backgroundColor: "rgba(14, 165, 233, 0.05)",
+            border: "1px solid rgba(14, 165, 233, 0.15)",
+            color: "#94a3b8",
+            lineHeight: 1.55,
+          }}
+        >
+          {captionParts.strongest.label} (r={formatR(captionParts.strongest.r)}){" "}
+          {strengthWord(captionParts.strongest.r)} tracks deprivation —
+          strongest gradient.{" "}
+          {captionParts.weakest.label} (r={formatR(captionParts.weakest.r)}){" "}
+          {strengthWord(captionParts.weakest.r)} — weakest.
+        </div>
+      )}
 
       {/* Per-borough divergence — named outliers vs IMD-predicted composite.
           Sits below the organ-level chart as the borough-level finding. */}
