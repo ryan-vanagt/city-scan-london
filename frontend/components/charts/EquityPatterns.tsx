@@ -314,9 +314,9 @@ export default function EquityPatterns({
             lineHeight: 1.55,
           }}
         >
-          Strongest gradient: {captionParts.strongest.label} (r=
+          Most correlated: {captionParts.strongest.label} (r=
           {formatR(captionParts.strongest.r)},{" "}
-          {strengthWord(captionParts.strongest.r)}). Weakest:{" "}
+          {strengthWord(captionParts.strongest.r)}). Least:{" "}
           {captionParts.weakest.label} (r={formatR(captionParts.weakest.r)},{" "}
           {strengthWord(captionParts.weakest.r)}).
         </div>
