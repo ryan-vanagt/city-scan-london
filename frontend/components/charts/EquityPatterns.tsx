@@ -54,14 +54,14 @@ interface DomainOption {
  * comparisons we don't want to hide.
  */
 const DOMAIN_OPTIONS: DomainOption[] = [
-  { key: "overall",    label: "Overall IMD",                          short: "IMD deprivation rank" },
-  { key: "income",     label: "Income (leakage-free)",                short: "IMD income rank" },
-  { key: "barriers",   label: "Housing & service barriers",           short: "IMD barriers rank" },
-  { key: "living",     label: "Living environment",                   short: "IMD living rank" },
-  { key: "health",     label: "Health & disability",                  short: "IMD health rank" },
-  { key: "crime",      label: "Crime",                                short: "IMD crime rank" },
-  { key: "employment", label: "Employment",                           short: "IMD employment rank" },
-  { key: "education",  label: "Education",                            short: "IMD education rank" },
+  { key: "overall",    label: "Overall IMD",                short: "IMD deprivation rank" },
+  { key: "income",     label: "Income",                     short: "IMD income rank" },
+  { key: "barriers",   label: "Housing & service barriers", short: "IMD barriers rank" },
+  { key: "living",     label: "Living environment",         short: "IMD living rank" },
+  { key: "health",     label: "Health & disability",        short: "IMD health rank" },
+  { key: "crime",      label: "Crime",                      short: "IMD crime rank" },
+  { key: "employment", label: "Employment",                 short: "IMD employment rank" },
+  { key: "education",  label: "Education",                  short: "IMD education rank" },
 ];
 
 interface OrganDef {
@@ -314,11 +314,10 @@ export default function EquityPatterns({
             lineHeight: 1.55,
           }}
         >
-          Most correlated: {captionParts.strongest.label} (r=
-          {formatR(captionParts.strongest.r)},{" "}
+          Tracks deprivation most: {captionParts.strongest.label} (
           {strengthWord(captionParts.strongest.r)}). Least:{" "}
-          {captionParts.weakest.label} (r={formatR(captionParts.weakest.r)},{" "}
-          {strengthWord(captionParts.weakest.r)}).
+          {captionParts.weakest.label} (
+          {strengthWord(captionParts.weakest.r)}). Bar values show r.
         </div>
       )}
 
@@ -370,11 +369,12 @@ export default function EquityPatterns({
             className="text-[10px] mt-2 leading-relaxed"
             style={{ color: "#64748b", lineHeight: 1.55 }}
           >
-            Composite vs IMD-predicted regression residual.{" "}
-            <span style={{ color: "#22c55e" }}>+</span> healthier than expected ·{" "}
+            Five biggest gaps between actual composite health and what
+            deprivation alone would predict.{" "}
+            <span style={{ color: "#22c55e" }}>+</span> healthier than
+            predicted ·{" "}
             <span style={{ color: "#ef4444" }}>−</span> more stressed than
-            expected. Driver = organ deviating most from its own IMD-predicted
-            value in the same direction.
+            predicted. Driver = the organ pulling the gap most.
           </div>
         </div>
       )}

@@ -241,7 +241,7 @@ export default function DeprivationScatter({
     if (data.length < 5 || r === null) {
       return data.length === 0
         ? ""
-        : `n = ${data.length} — sample too small for stable correlation.`;
+        : `Sample too small for a stable comparison (n = ${data.length}).`;
     }
     const sorted = [...data].sort((a, b) => a.x - b.x);
     const compositeRanked = [...data].sort((a, b) => b.y - a.y); // best first
@@ -257,16 +257,16 @@ export default function DeprivationScatter({
     if (xAxisMode === "imd") {
       // smallest IMD rank = most deprived
       return (
-        `IMD rank ${strength} predicts composite health (r² = ${r2Text}, n = ${data.length}). ` +
-        `Most deprived (${lowX.borough_name}) ranks ${rankByCode[lowX.borough_code]}/${data.length} by health; ` +
-        `least deprived (${highX.borough_name}) ranks ${rankByCode[highX.borough_code]}/${data.length}.`
+        `${lowX.borough_name} (most deprived) lands ${rankByCode[lowX.borough_code]}/${data.length} on integrated health; ` +
+        `${highX.borough_name} (least deprived) lands ${rankByCode[highX.borough_code]}/${data.length}. ` +
+        `Deprivation alone ${strength} explains the variation (r² = ${r2Text}, n = ${data.length}).`
       );
     }
     // housing mode: smallest ratio = most affordable
     return (
-      `Housing affordability ${strength} predicts composite health (r² = ${r2Text}, n = ${data.length}). ` +
-      `Most expensive (${highX.borough_name}, ${highX.x.toFixed(1)}×) ranks ${rankByCode[highX.borough_code]}/${data.length} by health; ` +
-      `most affordable (${lowX.borough_name}, ${lowX.x.toFixed(1)}×) ranks ${rankByCode[lowX.borough_code]}/${data.length}.`
+      `${highX.borough_name} (most expensive at ${highX.x.toFixed(1)}×) lands ${rankByCode[highX.borough_code]}/${data.length} on integrated health; ` +
+      `${lowX.borough_name} (most affordable at ${lowX.x.toFixed(1)}×) lands ${rankByCode[lowX.borough_code]}/${data.length}. ` +
+      `Affordability alone ${strength} explains the variation (r² = ${r2Text}, n = ${data.length}).`
     );
   })();
 

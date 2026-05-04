@@ -311,7 +311,8 @@ export default function HealthIndexValidation({
         </ScatterChart>
       </ResponsiveContainer>
 
-      {/* Caption — fully data-derived. */}
+      {/* Caption — fully data-derived. Leads with the planner-relevant
+          trust signal (CityScan tracks the gold-standard); stats follow. */}
       <div
         className="mt-2 text-[11px] font-mono px-3 py-2 rounded"
         style={{
@@ -321,13 +322,13 @@ export default function HealthIndexValidation({
           lineHeight: 1.55,
         }}
       >
-        CityScan {rWord} predicts the ONS Health Index{year ? ` ${year}` : ""}{" "}
-        (r² = {rSquared.toFixed(3)}, n = {stats.n}). Largest divergence:{" "}
+        CityScan {rWord} tracks the ONS gold-standard health measure (r² ={" "}
+        {rSquared.toFixed(3)}, n = {stats.n}). Largest divergence:{" "}
         {stats.topResid.borough_name} ({stats.topResidValue >= 0 ? "+" : "−"}
-        {Math.abs(stats.topResidValue).toFixed(1)} pts vs predicted). The
-        Health Index is built from inputs outside our pipeline (life
-        expectancy, mortality, behaviours) — convergent validity, not
-        tautology.
+        {Math.abs(stats.topResidValue).toFixed(1)} pts vs CityScan's
+        predicted value). The Health Index uses independent inputs (life
+        expectancy, mortality, behaviours) — none from CityScan's pipeline,
+        so the comparison is unconfounded.
       </div>
     </div>
   );

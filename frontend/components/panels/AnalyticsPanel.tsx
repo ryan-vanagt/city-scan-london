@@ -128,9 +128,30 @@ export default function AnalyticsPanel({
         </button>
       </div>
 
-      {/* Scrollable content */}
+      {/* Scrollable content — order is planner-first:
+          actionable triage at the top, comparison and context in the
+          middle, methodology + validation at the bottom. */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-8">
-        {/* 1. Scatter plot — toggle X-axis between IMD and housing */}
+        {/* Organ key — bridges the metaphor and the underlying data so
+            planners aren't left guessing what "Brain" or "Skin" means.
+            Static, invariant — these labels are part of the brand. */}
+        <div
+          className="text-[10px] font-mono px-3 py-2 rounded"
+          style={{
+            backgroundColor: "rgba(15, 23, 42, 0.6)",
+            border: "1px dashed #1e293b",
+            color: "#64748b",
+            lineHeight: 1.55,
+          }}
+        >
+          Lungs = air · Arteries = transit · Brain = sentiment · Immune =
+          crime + A&E · Skin = green space
+        </div>
+
+        {/* 1. Critical organs table — most actionable view, planner first stop */}
+        <WorstOrganTable boroughs={boroughs} />
+
+        {/* 2. Scatter plot — health vs deprivation/affordability */}
         <div>
           {housingAvailable && (
             <div className="flex items-center justify-end gap-1 mb-2">
@@ -186,25 +207,23 @@ export default function AnalyticsPanel({
           </div>
         )}
 
-        {/* 2. Equity patterns — |r| per organ against IMD */}
+        {/* 3. Equity patterns — |r| per organ against IMD + Top 5 Unexpected */}
         <EquityPatterns boroughs={boroughs} deprivation={deprivation} />
 
-        {/* 2b. ONS Health Index validation — convergent validity slide */}
+        {/* 4. Radar comparison */}
+        <BoroughRadar boroughs={boroughs} />
+
+        {/* 5. Time series */}
+        <BoroughTimeSeries boroughs={boroughs} />
+
+        {/* 6. ONS Health Index validation — methodology / trust artifact at the
+            bottom of the panel; statistician-relevant, planner-skippable. */}
         {healthIndexAvailable && healthIndex && (
           <HealthIndexValidation
             boroughs={boroughs}
             healthIndex={healthIndex}
           />
         )}
-
-        {/* 3. Radar comparison */}
-        <BoroughRadar boroughs={boroughs} />
-
-        {/* 3. Time series */}
-        <BoroughTimeSeries boroughs={boroughs} />
-
-        {/* 4. Critical organs table */}
-        <WorstOrganTable boroughs={boroughs} />
       </div>
     </div>
   );
