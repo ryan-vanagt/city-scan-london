@@ -24,7 +24,11 @@ import {
   ReferenceLine,
 } from "recharts";
 import type { BoroughScore } from "@/lib/types";
-import { organImdCorrelation, type OrganKey } from "@/lib/stats";
+import {
+  organImdCorrelation,
+  boroughDivergence,
+  type OrganKey,
+} from "@/lib/stats";
 
 interface EquityPatternsProps {
   boroughs: BoroughScore[];
@@ -143,6 +147,14 @@ export default function EquityPatterns({
     };
   }, [data]);
 
+  // Per-borough divergence vs IMD-predicted composite. Surfaces named
+  // outliers — boroughs whose health is better/worse than IMD alone would
+  // predict — alongside the organ pulling them away from prediction.
+  const divergence = useMemo(
+    () => boroughDivergence(boroughs, deprivation, 5),
+    [boroughs, deprivation],
+  );
+
   return (
     <div>
       {/* Title */}
@@ -244,6 +256,63 @@ export default function EquityPatterns({
         (r={captionValues.airModelled}) weaker, inverted in central London ·
         Crime (r={captionValues.crime}) IMD-independent.
       </div>
+
+      {/* Per-borough divergence — named outliers vs IMD-predicted composite.
+          Sits below the organ-level chart as the borough-level finding. */}
+      {divergence.length > 0 && (
+        <div
+          className="mt-3 px-3 py-3 rounded"
+          style={{
+            backgroundColor: "rgba(14, 165, 233, 0.05)",
+            border: "1px solid rgba(14, 165, 233, 0.15)",
+          }}
+        >
+          <div
+            className="text-[10px] font-semibold uppercase tracking-wider mb-2"
+            style={{ color: "#0ea5e9" }}
+          >
+            TOP 5 UNEXPECTED · score vs IMD-predicted (LOO)
+          </div>
+          <div className="space-y-1">
+            {divergence.map((d) => {
+              const positive = d.residual >= 0;
+              const sign = positive ? "+" : "−";
+              const colour = positive ? "#22c55e" : "#ef4444";
+              return (
+                <div
+                  key={d.borough_code}
+                  className="flex items-center text-[11px] font-mono"
+                  style={{ lineHeight: 1.5 }}
+                >
+                  <div className="flex-1 text-slate-200 truncate pr-2">
+                    {d.borough_name}
+                  </div>
+                  <div
+                    className="w-14 text-right tabular-nums"
+                    style={{ color: colour }}
+                  >
+                    {sign}
+                    {Math.abs(d.residual).toFixed(1)}
+                  </div>
+                  <div className="w-20 text-right text-slate-400 pl-3">
+                    {d.driving_organ_label}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div
+            className="text-[10px] mt-2 leading-relaxed"
+            style={{ color: "#64748b", lineHeight: 1.55 }}
+          >
+            Composite vs IMD-predicted regression residual.{" "}
+            <span style={{ color: "#22c55e" }}>+</span> healthier than expected ·{" "}
+            <span style={{ color: "#ef4444" }}>−</span> more stressed than
+            expected. Driver = organ deviating most from its own IMD-predicted
+            value in the same direction.
+          </div>
+        </div>
+      )}
     </div>
   );
 }

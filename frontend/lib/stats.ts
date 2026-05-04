@@ -70,3 +70,147 @@ export function organImdCorrelation(
   const r = pearson(pairs.map((p) => p.imd), pairs.map((p) => p.score));
   return { organ, r, n: pairs.length };
 }
+
+export interface BoroughDivergence {
+  borough_code: string;
+  borough_name: string;
+  residual: number;            // composite − IMD-predicted composite (in score points)
+  predicted: number;
+  actual: number;
+  driving_organ: OrganKey | null;
+  driving_organ_label: string; // e.g. "Lungs", "Immune", "Skin"
+}
+
+interface SimpleRegression {
+  slope: number;
+  intercept: number;
+  predict: (x: number) => number;
+}
+
+function leastSquares(xs: number[], ys: number[]): SimpleRegression | null {
+  const n = xs.length;
+  if (n < 5) return null;
+  let sx = 0, sy = 0, sxy = 0, sxx = 0;
+  for (let i = 0; i < n; i++) {
+    sx += xs[i]; sy += ys[i]; sxy += xs[i] * ys[i]; sxx += xs[i] * xs[i];
+  }
+  const mx = sx / n;
+  const my = sy / n;
+  const denom = sxx - n * mx * mx;
+  if (denom === 0) return null;
+  const slope = (sxy - n * mx * my) / denom;
+  const intercept = my - slope * mx;
+  return { slope, intercept, predict: (x) => slope * x + intercept };
+}
+
+const DIVERGENCE_ORGANS: { key: OrganKey; label: string }[] = [
+  { key: "air_score", label: "Lungs" },
+  { key: "transit_score", label: "Arteries" },
+  { key: "sentiment_score", label: "Brain" },
+  { key: "immune_score", label: "Immune" },
+  { key: "green_space_score", label: "Skin" },
+];
+
+/**
+ * Per-borough divergence between actual composite score and what IMD rank
+ * alone would predict, using **leave-one-out (LOO) residuals**: for each
+ * borough, the regression line is refit on the other 32 boroughs, so the
+ * borough being scored never contributed to its own predicted value.
+ *
+ * Removes the in-sample-fitting bias where a borough at extreme IMD rank
+ * (high leverage) pulls the line toward itself, understating its true
+ * deviation. Compared to in-sample fitting, top-5 ranking is stable but
+ * magnitudes for high-leverage boroughs (extreme ranks) become more honest.
+ *
+ * The "driving organ" is the organ whose own LOO residual is largest in
+ * magnitude AND has the same sign as the composite LOO residual — i.e. the
+ * organ pulling the borough away from its IMD-predicted health in the
+ * direction of the divergence.
+ *
+ * Returns up to topN entries sorted by |residual| descending. Returns []
+ * if fewer than 6 boroughs have both an IMD rank and a composite score
+ * (LOO requires ≥6 so each fit has ≥5 pairs).
+ */
+export function boroughDivergence(
+  boroughs: BoroughScore[],
+  deprivation: Record<string, { imd_rank: number; name: string }>,
+  topN: number = 5,
+): BoroughDivergence[] {
+  const compositePairs = boroughs
+    .filter((b) => deprivation[b.borough_code] && b.composite_score !== null)
+    .map((b) => ({
+      code: b.borough_code,
+      name: b.borough_name,
+      imd: deprivation[b.borough_code].imd_rank,
+      actual: b.composite_score as number,
+    }));
+  if (compositePairs.length < 6) return [];
+
+  // Per-organ pair arrays — built once, sliced per-borough during LOO loop.
+  const organPairs: Partial<Record<OrganKey, { code: string; imd: number; actual: number }[]>> = {};
+  for (const org of DIVERGENCE_ORGANS) {
+    organPairs[org.key] = boroughs
+      .filter((b) => deprivation[b.borough_code] && b[org.key] !== null)
+      .map((b) => ({
+        code: b.borough_code,
+        imd: deprivation[b.borough_code].imd_rank,
+        actual: b[org.key] as number,
+      }));
+  }
+
+  const all: BoroughDivergence[] = [];
+  for (let i = 0; i < compositePairs.length; i++) {
+    const p = compositePairs[i];
+
+    // LOO composite prediction: fit on all-but-i, predict i.
+    const otherComp = compositePairs.filter((_, j) => j !== i);
+    const compReg = leastSquares(
+      otherComp.map((o) => o.imd),
+      otherComp.map((o) => o.actual),
+    );
+    if (!compReg) continue;
+    const predicted = compReg.predict(p.imd);
+    const residual = p.actual - predicted;
+
+    // LOO organ residuals — refit each organ's line excluding this borough,
+    // pick the largest-magnitude organ residual matching the composite sign.
+    let drivingKey: OrganKey | null = null;
+    let drivingMag = 0;
+    for (const org of DIVERGENCE_ORGANS) {
+      const arr = organPairs[org.key];
+      if (!arr) continue;
+      const idx = arr.findIndex((a) => a.code === p.code);
+      if (idx === -1) continue;
+      const others = arr.filter((_, j) => j !== idx);
+      const reg = leastSquares(
+        others.map((o) => o.imd),
+        others.map((o) => o.actual),
+      );
+      if (!reg) continue;
+      const orgResid = arr[idx].actual - reg.predict(arr[idx].imd);
+      if (Math.sign(orgResid) !== Math.sign(residual)) continue;
+      const mag = Math.abs(orgResid);
+      if (mag > drivingMag) {
+        drivingMag = mag;
+        drivingKey = org.key;
+      }
+    }
+    const drivingLabel = drivingKey
+      ? DIVERGENCE_ORGANS.find((o) => o.key === drivingKey)!.label
+      : "—";
+
+    all.push({
+      borough_code: p.code,
+      borough_name: p.name,
+      residual,
+      predicted,
+      actual: p.actual,
+      driving_organ: drivingKey,
+      driving_organ_label: drivingLabel,
+    });
+  }
+
+  return all
+    .sort((a, b) => Math.abs(b.residual) - Math.abs(a.residual))
+    .slice(0, topN);
+}
