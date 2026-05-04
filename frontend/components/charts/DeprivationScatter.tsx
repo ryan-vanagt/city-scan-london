@@ -24,17 +24,31 @@ import {
 } from "recharts";
 import type { BoroughScore, HousingAffordability } from "@/lib/types";
 import { scoreToColour } from "@/lib/colours";
-
-/** Label the N most extreme points (highest/lowest health, most/least deprived). */
-const LABEL_BOROUGHS = new Set([
-  "City of London",      // lowest health, least deprived — outlier
-  "Westminster",         // low health, moderate deprivation
-  "Richmond upon Thames", // high health, least deprived
-  "Newham",              // most deprived
-  "Bromley",             // high health, low deprivation
-]);
+import { pearson } from "@/lib/stats";
 
 export type DeprivationXAxisMode = "imd" | "housing";
+
+/**
+ * Per-mode labelled outliers — chosen to match the extremes of THAT view's
+ * X-axis plus the most distinctive composite-score outliers. Re-uses
+ * Westminster + City of London across both modes (they're outliers either way).
+ */
+const LABEL_BOROUGHS_BY_MODE: Record<DeprivationXAxisMode, Set<string>> = {
+  imd: new Set([
+    "City of London",       // lowest health, least deprived — outlier
+    "Westminster",          // low health, moderate deprivation
+    "Richmond upon Thames", // high health, least deprived
+    "Newham",               // most deprived
+    "Bromley",              // high health, low deprivation
+  ]),
+  housing: new Set([
+    "Kensington and Chelsea", // most expensive — far right
+    "Tower Hamlets",          // most affordable — far left
+    "Westminster",            // expensive AND low health (compound stress)
+    "Bromley",                // mid-priced, highest health
+    "City of London",         // mid-priced, lowest health
+  ]),
+};
 
 interface DeprivationScatterProps {
   boroughs: BoroughScore[];
@@ -52,6 +66,7 @@ interface ScatterPoint {
   xValue: number;
   composite_score: number;
   fill: string;
+  isLabelled: boolean;
 }
 
 function mergeData(
@@ -60,6 +75,7 @@ function mergeData(
   housingAffordability: Record<string, HousingAffordability> | undefined,
   mode: DeprivationXAxisMode,
 ): ScatterPoint[] {
+  const labelSet = LABEL_BOROUGHS_BY_MODE[mode];
   const points: ScatterPoint[] = [];
   for (const b of boroughs) {
     if (b.composite_score === null) continue;
@@ -87,6 +103,7 @@ function mergeData(
       xValue,
       composite_score: Math.round(b.composite_score * 10) / 10,
       fill: scoreToColour(b.composite_score),
+      isLabelled: labelSet.has(b.borough_name),
     });
   }
   return points;
@@ -100,7 +117,7 @@ interface CustomDotProps {
 
 function CustomDot({ cx, cy, payload }: CustomDotProps) {
   if (cx === undefined || cy === undefined || !payload) return null;
-  const isLabelled = LABEL_BOROUGHS.has(payload.borough_name);
+  const isLabelled = payload.isLabelled;
   return (
     <g>
       <circle
@@ -205,16 +222,39 @@ export default function DeprivationScatter({
   const xAxisLabel =
     xAxisMode === "imd"
       ? "← Most Deprived          IMD Rank          Least Deprived →"
-      : "← More Affordable          Affordability Ratio (× earnings)          Less Affordable →";
+      : "← More Affordable                                                Less Affordable →";
+
+  // R² for the on-screen rigor signal. pearson() returns null if <5 pairs or
+  // zero variance; the caption falls back gracefully in that case.
+  const r =
+    data.length >= 5
+      ? pearson(data.map((d) => d.x), data.map((d) => d.y))
+      : null;
+  const rSquared = r !== null ? r * r : null;
+
+  const captionText =
+    xAxisMode === "imd"
+      ? "Composite health is largely orthogonal to IMD rank in London — most variation lives off the line. Outliers (Westminster, Bromley) are where integrated monitoring adds value."
+      : "Housing affordability barely predicts composite health. Kensington & Chelsea (most expensive) is mid-pack; Bromley (mid-priced) is among the highest. The lens reveals a different distribution than IMD.";
 
   return (
     <div>
-      {/* Title */}
-      <div
-        className="text-xs font-semibold uppercase tracking-wider mb-3"
-        style={{ color: "#0ea5e9" }}
-      >
-        {title}
+      {/* Title row — title left, R² + n right */}
+      <div className="flex items-baseline justify-between mb-3">
+        <div
+          className="text-xs font-semibold uppercase tracking-wider"
+          style={{ color: "#0ea5e9" }}
+        >
+          {title}
+        </div>
+        {rSquared !== null && (
+          <div
+            className="text-[10px] font-mono"
+            style={{ color: "#64748b", letterSpacing: "0.05em" }}
+          >
+            r² = {rSquared.toFixed(3)} · n = {data.length}
+          </div>
+        )}
       </div>
 
       <ResponsiveContainer width="100%" height={320}>
@@ -278,6 +318,19 @@ export default function DeprivationScatter({
           })()}
         </ScatterChart>
       </ResponsiveContainer>
+
+      {/* Mode-aware caption — pulls the headline finding into plain text. */}
+      <div
+        className="mt-2 text-[11px] font-mono px-3 py-2 rounded"
+        style={{
+          backgroundColor: "rgba(14, 165, 233, 0.05)",
+          border: "1px solid rgba(14, 165, 233, 0.15)",
+          color: "#94a3b8",
+          lineHeight: 1.55,
+        }}
+      >
+        {captionText}
+      </div>
     </div>
   );
 }
