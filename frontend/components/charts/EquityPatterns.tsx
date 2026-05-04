@@ -12,7 +12,7 @@
  * it stays fresh as live signals drift.
  */
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   ResponsiveContainer,
   BarChart,
@@ -29,12 +29,40 @@ import {
   boroughDivergence,
   strengthWord,
   type OrganKey,
+  type ImdDomainKey,
 } from "@/lib/stats";
 
 interface EquityPatternsProps {
   boroughs: BoroughScore[];
-  deprivation: Record<string, { imd_rank: number; name: string }>;
+  deprivation: Record<string, {
+    imd_rank: number;
+    name: string;
+    domains?: Record<string, { rank: number; score?: number }>;
+  }>;
 }
+
+interface DomainOption {
+  key: ImdDomainKey;
+  label: string;     // dropdown text
+  short: string;     // chart-title snippet
+}
+
+/**
+ * Curated domain options. "Income" is highlighted as the leakage-free
+ * baseline (no input overlap with CityScan); "Barriers" is the housing &
+ * service-access lens (London-specific stressor); the others are honest
+ * comparisons we don't want to hide.
+ */
+const DOMAIN_OPTIONS: DomainOption[] = [
+  { key: "overall",    label: "Overall IMD",                          short: "IMD deprivation rank" },
+  { key: "income",     label: "Income (leakage-free)",                short: "IMD income rank" },
+  { key: "barriers",   label: "Housing & service barriers",           short: "IMD barriers rank" },
+  { key: "living",     label: "Living environment",                   short: "IMD living rank" },
+  { key: "health",     label: "Health & disability",                  short: "IMD health rank" },
+  { key: "crime",      label: "Crime",                                short: "IMD crime rank" },
+  { key: "employment", label: "Employment",                           short: "IMD employment rank" },
+  { key: "education",  label: "Education",                            short: "IMD education rank" },
+];
 
 interface OrganDef {
   key: OrganKey;
@@ -116,9 +144,13 @@ export default function EquityPatterns({
   boroughs,
   deprivation,
 }: EquityPatternsProps) {
+  const [domain, setDomain] = useState<ImdDomainKey>("overall");
+  const domainOption =
+    DOMAIN_OPTIONS.find((o) => o.key === domain) ?? DOMAIN_OPTIONS[0];
+
   const data: BarDatum[] = useMemo(() => {
     return ORGANS.map((o) => {
-      const corr = organImdCorrelation(boroughs, deprivation, o.key);
+      const corr = organImdCorrelation(boroughs, deprivation, o.key, domain);
       const magR =
         corr.r === null ? 0.01 : Math.min(0.5, Math.abs(corr.r));
       return {
@@ -130,7 +162,7 @@ export default function EquityPatterns({
         n: corr.n,
       };
     });
-  }, [boroughs, deprivation]);
+  }, [boroughs, deprivation, domain]);
 
   // Flip order so the strongest signal is visually at the top
   const chartData = useMemo(() => [...data].reverse(), [data]);
@@ -139,13 +171,9 @@ export default function EquityPatterns({
   // organs are picked live, descriptors come from strengthWord(|r|), so
   // prose can never contradict the data even if signals shift.
   const captionParts = useMemo(() => {
-    const labelByKey: Record<string, string> = Object.fromEntries(
-      ORGANS.map((o) => [o.key, o.label]),
-    );
     const ranked = data
       .filter((d) => d.rRaw !== null)
-      .map((d, i) => ({
-        key: ORGANS.find((o) => o.label === d.label)!.key,
+      .map((d) => ({
         label: d.label,
         r: d.rRaw as number,
       }))
@@ -153,29 +181,47 @@ export default function EquityPatterns({
     if (ranked.length < 2) return null;
     const strongest = ranked[0];
     const weakest = ranked[ranked.length - 1];
-    return {
-      strongest,
-      weakest,
-      labelByKey,
-    };
+    return { strongest, weakest };
   }, [data]);
 
-  // Per-borough divergence vs IMD-predicted composite. Surfaces named
-  // outliers — boroughs whose health is better/worse than IMD alone would
-  // predict — alongside the organ pulling them away from prediction.
+  // Per-borough divergence vs the chosen-domain-predicted composite.
+  // Driving organ also recomputes against the same domain.
   const divergence = useMemo(
-    () => boroughDivergence(boroughs, deprivation, 5),
-    [boroughs, deprivation],
+    () => boroughDivergence(boroughs, deprivation, 5, domain),
+    [boroughs, deprivation, domain],
   );
 
   return (
     <div>
-      {/* Title */}
-      <div
-        className="text-xs font-semibold uppercase tracking-wider mb-3"
-        style={{ color: "#0ea5e9" }}
-      >
-        EQUITY PATTERNS · |r| vs IMD deprivation rank
+      {/* Title row — title left, domain dropdown right */}
+      <div className="flex items-center justify-between mb-3 gap-3">
+        <div
+          className="text-xs font-semibold uppercase tracking-wider"
+          style={{ color: "#0ea5e9" }}
+        >
+          EQUITY PATTERNS · |r| vs {domainOption.short}
+        </div>
+        <select
+          value={domain}
+          onChange={(e) => setDomain(e.target.value as ImdDomainKey)}
+          className="text-[10px] font-mono px-2 py-1 rounded border bg-transparent"
+          style={{
+            color: "#94a3b8",
+            borderColor: "#1e293b",
+            backgroundColor: "rgba(15, 23, 42, 0.6)",
+          }}
+          aria-label="IMD domain"
+        >
+          {DOMAIN_OPTIONS.map((opt) => (
+            <option
+              key={opt.key}
+              value={opt.key}
+              style={{ backgroundColor: "#0f172a", color: "#cbd5e1" }}
+            >
+              {opt.label}
+            </option>
+          ))}
+        </select>
       </div>
 
       <ResponsiveContainer width="100%" height={Math.max(220, chartData.length * 30)}>

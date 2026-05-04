@@ -70,18 +70,59 @@ export interface OrganCorrelation {
 }
 
 /**
- * For a given organ, compute Pearson r vs IMD rank across all boroughs that
- * have both an IMD rank and a non-null score. Zero-variance signals (sentiment)
- * return r=null explicitly rather than NaN.
+ * IMD domain selector. "overall" uses the headline `imd_rank`; the other
+ * keys point at sub-domain ranks under `domains.{key}.rank` in the API
+ * payload from /boroughs/deprivation.
+ *
+ * "income" specifically has zero overlap with CityScan's input pipeline
+ * (we feed crime, A&E, air, but not income/employment/education) — so it
+ * provides a leakage-free deprivation baseline for divergence and equity
+ * analysis. Use it when the panel asks about confounded vs unconfounded
+ * relationships.
+ */
+export type ImdDomainKey =
+  | "overall"
+  | "income"
+  | "employment"
+  | "education"
+  | "health"
+  | "crime"
+  | "barriers"
+  | "living";
+
+interface DeprivationLike {
+  imd_rank: number;
+  domains?: Record<string, { rank: number; score?: number }>;
+}
+
+function getDomainRank(dep: DeprivationLike | undefined, domain: ImdDomainKey): number | null {
+  if (!dep) return null;
+  if (domain === "overall") return dep.imd_rank;
+  const d = dep.domains?.[domain];
+  return typeof d?.rank === "number" ? d.rank : null;
+}
+
+/**
+ * For a given organ, compute Pearson r vs the chosen IMD domain rank across
+ * all boroughs that have both a rank and a non-null score. Zero-variance
+ * signals (sentiment) return r=null explicitly rather than NaN.
+ *
+ * `domain` defaults to "overall" so existing callers stay backward-compatible.
  */
 export function organImdCorrelation(
   boroughs: BoroughScore[],
-  deprivation: Record<string, { imd_rank: number }>,
+  deprivation: Record<string, DeprivationLike>,
   organ: OrganKey,
+  domain: ImdDomainKey = "overall",
 ): OrganCorrelation {
-  const pairs = boroughs
-    .filter((b) => deprivation[b.borough_code] && b[organ] !== null)
-    .map((b) => ({ imd: deprivation[b.borough_code].imd_rank, score: b[organ] as number }));
+  const pairs: { imd: number; score: number }[] = [];
+  for (const b of boroughs) {
+    const dep = deprivation[b.borough_code];
+    if (!dep || b[organ] === null) continue;
+    const rank = getDomainRank(dep, domain);
+    if (rank === null) continue;
+    pairs.push({ imd: rank, score: b[organ] as number });
+  }
   if (pairs.length < 5) {
     return { organ, r: null, n: pairs.length };
   }
@@ -130,10 +171,10 @@ const DIVERGENCE_ORGANS: { key: OrganKey; label: string }[] = [
 ];
 
 /**
- * Per-borough divergence between actual composite score and what IMD rank
- * alone would predict, using **leave-one-out (LOO) residuals**: for each
- * borough, the regression line is refit on the other 32 boroughs, so the
- * borough being scored never contributed to its own predicted value.
+ * Per-borough divergence between actual composite score and what the chosen
+ * IMD domain rank alone would predict, using **leave-one-out (LOO) residuals**:
+ * for each borough, the regression line is refit on the other 32 boroughs, so
+ * the borough being scored never contributed to its own predicted value.
  *
  * Removes the in-sample-fitting bias where a borough at extreme IMD rank
  * (high leverage) pulls the line toward itself, understating its true
@@ -145,35 +186,51 @@ const DIVERGENCE_ORGANS: { key: OrganKey; label: string }[] = [
  * organ pulling the borough away from its IMD-predicted health in the
  * direction of the divergence.
  *
+ * `domain` defaults to "overall" (uses `imd_rank`). Pass "income" for a
+ * leakage-free baseline (no overlap with CityScan inputs), or any sub-domain
+ * key to reframe the divergence against that specific lens.
+ *
  * Returns up to topN entries sorted by |residual| descending. Returns []
- * if fewer than 6 boroughs have both an IMD rank and a composite score
- * (LOO requires ≥6 so each fit has ≥5 pairs).
+ * if fewer than 6 boroughs have both a rank and a composite score (LOO
+ * requires ≥6 so each fit has ≥5 pairs).
  */
 export function boroughDivergence(
   boroughs: BoroughScore[],
-  deprivation: Record<string, { imd_rank: number; name: string }>,
+  deprivation: Record<string, DeprivationLike & { name?: string }>,
   topN: number = 5,
+  domain: ImdDomainKey = "overall",
 ): BoroughDivergence[] {
-  const compositePairs = boroughs
-    .filter((b) => deprivation[b.borough_code] && b.composite_score !== null)
-    .map((b) => ({
+  const compositePairs: { code: string; name: string; imd: number; actual: number }[] = [];
+  for (const b of boroughs) {
+    const dep = deprivation[b.borough_code];
+    if (!dep || b.composite_score === null) continue;
+    const rank = getDomainRank(dep, domain);
+    if (rank === null) continue;
+    compositePairs.push({
       code: b.borough_code,
       name: b.borough_name,
-      imd: deprivation[b.borough_code].imd_rank,
+      imd: rank,
       actual: b.composite_score as number,
-    }));
+    });
+  }
   if (compositePairs.length < 6) return [];
 
   // Per-organ pair arrays — built once, sliced per-borough during LOO loop.
   const organPairs: Partial<Record<OrganKey, { code: string; imd: number; actual: number }[]>> = {};
   for (const org of DIVERGENCE_ORGANS) {
-    organPairs[org.key] = boroughs
-      .filter((b) => deprivation[b.borough_code] && b[org.key] !== null)
-      .map((b) => ({
+    const arr: { code: string; imd: number; actual: number }[] = [];
+    for (const b of boroughs) {
+      const dep = deprivation[b.borough_code];
+      if (!dep || b[org.key] === null) continue;
+      const rank = getDomainRank(dep, domain);
+      if (rank === null) continue;
+      arr.push({
         code: b.borough_code,
-        imd: deprivation[b.borough_code].imd_rank,
+        imd: rank,
         actual: b[org.key] as number,
-      }));
+      });
+    }
+    organPairs[org.key] = arr;
   }
 
   const all: BoroughDivergence[] = [];
