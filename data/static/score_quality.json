@@ -40,12 +40,12 @@
           "note": "No recent reading \u2014 local sensor coverage gap."
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -111,12 +111,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -182,12 +182,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -253,12 +253,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -324,12 +324,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -395,12 +395,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -466,12 +466,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -537,12 +537,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -608,12 +608,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -679,12 +679,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -750,12 +750,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -821,12 +821,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -892,12 +892,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -963,12 +963,12 @@
           "note": "No recent reading \u2014 local sensor coverage gap."
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1034,12 +1034,12 @@
           "note": "No recent reading \u2014 local sensor coverage gap."
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1105,12 +1105,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1176,12 +1176,12 @@
           "note": "No recent reading \u2014 local sensor coverage gap."
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1247,12 +1247,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1318,12 +1318,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1389,12 +1389,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1460,12 +1460,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1531,12 +1531,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1602,12 +1602,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1673,12 +1673,12 @@
           "note": "No recent reading \u2014 local sensor coverage gap."
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1744,12 +1744,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1815,12 +1815,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1886,12 +1886,12 @@
           "note": "No recent reading \u2014 local sensor coverage gap."
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -1957,12 +1957,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -2028,12 +2028,12 @@
           "note": "No recent reading \u2014 local sensor coverage gap."
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -2099,12 +2099,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -2170,12 +2170,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -2241,12 +2241,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
@@ -2312,12 +2312,12 @@
           "n": 477
         },
         "sentiment_score": {
-          "flag": "green",
+          "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
           "n": 477,
-          "note": "London-wide signal \u2014 same value across all boroughs. Score reliable; not borough-specific."
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",

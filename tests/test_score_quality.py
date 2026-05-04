@@ -70,27 +70,38 @@ def test_all_flags_valid(quality_data: dict) -> None:
             )
 
 
-def test_static_organs_are_green_with_notes(quality_data: dict) -> None:
-    """Sentiment, modelled air, and green-space variants are precise signals
-    on slow update cadences — flagged green (reliable) with a disclosure note
-    about cadence/scope. The score doesn't lose accuracy because it refreshes
-    annually rather than daily."""
-    static_organs = {
-        "sentiment_score",
+def test_borough_specific_static_organs_are_green(quality_data: dict) -> None:
+    """Modelled air and green-space variants give a real per-borough value
+    (LAEI runs per LA, GLA cover is per LA). Slow cadence doesn't reduce
+    reliability — flagged green with a cadence note."""
+    borough_specific_static = {
         "air_quality_modelled_score",
         "green_space_score",
         "green_space_access_score",
     }
     for code, b in quality_data["boroughs"].items():
-        for organ in static_organs:
+        for organ in borough_specific_static:
             q = b["organs"][organ]
             assert q["flag"] == "green", (
-                f"{b['borough_name']} {organ} should be green (reliable, with "
-                f"cadence note), got {q['flag']}"
+                f"{b['borough_name']} {organ} should be green, got {q['flag']}"
             )
             assert q.get("note"), (
                 f"{b['borough_name']} {organ} green but no disclosure note"
             )
+
+
+def test_sentiment_is_amber_borough_scope(quality_data: dict) -> None:
+    """Sentiment is a London-wide signal applied uniformly to every borough.
+    The number is reliable for London but is not a per-borough reading —
+    borough-level use deserves an amber 'use with care' flag with a scope
+    disclosure."""
+    for code, b in quality_data["boroughs"].items():
+        q = b["organs"]["sentiment_score"]
+        assert q["flag"] == "amber", (
+            f"{b['borough_name']} sentiment should be amber (not borough-specific), "
+            f"got {q['flag']}"
+        )
+        assert q.get("note"), f"{b['borough_name']} sentiment amber but no note"
 
 
 def test_bootstrap_ci_present_for_bootstrappable_green_organs(quality_data: dict) -> None:

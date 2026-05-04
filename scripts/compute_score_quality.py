@@ -54,17 +54,11 @@ BOOTSTRAPPABLE_ORGANS = (
     "composite_score",
 )
 
-# Organs whose underlying signal is precise but slow-cadence or wide-scope.
-# Bootstrap is uninformative (constant time-series → zero variance), but
-# the SCORE is reliable for what it measures — green space coverage is
-# precisely measured by GIS even if the data refreshes annually, and
-# LAEI is a sophisticated atmospheric model. We flag these GREEN
-# (reliable) with a disclosure note carrying the cadence / scope caveat.
+# Organs whose underlying signal is precise AND borough-specific but slow
+# cadence (annual refresh). Bootstrap is uninformative on a constant
+# time-series, but each borough has a real, distinct, accurate value —
+# flagged GREEN with a disclosure note about the update cadence.
 STATIC_GREEN_NOTES: dict[str, str] = {
-    "sentiment_score": (
-        "London-wide signal — same value across all boroughs. "
-        "Score reliable; not borough-specific."
-    ),
     "green_space_score": (
         "GLA 2024 green-cover measurement — precise; updated yearly because "
         "physical coverage doesn't change daily."
@@ -75,6 +69,18 @@ STATIC_GREEN_NOTES: dict[str, str] = {
     "air_quality_modelled_score": (
         "LAEI 2022 atmospheric model — precise for the year modelled; "
         "annual update."
+    ),
+}
+
+# Organs whose value is NOT borough-specific — applied uniformly across
+# all 33 boroughs (sentiment is a London-wide news signal). The score is
+# reliable for what it measures (London), but borough-level use deserves
+# a "use with care" amber flag because it isn't actually a per-borough
+# reading.
+STATIC_AMBER_NOTES: dict[str, str] = {
+    "sentiment_score": (
+        "London-wide news signal — same value applied to every borough. "
+        "Reliable for London, not borough-specific."
     ),
 }
 
@@ -146,9 +152,8 @@ def _process_borough(api_url: str, borough: dict) -> dict:
         values = [r[organ_key] for r in rows if r.get(organ_key) is not None]
         latest_value = borough.get(organ_key)
 
-        # Static-disclosure organs: precise signal but slow-cadence or
-        # wide-scope. Score is reliable; the disclosure note carries
-        # the cadence/scope caveat for the analyst.
+        # Static-disclosure organs (borough-specific but slow cadence) →
+        # green flag with cadence note.
         if organ_key in STATIC_GREEN_NOTES:
             organs_out[organ_key] = {
                 "flag": "green",
@@ -157,6 +162,19 @@ def _process_borough(api_url: str, borough: dict) -> dict:
                 "width": None,
                 "n": len(values),
                 "note": STATIC_GREEN_NOTES[organ_key],
+            }
+            continue
+
+        # Non-borough-specific signals (e.g. sentiment is London-wide) →
+        # amber flag because borough-level use deserves "use with care".
+        if organ_key in STATIC_AMBER_NOTES:
+            organs_out[organ_key] = {
+                "flag": "amber",
+                "ci_low": None,
+                "ci_high": None,
+                "width": None,
+                "n": len(values),
+                "note": STATIC_AMBER_NOTES[organ_key],
             }
             continue
 
