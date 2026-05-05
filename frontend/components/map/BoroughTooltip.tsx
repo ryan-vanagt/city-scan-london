@@ -196,9 +196,6 @@ export default function BoroughTooltip({
             </span>
             <span className="font-mono text-[11px] text-slate-300">
               {ordinalSuffix(imdRank)} / 296
-              <span style={{ color: "#475569" }}>
-                {" "}(1 = most deprived)
-              </span>
             </span>
           </div>
         )}
