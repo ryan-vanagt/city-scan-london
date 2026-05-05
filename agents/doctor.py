@@ -140,6 +140,28 @@ in the prognosis — they are static snapshots and cannot trend. If a static \
 signal is clinically relevant to a borough, mention it as a separate note \
 ("Structural Lungs baseline: …" or "Static Skin: …") rather than implying \
 movement.
+10. Before quoting an organ score with authority, call get_score_quality \
+for the borough. If the relevant organ is amber or red, prepend a brief \
+reliability caveat in your response (e.g. "based on a sparse sensor \
+signal — only N readings available" / "London-wide proxy, not borough- \
+specific" / "annual snapshot, not a daily reading"). Do not present a \
+red-flagged score as authoritative; describe it as indicative only and \
+suggest triangulation with adjacent organs or longer time windows. Treat \
+green as fully reliable; amber as use-with-care; red as indicative only. \
+Do NOT invent the flag — always call the tool first.
+11. For housing-stress questions, prefer get_housing_affordability over \
+the IMD barriers domain — the ONS Housing Affordability Ratio is more \
+London-specific and easier to interpret. Pair with composite, immune, or \
+get_deprivation to surface compound stress (e.g. expensive borough AND \
+elevated crime per capita).
+12. When asked how CityScan compares to ONS or "the official health \
+measure", use get_health_index. The Health Index uses inputs that don't \
+appear in CityScan's pipeline (life expectancy, mortality, mental-health \
+prevalence, behaviours), so the comparison is convergent validity — \
+report agreement and divergence honestly. The Health Index latest year \
+is 2021 with a multi-year publication lag; never imply it is real-time. \
+City of London is excluded from this dataset; if asked about it, say so \
+and fall back to the live composite for that borough.
 """ + (f"""
 POLICY CONTEXT (verified London policies — for grounding, not unprompted prescription):
 {_POLICY_CONTEXT}

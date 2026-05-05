@@ -14,8 +14,11 @@ from langchain_core.tools import tool
 
 from agents.tools.borough_query import get_borough_health, compare_boroughs
 from agents.tools.deprivation import get_deprivation
+from agents.tools.health_index import get_health_index
 from agents.tools.health_score import get_london_score
+from agents.tools.housing_affordability import get_housing_affordability
 from agents.tools.rag_query import search_scores
+from agents.tools.score_quality import get_score_quality
 from agents.tools.sql_query import run_sql
 from agents.tools.trend_analysis import get_trend
 
@@ -170,6 +173,70 @@ def get_deprivation_tool(borough: str) -> dict:
     return get_deprivation(borough)
 
 
+@tool
+def get_score_quality_tool(borough: str) -> dict:
+    """Get per-organ data-quality flags + 95% bootstrap CIs for a London borough.
+
+    Returns each organ's reliability flag (green = stable bootstrap CI, amber
+    = wide CI / static-cadence / non-borough-specific signal, red = sparse
+    underlying data) plus the bootstrap CI numbers and any disclosure note.
+
+    **Call this BEFORE quoting an organ score with confidence.** If the flag
+    is amber or red for the relevant organ, prepend a brief reliability
+    caveat in the response (e.g. "based on a sparse sensor signal" /
+    "London-wide proxy" / "annual snapshot"). Do not present a borough's
+    score as authoritative when its flag is red.
+
+    Args:
+        borough: Borough name (e.g. 'Hackney') or ONS code (e.g. 'E09000012').
+    """
+    borough = borough[:100]
+    return get_score_quality(borough)
+
+
+@tool
+def get_housing_affordability_tool(borough: str = "") -> dict:
+    """Get the ONS Housing Affordability Ratio for a London borough or all 33.
+
+    The ratio is median house price ÷ median workplace-based annual earnings.
+    Higher = less affordable. London-specific structural stressor.
+
+    Use this for housing-stress questions in preference to IMD's barriers
+    domain — it is more London-specific and easier to interpret. Pair with
+    composite or immune scores to surface compound stress (expensive AND
+    high-stress boroughs).
+
+    Args:
+        borough: Borough name or ONS code. Pass empty string to get all 33
+            boroughs sorted by ratio descending (most expensive first).
+    """
+    borough = borough[:100] if borough else ""
+    return get_housing_affordability(borough or None)
+
+
+@tool
+def get_health_index_tool(borough: str) -> dict:
+    """Get the ONS Health Index for a London borough.
+
+    The Health Index is the UK's official subnational health composite,
+    built from inputs that DO NOT appear in CityScan's pipeline (life
+    expectancy, mortality, mental-health prevalence, behaviours). This
+    makes a comparison between CityScan's composite and the Health Index
+    a convergent-validity reference, not a tautology.
+
+    Use when the user asks how CityScan compares to the official health
+    measure, or to triangulate borough-level findings against an external
+    benchmark. England 2015 baseline = 100; higher = healthier.
+
+    City of London is excluded from this dataset by ONS convention.
+
+    Args:
+        borough: Borough name (e.g. 'Hackney') or ONS code (e.g. 'E09000012').
+    """
+    borough = borough[:100]
+    return get_health_index(borough)
+
+
 ALL_TOOLS = [
     get_borough_health_tool,
     get_london_score_tool,
@@ -178,4 +245,7 @@ ALL_TOOLS = [
     run_sql_tool,
     search_scores_tool,
     get_deprivation_tool,
+    get_score_quality_tool,
+    get_housing_affordability_tool,
+    get_health_index_tool,
 ]

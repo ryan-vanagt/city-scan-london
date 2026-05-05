@@ -74,7 +74,17 @@ is the only Lungs signal that can move hour to hour.
 cross-domain pattern in today's data. What changed, what's surprising, what \
 diverges from the structural deprivation baseline. One paragraph, max 4 \
 sentences. Cite specific numbers. Do NOT speculate on causation — surface \
-the pattern. Look for what CHANGED today, not what's always been worst.\
+the pattern. Look for what CHANGED today, not what's always been worst.
+12. If a "Reliability Watch" line is provided in the data, render it as a \
+short note immediately after the Organ Systems table — boroughs whose \
+underlying signals are sparse today (e.g. zero live air sensors) should be \
+flagged so the reader knows to triangulate any borough-level claim about \
+them.
+13. If an "External Agreement" line is provided (CityScan vs ONS Health \
+Index 2021), render it as a one-sentence note at the end of the Diagnosis \
+section. Frame divergence as informative ("CityScan and ONS diverge most \
+at borough X — different lenses, different priorities"), not as error in \
+either tool.\
 """
 
 
@@ -165,6 +175,126 @@ def _fetch_headlines() -> list[dict]:
         return []
 
 
+def _build_reliability_watch(score_quality: dict | None, worst: list[dict]) -> str | None:
+    """Compose a "Reliability Watch" sentence flagging boroughs whose
+    bootstrappable organs (air, transit, immune) are red-flagged today.
+
+    Restricts the watch list to the worst-scoring boroughs to avoid burying
+    the bulletin in metadata. Returns None when nothing is worth flagging.
+    """
+    if not score_quality or not worst:
+        return None
+    watch_boroughs: list[tuple[str, list[str]]] = []
+    worst_codes = [b.get("borough_code") for b in worst if b.get("borough_code")]
+    for code in worst_codes:
+        b = score_quality.get(code)
+        if not b:
+            continue
+        organs = b.get("organs", {})
+        red_organs: list[str] = []
+        for organ_key in ("air_score", "transit_score", "immune_score"):
+            flag = organs.get(organ_key, {}).get("flag")
+            if flag == "red":
+                # Strip the "_score" suffix for a more readable label
+                red_organs.append(organ_key.removesuffix("_score").replace("_", " "))
+        if red_organs:
+            watch_boroughs.append((b.get("borough_name", code), red_organs))
+    if not watch_boroughs:
+        return None
+    parts = [
+        f"{name} ({', '.join(red)})" for name, red in watch_boroughs
+    ]
+    return (
+        "Sparse underlying data today in: "
+        + "; ".join(parts)
+        + ". Borough-level claims about these signals should be treated as indicative only."
+    )
+
+
+def _build_external_validity(
+    health_index: dict | None,
+    london_score: dict,
+    worst: list[dict],
+    best: list[dict],
+) -> str | None:
+    """Compose a one-sentence comparison between CityScan and the ONS Health
+    Index, surfacing the largest agreement/divergence among today's notable
+    boroughs (top-3 best + top-3 worst). Returns None when Health Index data
+    is unavailable.
+    """
+    if not health_index:
+        return None
+    notable_codes = [b.get("borough_code") for b in (best[:3] + worst[:3]) if b.get("borough_code")]
+    pairs: list[tuple[str, float | None, float | None]] = []  # (name, cityscan, hi_score)
+    cs_lookup = {b.get("borough_code"): b.get("score") for b in (best + worst)}
+    for code in notable_codes:
+        hi_entry = health_index.get(code)
+        if not hi_entry:
+            continue
+        if hi_entry.get("not_in_dataset"):
+            continue
+        # hi_entry from /boroughs/health-index has shape: { score, year, ... }
+        # but for static-loaded shape, look for score_<year> via ranking
+        hi_score = hi_entry.get("score")
+        if hi_score is None:
+            # Fallback: scan keys (in case static shape rather than API shape)
+            for key, value in hi_entry.items():
+                if isinstance(key, str) and key.startswith("score_") and key not in (
+                    "score_2020",
+                    "score_2015",
+                ):
+                    hi_score = value
+                    break
+        cs_score = cs_lookup.get(code)
+        if hi_score is not None and cs_score is not None:
+            pairs.append((hi_entry.get("name") or hi_entry.get("borough_name") or code, cs_score, hi_score))
+    if len(pairs) < 2:
+        return None
+    # Largest divergence in normalised distance: (cs - cs_mean_in_pairs) - (hi - hi_mean_in_pairs)
+    cs_mean = sum(p[1] for p in pairs) / len(pairs)
+    hi_mean = sum(p[2] for p in pairs) / len(pairs)
+    divergences = [
+        (p[0], (p[1] - cs_mean) - (p[2] - hi_mean))
+        for p in pairs
+    ]
+    divergences.sort(key=lambda x: -abs(x[1]))
+    top_div = divergences[0]
+    direction = "CityScan reads relatively healthier" if top_div[1] > 0 else "CityScan reads relatively worse"
+    return (
+        f"External agreement (vs ONS Health Index 2021): {top_div[0]} shows the "
+        f"largest divergence among today's notable boroughs — {direction} "
+        "than the official health measure suggests. Different lenses; the gap is itself a finding."
+    )
+
+
+def _load_score_quality_static() -> dict | None:
+    """Lazy-load the per-organ score-quality JSON if present."""
+    path = PROJECT_ROOT / "data" / "static" / "score_quality.json"
+    if not path.exists():
+        return None
+    try:
+        with open(path, encoding="utf-8") as f:
+            payload = json.load(f)
+        return payload.get("boroughs")
+    except Exception:
+        logger.warning("Bulletin: failed to load score_quality.json")
+        return None
+
+
+def _load_health_index_static() -> dict | None:
+    """Lazy-load the ONS Health Index JSON if present."""
+    path = PROJECT_ROOT / "data" / "static" / "ons_health_index.json"
+    if not path.exists():
+        return None
+    try:
+        with open(path, encoding="utf-8") as f:
+            payload = json.load(f)
+        return payload.get("boroughs")
+    except Exception:
+        logger.warning("Bulletin: failed to load ons_health_index.json")
+        return None
+
+
 def _build_data_prompt(
     london_score: dict,
     best: list[dict],
@@ -174,6 +304,8 @@ def _build_data_prompt(
     date_str: str,
     immune_period: str | None = None,
     deprivation: dict[str, dict] | None = None,
+    reliability_watch: str | None = None,
+    external_validity: str | None = None,
 ) -> str:
     """Format all collected data into the LLM prompt."""
     sections = [f"Date: {date_str}\n"]
@@ -242,6 +374,18 @@ def _build_data_prompt(
             sections.append(f"- [{h['headline']}]({h['url']})")
         sections.append("")
 
+    # Reliability watch — boroughs whose bootstrappable organs are red-flagged today
+    if reliability_watch:
+        sections.append("## Reliability Watch")
+        sections.append(reliability_watch)
+        sections.append("")
+
+    # External validity — CityScan vs ONS Health Index agreement / divergence
+    if external_validity:
+        sections.append("## External Agreement")
+        sections.append(external_validity)
+        sections.append("")
+
     # No policy context needed — Signal of the Day is purely data-driven
 
     sections.append(
@@ -308,11 +452,19 @@ def generate_bulletin(trigger: str = "manual") -> dict:
     # 4b. Fetch actual immune data period from bronze files
     immune_period = _get_immune_data_period()
 
+    # 4c. Load static reliability + external-validity context (best-effort)
+    score_quality = _load_score_quality_static()
+    health_index = _load_health_index_static()
+    reliability_watch = _build_reliability_watch(score_quality, worst)
+    external_validity = _build_external_validity(health_index, london_score, worst, best)
+
     # 5. Build prompt and call LLM
     data_prompt = _build_data_prompt(
         london_score, best, worst, trends, headlines, date_str,
         immune_period=immune_period,
         deprivation=deprivation,
+        reliability_watch=reliability_watch,
+        external_validity=external_validity,
     )
 
     llm = ChatAnthropic(model=MODEL_NAME, max_tokens=4096)
