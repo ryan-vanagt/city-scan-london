@@ -7,7 +7,7 @@
  * that transitions to a live thermal map with doctor chat and bulletin panels.
  */
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import dynamic from "next/dynamic";
 import type {
   BoroughScore,
@@ -62,6 +62,13 @@ export default function Home() {
   const [effectsReady, setEffectsReady] = useState(false); // glow + pulse (after transition)
   const [showUI, setShowUI] = useState(false);            // header/footer/FABs
   const [colourReady, setColourReady] = useState(false);  // timer elapsed for colour flood
+  // Footer height is measured at runtime so the panel and FAB stack sit
+  // exactly on top of the wrapped footer (the source list wraps to 1, 2,
+  // or 3 lines depending on viewport width). Hardcoding a bottom offset
+  // either leaves a visible gap or clips the panel — a ResizeObserver
+  // gives a clean fit at every width.
+  const footerWrapRef = useRef<HTMLDivElement | null>(null);
+  const [footerHeight, setFooterHeight] = useState(32);
   const [boroughs, setBoroughs] = useState<BoroughScore[]>([]);
   const [londonScore, setLondonScore] = useState<LondonScore>({
     composite_score: null,
@@ -204,6 +211,19 @@ export default function Home() {
     }
   }, [colourReady, boroughs.length]);
 
+  // Track the footer's rendered height so the panel and FAB stack can
+  // anchor flush against it regardless of viewport-driven wrapping.
+  useEffect(() => {
+    const node = footerWrapRef.current;
+    if (!node || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver((entries) => {
+      const h = Math.ceil(entries[0]?.contentRect.height ?? 0);
+      if (h > 0) setFooterHeight(h);
+    });
+    ro.observe(node);
+    return () => ro.disconnect();
+  }, []);
+
   // --- Handlers ---
   const handleBoroughHover = useCallback((code: string | null) => {
     setHoveredBorough(code);
@@ -293,14 +313,14 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Panel container — top below header, bottom above footer.
-            Footer wraps to 2 lines on common viewports and 3 on narrow
-            mobile, so the bottom offset has to clear the worst case. */}
+        {/* Panel container — top below header, bottom flush with footer.
+            footerHeight is measured by ResizeObserver so the panel sits
+            exactly above the wrapped footer at every viewport width. */}
         <div
           className="fixed right-0 w-[90%] md:w-[35%] overflow-hidden z-30"
           style={{
             top: 52,
-            bottom: 64,
+            bottom: footerHeight,
             opacity: isPanelOpen ? 1 : 0,
             transform: isPanelOpen ? "translateX(0)" : "translateX(20px)",
             pointerEvents: isPanelOpen ? "auto" : "none",
@@ -333,17 +353,21 @@ export default function Home() {
           panelState={panelState}
           onToggleDoctor={() => handleOpenDoctor()}
           onToggleAnalytics={() => handleOpenAnalytics()}
+          bottomOffset={footerHeight + 16}
         />
       )}
 
       {/* Footer — always rendered, z-40 so it sits above panels */}
-      <div style={{
-        opacity: showUI ? 1 : 0,
-        pointerEvents: showUI ? "auto" : "none",
-        transition: "opacity 0.5s ease-out",
-        position: "relative",
-        zIndex: 40,
-      }}>
+      <div
+        ref={footerWrapRef}
+        style={{
+          opacity: showUI ? 1 : 0,
+          pointerEvents: showUI ? "auto" : "none",
+          transition: "opacity 0.5s ease-out",
+          position: "relative",
+          zIndex: 40,
+        }}
+      >
         <Footer />
       </div>
 

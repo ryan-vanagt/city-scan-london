@@ -19,6 +19,7 @@ interface FloatingActionsProps {
   panelState: PanelState;
   onToggleDoctor: () => void;
   onToggleAnalytics: () => void;
+  bottomOffset?: number;
 }
 
 interface FabButtonProps {
@@ -83,6 +84,7 @@ export default function FloatingActions({
   panelState,
   onToggleDoctor,
   onToggleAnalytics,
+  bottomOffset,
 }: FloatingActionsProps) {
   const doctorOpen = panelState.type === "doctor";
   const analyticsOpen = panelState.type === "analytics";
@@ -91,9 +93,11 @@ export default function FloatingActions({
     <div
       style={{
         position: "fixed",
-        // Sits above the footer (which wraps to 2-3 lines depending on
-        // viewport width because the source list is long).
-        bottom: 88,
+        // Anchored to the parent's measured footer height + a small gap,
+        // so the FAB stack rides exactly above the footer regardless of
+        // how the source list wraps. Falls back to a safe fixed offset
+        // if the parent didn't pass a value (e.g. SSR first paint).
+        bottom: bottomOffset ?? 88,
         right: 24,
         zIndex: 50,
         display: "flex",
