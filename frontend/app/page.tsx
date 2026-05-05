@@ -293,12 +293,14 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Panel container — top below header, bottom above footer */}
+        {/* Panel container — top below header, bottom above footer.
+            Footer wraps to 2 lines on common viewports and 3 on narrow
+            mobile, so the bottom offset has to clear the worst case. */}
         <div
           className="fixed right-0 w-[90%] md:w-[35%] overflow-hidden z-30"
           style={{
             top: 52,
-            bottom: 33,
+            bottom: 64,
             opacity: isPanelOpen ? 1 : 0,
             transform: isPanelOpen ? "translateX(0)" : "translateX(20px)",
             pointerEvents: isPanelOpen ? "auto" : "none",

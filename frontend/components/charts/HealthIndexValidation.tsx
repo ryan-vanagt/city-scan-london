@@ -30,7 +30,7 @@ import {
   Tooltip,
 } from "recharts";
 import type { BoroughScore, HealthIndexEntry } from "@/lib/types";
-import { pearson, strengthWord } from "@/lib/stats";
+import { pearson } from "@/lib/stats";
 import { scoreToColour } from "@/lib/colours";
 
 interface HealthIndexValidationProps {
@@ -231,7 +231,16 @@ export default function HealthIndexValidation({
 
   const r = stats.r;
   const rSquared = r * r;
-  const rWord = strengthWord(r);
+  // For the agreement summary we anchor the verbal label to r² (shared
+  // variance), not |r|. r = 0.5 sounds "strong" via Cohen's |r|
+  // thresholds but only accounts for 25% of cross-borough variance —
+  // calling that "strongly agrees" overclaims. Cut-offs (in r²): <0.05
+  // weak, 0.05–0.20 moderate, 0.20–0.50 substantial, ≥0.50 very strong.
+  const r2Word =
+    rSquared < 0.05 ? "weakly"
+    : rSquared < 0.20 ? "moderately"
+    : rSquared < 0.50 ? "substantially"
+    : "very strongly";
   const yMin = Math.min(...data.map((d) => d.y));
   const yMax = Math.max(...data.map((d) => d.y));
 
@@ -323,16 +332,19 @@ export default function HealthIndexValidation({
           lineHeight: 1.55,
         }}
       >
-        CityScan {rWord} agrees with the ONS Health Index{year ? ` ${year}` : ""}{" "}
-        across {stats.n} LTLAs (r² = {rSquared.toFixed(3)}, Pearson r = {r >= 0 ? "+" : "−"}
-        {Math.abs(r).toFixed(2)}). Cross-sectional convergent-validity
-        correlation; not a forecast. Largest divergence:{" "}
+        CityScan {r2Word} agrees with the ONS Health Index{year ? ` ${year}` : ""}{" "}
+        across {stats.n} LTLAs (r² = {rSquared.toFixed(2)}, Pearson r = {r >= 0 ? "+" : "−"}
+        {Math.abs(r).toFixed(2)}; {Math.round(rSquared * 100)}% of cross-borough
+        variance shared). Cross-sectional snapshot of today's CityScan
+        composite against the static 2021 Health Index — convergent validity,
+        not a forecast and not a like-for-like benchmark (the Health Index is
+        annual; CityScan refreshes hourly). Largest divergence:{" "}
         {stats.topResid.borough_name} ({stats.topResidValue >= 0 ? "+" : "−"}
         {Math.abs(stats.topResidValue).toFixed(1)} pts vs CityScan's predicted
         value). The Health Index draws on outcomes CityScan does not feed
-        (life expectancy, mortality, mental-health prevalence). Some
-        environmental inputs overlap (air pollution, green space), so this
-        is convergent validity — not a fully independent benchmark.
+        (life expectancy, mortality, mental-health prevalence); some
+        environmental inputs overlap (air pollution, green space), so this is
+        convergent validity rather than a fully independent benchmark.
       </div>
     </div>
   );

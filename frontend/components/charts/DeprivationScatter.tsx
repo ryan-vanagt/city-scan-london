@@ -257,15 +257,15 @@ export default function DeprivationScatter({
     if (xAxisMode === "imd") {
       // smallest IMD rank = most deprived
       return (
-        `${lowX.borough_name} (most deprived) lands ${rankByCode[lowX.borough_code]}/${data.length} on integrated health; ` +
-        `${highX.borough_name} (least deprived) lands ${rankByCode[highX.borough_code]}/${data.length}. ` +
+        `${lowX.borough_name} (most deprived) ranks ${rankByCode[lowX.borough_code]}/${data.length} on the CityScan composite; ` +
+        `${highX.borough_name} (least deprived) ranks ${rankByCode[highX.borough_code]}/${data.length}. ` +
         `Deprivation alone ${strength} explains the variation (r² = ${r2Text}, n = ${data.length}).`
       );
     }
     // housing mode: smallest ratio = most affordable
     return (
-      `${highX.borough_name} (most expensive at ${highX.x.toFixed(1)}×) lands ${rankByCode[highX.borough_code]}/${data.length} on integrated health; ` +
-      `${lowX.borough_name} (most affordable at ${lowX.x.toFixed(1)}×) lands ${rankByCode[lowX.borough_code]}/${data.length}. ` +
+      `${highX.borough_name} (most expensive at ${highX.x.toFixed(1)}×) ranks ${rankByCode[highX.borough_code]}/${data.length} on the CityScan composite; ` +
+      `${lowX.borough_name} (most affordable at ${lowX.x.toFixed(1)}×) ranks ${rankByCode[lowX.borough_code]}/${data.length}. ` +
       `Affordability alone ${strength} explains the variation (r² = ${r2Text}, n = ${data.length}).`
     );
   })();

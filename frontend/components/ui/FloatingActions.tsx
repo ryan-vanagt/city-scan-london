@@ -91,7 +91,9 @@ export default function FloatingActions({
     <div
       style={{
         position: "fixed",
-        bottom: 56,
+        // Sits above the footer (which wraps to 2-3 lines depending on
+        // viewport width because the source list is long).
+        bottom: 88,
         right: 24,
         zIndex: 50,
         display: "flex",

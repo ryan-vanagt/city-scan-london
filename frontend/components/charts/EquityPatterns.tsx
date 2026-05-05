@@ -328,11 +328,18 @@ export default function EquityPatterns({
             <>
               {" "}
               <span style={{ color: "#f59e0b" }}>
-                Note: the {domainOption.short.replace("IMD ", "").replace(" rank", "")}
-                {" "}domain shares inputs with one or more CityScan organs, so
-                some of this correlation reflects shared measurement, not
-                independent equity signal. ★ marks the four leakage-free
-                comparators (Income, Employment, Education, Barriers).
+                {domain === "overall"
+                  ? "Note: Overall IMD is a weighted blend of all 7 sub-domains, "
+                    + "three of which (Health, Crime, Living) overlap with "
+                    + "CityScan organs at the input level — some of this "
+                    + "correlation reflects shared measurement, not independent "
+                    + "equity signal."
+                  : `Note: the IMD ${domainOption.short.replace("IMD ", "").replace(" rank", "")} `
+                    + "sub-domain shares inputs with one or more CityScan "
+                    + "organs, so some of this correlation reflects shared "
+                    + "measurement, not independent equity signal."}
+                {" "}★ marks the four leakage-free comparators (Income,
+                Employment, Education, Barriers).
               </span>
             </>
           )}
