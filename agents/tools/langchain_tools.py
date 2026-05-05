@@ -20,6 +20,7 @@ from agents.tools.housing_affordability import get_housing_affordability
 from agents.tools.rag_query import search_scores
 from agents.tools.score_quality import get_score_quality
 from agents.tools.sql_query import run_sql
+from agents.tools.transit_access import get_transit_access
 from agents.tools.trend_analysis import get_trend
 
 
@@ -215,6 +216,32 @@ def get_housing_affordability_tool(borough: str = "") -> dict:
 
 
 @tool
+def get_transit_access_tool(borough: str) -> dict:
+    """Get the TfL PTAL (Public Transport Accessibility Level) for a London borough.
+
+    PTAL is the canonical transport-access measure used by the GLA, TfL,
+    and Cabinet Office for SDG 11.2 (access to safe, affordable,
+    accessible, sustainable transport for all). Bands run 1a (very poor)
+    to 6b (excellent). Distinct from `transit_score` (live tube line
+    reliability) — use this for ACCESS questions ("who can reach
+    transit?"), and `get_borough_health` for RELIABILITY questions ("are
+    the trains running?").
+
+    Vintage: 2015, the most recent published edition. PTAL is structural;
+    network geography is slow-moving. The 2015 edition predates the
+    Elizabeth Line (opened 2022), so it understates current access for
+    boroughs the Elizabeth Line reaches (Newham, Tower Hamlets, parts of
+    Ealing and Hillingdon, parts of Hounslow). Disclose this when the
+    user asks about those boroughs.
+
+    Args:
+        borough: Borough name (e.g. 'Hackney') or ONS code (e.g. 'E09000012').
+    """
+    borough = borough[:100]
+    return get_transit_access(borough)
+
+
+@tool
 def get_health_index_tool(borough: str) -> dict:
     """Get the ONS Health Index for a London borough.
 
@@ -248,4 +275,5 @@ ALL_TOOLS = [
     get_score_quality_tool,
     get_housing_affordability_tool,
     get_health_index_tool,
+    get_transit_access_tool,
 ]

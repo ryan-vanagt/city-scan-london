@@ -8,7 +8,7 @@
  * IMD deprivation rank.
  */
 
-import type { BoroughScore, MetricFilter } from "@/lib/types";
+import type { BoroughScore, MetricFilter, TransitAccess } from "@/lib/types";
 import { scoreToColour } from "@/lib/colours";
 
 interface BoroughTooltipProps {
@@ -16,6 +16,7 @@ interface BoroughTooltipProps {
   position: { x: number; y: number };
   metricFilter: MetricFilter;
   imdRank: number | null;
+  transitAccess?: TransitAccess;
 }
 
 interface MetricDisplay {
@@ -57,6 +58,7 @@ export default function BoroughTooltip({
   position,
   metricFilter,
   imdRank,
+  transitAccess,
 }: BoroughTooltipProps) {
   const compositeColour = scoreToColour(borough.composite_score);
 
@@ -105,6 +107,7 @@ export default function BoroughTooltip({
           {visibleMetrics.map(({ label, key }) => {
             const isGreen = key === "green_space_score";
             const isAir = key === "air_score";
+            const isTransit = key === "transit_score";
             // For green space, prefer access-weighted, fall back to raw coverage.
             const displayValue = isGreen
               ? (borough.green_space_access_score ?? borough.green_space_score)
@@ -140,6 +143,19 @@ export default function BoroughTooltip({
                     <span style={{ letterSpacing: "0.05em" }}>modelled</span>
                     <span className="font-mono">
                       {formatScore(borough.air_quality_modelled_score)}
+                    </span>
+                  </div>
+                )}
+                {isTransit
+                  && metricFilter === "transit_score"
+                  && transitAccess
+                  && transitAccess.score !== null && (
+                  <div className="flex items-center justify-between gap-4 text-[8px] text-slate-500">
+                    <span style={{ letterSpacing: "0.05em" }}>
+                      PTAL access {transitAccess.ptal_band ? `(${transitAccess.ptal_band})` : ""}
+                    </span>
+                    <span className="font-mono">
+                      {formatScore(transitAccess.score)}
                     </span>
                   </div>
                 )}

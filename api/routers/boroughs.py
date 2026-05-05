@@ -5,6 +5,7 @@ GET /boroughs                          — all 33 boroughs with current composit
 GET /boroughs/deprivation              — all 33 boroughs with static IMD deprivation data
 GET /boroughs/housing-affordability    — all 33 boroughs with ONS housing affordability ratios
 GET /boroughs/health-index             — 32 boroughs with ONS Health Index scores (CoL excluded by ONS)
+GET /boroughs/transit-access           — TfL PTAL borough scores (2015 edition, SDG 11.2 access measure)
 GET /boroughs/score-quality            — per-organ data-quality flags + bootstrap CIs
 GET /boroughs/trends                   — 7-day composite trend direction for all boroughs
 GET /borough/{name}                    — full organ breakdown for a single borough
@@ -233,6 +234,48 @@ def list_boroughs_health_index() -> list[dict]:
     except (json.JSONDecodeError, KeyError) as exc:
         logger.error("Failed to parse Health Index file: %s", exc)
         raise HTTPException(status_code=500, detail="Health Index data is malformed")
+
+
+PTAL_FILE = FilePath(__file__).resolve().parents[2] / "data" / "static" / "transit_access.json"
+
+
+@lru_cache(maxsize=1)
+def _load_ptal_data() -> list[dict]:
+    """Load and cache TfL PTAL borough scores from the static JSON file.
+
+    Source: TfL Public Transport Accessibility Levels, borough average
+    (data.london.gov.uk). The 2015 edition is the most recent public
+    publication and is the canonical access measure used by GLA, TfL, and
+    Cabinet Office. Vintage is exposed in the response so the frontend can
+    surface the disclosure inline.
+    """
+    raw = json.loads(PTAL_FILE.read_text(encoding="utf-8"))
+    metadata = raw.get("_metadata", {})
+    boroughs = raw.get("boroughs", {})
+    result = []
+    for code, data in boroughs.items():
+        result.append({
+            "borough_code": code,
+            "borough_name": data["name"],
+            "score": data.get("score_0_to_100"),
+            "ptal_band": data.get("ptal_band"),
+            "avptai_2015": data.get("avptai_2015"),
+            "vintage": metadata.get("vintage"),
+        })
+    return result
+
+
+@router.get("/boroughs/transit-access")
+def list_boroughs_transit_access() -> list[dict]:
+    """All 33 boroughs with TfL PTAL access scores (2015 edition, the latest published)."""
+    try:
+        return _load_ptal_data()
+    except FileNotFoundError:
+        logger.error("PTAL file not found: %s", PTAL_FILE)
+        raise HTTPException(status_code=404, detail="Transit access data not available")
+    except (json.JSONDecodeError, KeyError) as exc:
+        logger.error("Failed to parse PTAL file: %s", exc)
+        raise HTTPException(status_code=500, detail="Transit access data is malformed")
 
 
 SCORE_QUALITY_FILE = FilePath(__file__).resolve().parents[2] / "data" / "static" / "score_quality.json"

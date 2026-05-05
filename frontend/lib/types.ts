@@ -85,6 +85,15 @@ export interface HealthIndexEntry {
   year: number | null;             // most recent year covered (likely 2021)
 }
 
+export interface TransitAccess {
+  borough_code: string;
+  borough_name: string;
+  score: number | null;            // 0–100 normalised PTAL score (log of AvPTAI2015, min-max scaled)
+  ptal_band: string | null;        // TfL band: 1a, 1b, 2, 3, 4, 5, 6a, 6b
+  avptai_2015: number | null;      // raw AvPTAI continuous value
+  vintage: number | null;          // edition year (2015)
+}
+
 export type QualityFlag = "green" | "amber" | "red";
 
 export interface OrganQuality {

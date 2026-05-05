@@ -1,0 +1,211 @@
+{
+  "_metadata": {
+    "source": "TfL Public Transport Accessibility Levels (PTAL), borough average",
+    "url": "https://data.london.gov.uk/dataset/public-transport-accessibility-levels",
+    "csv_url": "https://data.london.gov.uk/download/24rz6/8e520b81-dd06-4ce6-aaa0-972dccf84b57/Borough%20AvPTAI2015.csv",
+    "vintage": 2015,
+    "definition": "PTAL combines walk-time to stops, service frequency, and mode availability into a single accessibility score. Bands 1a (very poor) to 6b (excellent). Score_0_to_100 is the log-transformed AvPTAI2015 min-max normalised across the 33 boroughs; log compresses the City of London outlier.",
+    "geography": "London borough (33 = 32 borough councils + City of London)",
+    "sdg_relevance": "SDG 11.2 \u2014 access to safe, affordable, accessible, sustainable transport for all. PTAL is the GLA / TfL / Cabinet Office standard access measure."
+  },
+  "boroughs": {
+    "E09000021": {
+      "name": "Kingston upon Thames",
+      "avptai_2015": 5.425275,
+      "ptal_band": "2",
+      "score_0_to_100": 16.85
+    },
+    "E09000008": {
+      "name": "Croydon",
+      "avptai_2015": 6.757744,
+      "ptal_band": "2",
+      "score_0_to_100": 22.75
+    },
+    "E09000006": {
+      "name": "Bromley",
+      "avptai_2015": 3.592084,
+      "ptal_band": "1b",
+      "score_0_to_100": 6.35
+    },
+    "E09000018": {
+      "name": "Hounslow",
+      "avptai_2015": 5.842208,
+      "ptal_band": "2",
+      "score_0_to_100": 18.82
+    },
+    "E09000009": {
+      "name": "Ealing",
+      "avptai_2015": 8.50351,
+      "ptal_band": "2",
+      "score_0_to_100": 29.09
+    },
+    "E09000016": {
+      "name": "Havering",
+      "avptai_2015": 2.747859,
+      "ptal_band": "1b",
+      "score_0_to_100": 0.0
+    },
+    "E09000017": {
+      "name": "Hillingdon",
+      "avptai_2015": 3.561241,
+      "ptal_band": "1b",
+      "score_0_to_100": 6.14
+    },
+    "E09000015": {
+      "name": "Harrow",
+      "avptai_2015": 5.822306,
+      "ptal_band": "2",
+      "score_0_to_100": 18.73
+    },
+    "E09000005": {
+      "name": "Brent",
+      "avptai_2015": 9.223249,
+      "ptal_band": "2",
+      "score_0_to_100": 31.37
+    },
+    "E09000003": {
+      "name": "Barnet",
+      "avptai_2015": 5.54233,
+      "ptal_band": "2",
+      "score_0_to_100": 17.42
+    },
+    "E09000022": {
+      "name": "Lambeth",
+      "avptai_2015": 22.239912,
+      "ptal_band": "5",
+      "score_0_to_100": 57.05
+    },
+    "E09000028": {
+      "name": "Southwark",
+      "avptai_2015": 20.513884,
+      "ptal_band": "5",
+      "score_0_to_100": 54.64
+    },
+    "E09000023": {
+      "name": "Lewisham",
+      "avptai_2015": 12.590368,
+      "ptal_band": "3",
+      "score_0_to_100": 40.27
+    },
+    "E09000011": {
+      "name": "Greenwich",
+      "avptai_2015": 8.37817,
+      "ptal_band": "2",
+      "score_0_to_100": 28.68
+    },
+    "E09000004": {
+      "name": "Bexley",
+      "avptai_2015": 4.552927,
+      "ptal_band": "1b",
+      "score_0_to_100": 12.29
+    },
+    "E09000010": {
+      "name": "Enfield",
+      "avptai_2015": 4.627966,
+      "ptal_band": "1b",
+      "score_0_to_100": 12.71
+    },
+    "E09000031": {
+      "name": "Waltham Forest",
+      "avptai_2015": 7.831742,
+      "ptal_band": "2",
+      "score_0_to_100": 26.8
+    },
+    "E09000026": {
+      "name": "Redbridge",
+      "avptai_2015": 5.73344,
+      "ptal_band": "2",
+      "score_0_to_100": 18.32
+    },
+    "E09000029": {
+      "name": "Sutton",
+      "avptai_2015": 5.396992,
+      "ptal_band": "2",
+      "score_0_to_100": 16.72
+    },
+    "E09000027": {
+      "name": "Richmond upon Thames",
+      "avptai_2015": 4.896334,
+      "ptal_band": "1b",
+      "score_0_to_100": 14.17
+    },
+    "E09000024": {
+      "name": "Merton",
+      "avptai_2015": 8.561352,
+      "ptal_band": "2",
+      "score_0_to_100": 29.28
+    },
+    "E09000032": {
+      "name": "Wandsworth",
+      "avptai_2015": 13.973088,
+      "ptal_band": "3",
+      "score_0_to_100": 43.3
+    },
+    "E09000013": {
+      "name": "Hammersmith and Fulham",
+      "avptai_2015": 16.325973,
+      "ptal_band": "4",
+      "score_0_to_100": 47.87
+    },
+    "E09000020": {
+      "name": "Kensington and Chelsea",
+      "avptai_2015": 23.262691,
+      "ptal_band": "5",
+      "score_0_to_100": 58.4
+    },
+    "E09000033": {
+      "name": "Westminster",
+      "avptai_2015": 39.750796,
+      "ptal_band": "6a",
+      "score_0_to_100": 74.61
+    },
+    "E09000007": {
+      "name": "Camden",
+      "avptai_2015": 24.316782,
+      "ptal_band": "5",
+      "score_0_to_100": 59.73
+    },
+    "E09000030": {
+      "name": "Tower Hamlets",
+      "avptai_2015": 18.53287,
+      "ptal_band": "4",
+      "score_0_to_100": 51.62
+    },
+    "E09000019": {
+      "name": "Islington",
+      "avptai_2015": 26.667566,
+      "ptal_band": "6a",
+      "score_0_to_100": 62.5
+    },
+    "E09000012": {
+      "name": "Hackney",
+      "avptai_2015": 17.478762,
+      "ptal_band": "4",
+      "score_0_to_100": 49.88
+    },
+    "E09000014": {
+      "name": "Haringey",
+      "avptai_2015": 12.614837,
+      "ptal_band": "3",
+      "score_0_to_100": 40.33
+    },
+    "E09000025": {
+      "name": "Newham",
+      "avptai_2015": 11.079336,
+      "ptal_band": "3",
+      "score_0_to_100": 36.59
+    },
+    "E09000002": {
+      "name": "Barking and Dagenham",
+      "avptai_2015": 5.58373,
+      "ptal_band": "2",
+      "score_0_to_100": 17.62
+    },
+    "E09000001": {
+      "name": "City of London",
+      "avptai_2015": 90.802508,
+      "ptal_band": "6b",
+      "score_0_to_100": 100.0
+    }
+  }
+}

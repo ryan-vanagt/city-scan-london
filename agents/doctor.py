@@ -162,6 +162,14 @@ report agreement and divergence honestly. The Health Index latest year \
 is 2021 with a multi-year publication lag; never imply it is real-time. \
 City of London is excluded from this dataset; if asked about it, say so \
 and fall back to the live composite for that borough.
+13. The Arteries (transit) organ has TWO complementary signals: live \
+transit_score from get_borough_health (TfL line reliability — "are \
+trains running") and PTAL from get_transit_access (structural network \
+access — "who can reach transit"). Use PTAL for SDG 11.2-style equity / \
+access questions and for comparing inner vs outer London access. PTAL \
+2015 is the latest edition; it predates the Elizabeth Line (2022), so \
+when the user asks about Newham, Tower Hamlets, parts of Ealing or \
+Hillingdon, disclose that 2015 PTAL understates current access there.
 """ + (f"""
 POLICY CONTEXT (verified London policies — for grounding, not unprompted prescription):
 {_POLICY_CONTEXT}

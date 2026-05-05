@@ -19,6 +19,7 @@ import type {
   HousingAffordability,
   HealthIndexEntry,
   BoroughScoreQuality,
+  TransitAccess,
 } from "@/lib/types";
 import { fetchBoroughs, fetchLondonScore, fetchBulletin, fetchTrends } from "@/lib/api";
 import { useIsMobile } from "@/lib/useIsMobile";
@@ -85,6 +86,7 @@ export default function Home() {
   >({});
   const [healthIndex, setHealthIndex] = useState<Record<string, HealthIndexEntry>>({});
   const [scoreQuality, setScoreQuality] = useState<Record<string, BoroughScoreQuality>>({});
+  const [transitAccess, setTransitAccess] = useState<Record<string, TransitAccess>>({});
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -106,7 +108,7 @@ export default function Home() {
 
     async function loadData() {
       const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-      const [boroughResult, scoreResult, bulletinResult, depResult, trendResult, housingResult, healthIndexResult, qualityResult] = await Promise.allSettled([
+      const [boroughResult, scoreResult, bulletinResult, depResult, trendResult, housingResult, healthIndexResult, qualityResult, transitAccessResult] = await Promise.allSettled([
         fetchBoroughs(),
         fetchLondonScore(),
         fetchBulletin(),
@@ -115,6 +117,7 @@ export default function Home() {
         fetch(`${BASE_URL}/boroughs/housing-affordability`).then(r => r.ok ? r.json() : Promise.reject(r)),
         fetch(`${BASE_URL}/boroughs/health-index`).then(r => r.ok ? r.json() : Promise.reject(r)),
         fetch(`${BASE_URL}/boroughs/score-quality`).then(r => r.ok ? r.json() : Promise.reject(r)),
+        fetch(`${BASE_URL}/boroughs/transit-access`).then(r => r.ok ? r.json() : Promise.reject(r)),
       ]);
       if (cancelled) return;
       if (boroughResult.status === "fulfilled") setBoroughs(boroughResult.value);
@@ -148,6 +151,13 @@ export default function Home() {
         if (payload?.boroughs) {
           setScoreQuality(payload.boroughs);
         }
+      }
+      if (transitAccessResult.status === "fulfilled") {
+        const lookup: Record<string, TransitAccess> = {};
+        for (const item of transitAccessResult.value as TransitAccess[]) {
+          lookup[item.borough_code] = item;
+        }
+        setTransitAccess(lookup);
       }
       const anyFailed = [boroughResult, scoreResult, bulletinResult].some(r => r.status === "rejected");
       if (anyFailed) {
@@ -273,6 +283,7 @@ export default function Home() {
               boroughs={boroughs}
               deprivation={deprivation}
               trends={trends}
+              transitAccess={transitAccess}
               metricFilter={metricFilter}
               selectedBorough={null}
               xrayMode={xrayActive}
