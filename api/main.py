@@ -33,7 +33,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="CityScan London",
-    description="London health scores from live public data — air quality, transit, sentiment, crime & A&E.",
+    description="London health scores from live public data — air quality, transit, sentiment, crime & A&E, green space.",
     version="0.1.0",
     lifespan=lifespan,
 )

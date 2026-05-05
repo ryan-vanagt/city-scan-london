@@ -20,7 +20,7 @@ CityScan is a live urban health monitoring platform that models London as a huma
 | 🫁 Lungs          | OpenAQ API + GLA LAEI 2022                      | PM2.5, NO2 per borough (live sensor readings **plus** modelled population-weighted annual mean for 33/33 coverage) | Hourly (live) · Yearly (modelled) | Live: ~1 hour · Modelled: 2022 static |
 | 🩸 Arteries       | TfL Unified API                                 | Tube line status & severity scores          | Hourly         | Near-real-time (fetched hourly)                         |
 | 🧠 Brain          | Guardian API + BBC News RSS                     | NLP sentiment score from headlines           | Hourly         | ~1 hour                           |
-| 🛡️ Immune System | Met Police API + NHS England A&E stats          | Per-capita crime (log-transformed) + A&E pressure index | Monthly        | Crime: ~2 months · A&E: ~2 months |
+| 🛡️ Immune system | Met Police API + NHS England A&E stats          | Per-capita crime (log-transformed) + A&E pressure index | Monthly        | Crime: ~2 months · A&E: ~2 months |
 | 🌿 Skin           | GLA Green Cover 2024 + ONS ward populations (NM_2014_1) | Green-space **coverage** AND ward-population-weighted **access** per borough | Yearly         | Static (2024 snapshot, manual yearly refresh) |
 
 
@@ -37,7 +37,7 @@ Each signal is normalised to a 0–100 score (100 = healthy). The composite boro
 **Bronze layer** — raw ingestion
 
 - Raw API responses stored as timestamped JSON files
-- One directory per source: `/data/bronze/openaq/`, `/data/bronze/tfl/`, `/data/bronze/reddit/`, `/data/bronze/guardian/`, `/data/bronze/bbc/`, `/data/bronze/met_police/`, `/data/bronze/laei/`
+- One directory per source: `/data/bronze/openaq/`, `/data/bronze/tfl/`, `/data/bronze/reddit/`, `/data/bronze/guardian/`, `/data/bronze/bbc/`, `/data/bronze/met_police/`, `/data/bronze/nhs_ae/`, `/data/bronze/laei/`
 - Green space data is static (GLA Green Cover 2024) and stored in `/data/static/green_space.json` rather than bronze (no raw API response to capture). LAEI modelled air is similarly a static yearly snapshot stored in `/data/static/laei_air_quality.json`
 - Nothing is transformed at this stage
 - Ingestion runs on a schedule via APScheduler inside the `ingestion` service
@@ -117,14 +117,18 @@ python ingestion/run_pipeline.py   # runs full chain once and exits
 - **Framework:** LangGraph `create_react_agent` + LangChain tools
 - **LLM:** `claude-haiku-4-5` via `langchain-anthropic`
 - **Memory:** ChromaDB vector store (semantic retrieval over embedded health score descriptions)
-- **Tools registered (hybrid architecture — 5 curated + 1 flexible + 1 RAG + 1 deprivation):**
+- **Tools registered (hybrid architecture — 4 curated live + 1 flexible + 1 RAG + 5 external-context):**
   - `get_borough_health(borough)` — full score breakdown for a single borough (curated)
   - `get_london_score()` — overall city score averaged across all boroughs (curated)
   - `get_trend(borough, metric, days)` — trend direction + delta over N days (curated)
   - `compare_boroughs(metric, top_n, ascending)` — ranks boroughs by a given signal (curated)
-  - `get_deprivation(borough)` — IMD 2025 deprivation rank + 7 domain sub-scores (income, employment, education, health, crime, barriers, living) from static JSON
   - `run_sql(query)` — read-only SQL against `gold_scores` / `silver_metrics` / `silver_detail` / `silver_headlines` for analytical questions the curated tools can't answer (flexible, guarded)
   - `search_scores(query, n_results, borough_code)` — semantic similarity search over ChromaDB gold_scores embeddings for RAG context retrieval
+  - `get_deprivation(borough)` — IMD 2025 deprivation rank + 7 domain sub-scores (income, employment, education, health, crime, barriers, living) from static JSON
+  - `get_score_quality(borough)` — per-organ data-quality flag (green/amber/red) + 95% bootstrap CI for borough's recent scores
+  - `get_housing_affordability(borough)` — ONS Housing Affordability Ratio 2025 + 5-year average per borough
+  - `get_health_index(borough)` — ONS Health Index 2021 (independent benchmark for cross-validation; CoL excluded)
+  - `get_transit_access(borough)` — TfL PTAL 2015 borough average (band 1a–6b, AvPTAI, 0–100 normalised; SDG 11.2 access measure)
 - **Evidence synthesis:** The Doctor synthesises cross-domain data with policy-grounded context. System prompt loads verified London policy references from `data/static/policy_context.md` for hallucination prevention and contextual grounding. Adapts response depth based on question framing (policy/public) or explicit role field.
 - **Role-aware queries:** API accepts optional `role` field (`policy|public`). Auto-detected from question when not specified.
 - **Input:** Natural language question from frontend or API
@@ -156,9 +160,12 @@ python ingestion/run_pipeline.py   # runs full chain once and exits
 - **Trigger:** Scheduled (daily via APScheduler) AND on-demand via `POST /bulletin/generate`
 - **Chain:**
   1. Fetch current Gold-layer scores for all boroughs directly from DuckDB
-  2. Query DuckDB for top 3 notable trends this week (direct query, not via Doctor agent)
-  3. Fetch latest Guardian headlines for context (headline + URL only)
-  4. Synthesise into structured bulletin: overall score, borough highlights, trend narrative, cited sources
+  2. Compute top-N best/worst boroughs and 7-day trends for the notable set
+  3. Fetch IMD 2025 deprivation context for the worst-scoring boroughs
+  4. Fetch latest Guardian headlines for context (headline + URL only)
+  5. Build a Reliability Watch line from the static score-quality JSON, surfacing red-flag organs and amber-concentration boroughs
+  6. Build an External Validity line comparing CityScan against the ONS Health Index 2021 across all paired boroughs (centred-residual divergence)
+  7. Synthesise into structured bulletin: overall score, borough highlights, prognosis, signal of the day, cited sources
 - **Output:** Markdown bulletin stored in `/data/bulletins/YYYY-MM-DD.md` and served via API
 
 ### LLM
@@ -214,7 +221,7 @@ The Doctor agent tools are also exposed as a Model Context Protocol (MCP) server
 - **Location:** `mcp_server/server.py`
 - **SDK:** `mcp` Python package
 - **Port:** 8002
-- **Tools exposed:** `get_borough_health`, `get_london_score`, `get_trend`, `compare_boroughs`, `run_sql`, `search_scores` (6 of 7 Doctor tools — `get_deprivation` not yet exposed via MCP)
+- **Tools exposed:** `get_borough_health`, `get_london_score`, `get_trend`, `compare_boroughs`, `run_sql`, `search_scores`, `get_deprivation`, `get_score_quality`, `get_housing_affordability`, `get_health_index`, `get_transit_access` (all 11 Doctor tools)
 - **Transport:** Streamable HTTP transport on port 8002 (path: `/mcp`)
 
 This means any external agent can discover and invoke CityScan's data tools without going through the FastAPI REST layer.
@@ -241,7 +248,8 @@ Base URL: `http://localhost:8000`
 | `GET`  | `/boroughs/deprivation`           | IMD 2025 deprivation data + 7 sub-domain ranks          |
 | `GET`  | `/boroughs/housing-affordability` | ONS Table 5c median ratio + 5-year average              |
 | `GET`  | `/boroughs/health-index`          | ONS Health Index 2021 (32 boroughs; CoL excluded)       |
-| `GET`  | `/boroughs/score-quality`         | Per-organ reliability flag + 95% bootstrap CI per borough |
+| `GET`  | `/boroughs/transit-access`        | TfL PTAL 2015 borough averages (band, AvPTAI, 0–100)    |
+| `GET`  | `/boroughs/score-quality`         | Per-organ score-quality flag + 95% bootstrap CI per borough |
 | `GET`  | `/boroughs/trends`                | 7-day composite trend direction for all boroughs        |
 | `POST` | `/internal/reset-db`              | Release DuckDB read connection (internal)               |
 
@@ -363,7 +371,6 @@ Ideas validated during development but deferred to keep scope manageable:
 - **Predictive layer** — time-series forecasting (Prophet/ARIMA) on gold_scores once 3-6 months of data accumulates. The pipeline already produces hourly time-series data across 5 dimensions for 33 boroughs — the input layer for predictive models is built.
 - **Anomaly detection** — flag borough scores deviating >2 standard deviations from their rolling mean. Surface as visual indicators on the map and in the bulletin.
 - **Ambient population for crime** — replace residential per-capita with workday/daytime population (Census 2021 or TfL tap-in/tap-out data) for fairer crime normalisation in commuter boroughs.
-- **PTAL integration** — TfL Public Transport Accessibility Levels for real SDG 11.2 coverage (who can ACCESS transport, not just service status).
 - **Housing data** — Land Registry prices or GLA housing stats as a 6th organ ("Skeleton"), capturing the affordability dimension of SDG 11 (canonical 11.1.1 indicator measures slum / inadequate housing, which UK ONS proxies separately via decent-homes standard, fuel poverty, overcrowding).
 - **Noise pollution** — DEFRA noise maps as an additional environmental signal for the Lungs organ.
 - **Multi-modal transit scoring** — TfL's status API supports bus, Overground, Elizabeth line, and DLR in the same endpoint. Adding these modes gives transit scores to the 7 boroughs currently missing tube coverage.
@@ -427,7 +434,8 @@ city-scan-london/
 │   ├── fetch_imd.py                  ← Downloads IMD 2025 deprivation data → data/static/imd_borough.json
 │   ├── refresh_housing_affordability.py ← Downloads ONS Housing Affordability Ratio (Table 5c) → data/static/housing_affordability.json
 │   ├── refresh_ons_health_index.py   ← Downloads ONS Health Index for England → data/static/ons_health_index.json (used as external validation reference)
-│   ├── compute_score_quality.py      ← Bootstraps per-organ 95% CIs from gold time-series → data/static/score_quality.json (drives reliability dots in the Analytics panel)
+│   ├── fetch_ptal.py                 ← Downloads TfL PTAL 2015 borough averages → data/static/transit_access.json (SDG 11.2 access measure)
+│   ├── compute_score_quality.py      ← Bootstraps per-organ 95% CIs from gold time-series → data/static/score_quality.json (drives score-quality dots in the Analytics panel)
 │   └── backfill_green_space_access.py ← One-shot: pin historical gold_scores rows to current stable green-space values (prevents NULL→value chart jump post-deploy of ward-pop-weighted access metric)
 ├── ingestion/
 │   ├── scheduler.py             ← APScheduler: fetch + full pipeline chain
@@ -464,6 +472,10 @@ city-scan-london/
 │       ├── sql_query.py
 │       ├── rag_query.py
 │       ├── deprivation.py          ← IMD 2025 deprivation lookup (static JSON, no DuckDB)
+│       ├── score_quality.py        ← Per-organ 95% bootstrap CI + reliability flag (static JSON)
+│       ├── housing_affordability.py ← ONS Housing Affordability Ratio 2025 (static JSON)
+│       ├── health_index.py         ← ONS Health Index 2021 lookup (static JSON; CoL excluded)
+│       ├── transit_access.py       ← TfL PTAL 2015 borough averages (static JSON)
 │       ├── chroma_client.py
 │       └── langchain_tools.py
 ├── mcp_server/

@@ -53,12 +53,17 @@ pytest tests/ -v
 | `test_housing_affordability.py` | ONS Table 5c JSON shape — 33 boroughs, plausible ratio range, K&C top |
 | `test_health_index.py` | ONS Health Index JSON — 32 boroughs (CoL excluded), Richmond top, plausible 70–130 range |
 | `test_score_quality.py` | Bootstrap output shape — flag distribution, static-organ rules (sentiment amber, GLA-static green), CI present for green bootstrappable organs, composite flag derivation |
+| `test_transit_access.py` | TfL PTAL 2015 JSON shape — 33 boroughs, valid PTAL bands, AvPTAI positive, normalised 0–100, City of London top |
 
 ### Agent tool tests
 
 | File | What it tests |
 |---|---|
-| `test_tools.py` | All 6 agent tools + `run_sql` guardrails (SQL injection, file-read blocking) |
+| `test_tools.py` | The 4 curated DuckDB tools + `run_sql` guardrails (SQL injection, file-read blocking) + `search_scores` RAG retrieval |
+| `test_health_index_tool.py` | `get_health_index` resolution by name and ONS code, City of London structured exclusion, missing-file error path |
+| `test_housing_affordability_tool.py` | `get_housing_affordability` lookup, all-boroughs sort order, length cap, missing-file fallback |
+| `test_score_quality_tool.py` | `get_score_quality` per-organ flag retrieval and shape; covers all 4 derivation paths |
+| `test_transit_access_tool.py` | `get_transit_access` PTAL band + score retrieval, vintage disclosure, missing-file error |
 | `test_embed.py` | ChromaDB embedding write + `search_scores` RAG retrieval |
 
 ### Integration tests

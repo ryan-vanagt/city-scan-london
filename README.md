@@ -2,7 +2,7 @@
 
 A live urban health monitoring platform that models London as a human body.
 
-Seven public data sources map to five biological systems, producing a health score per London borough (updated hourly, some sources carry institutional lag) — queryable via a natural language agent for cross-domain data integration, and summarised in a daily LLM-generated bulletin.
+Multiple public data sources map to five biological systems, producing a health score per London borough (updated hourly for the live signals; some sources carry institutional lag) — queryable via a natural language agent for cross-domain data integration, and summarised in a daily LLM-generated bulletin. External-context layers (IMD 2025, ONS Housing Affordability 2025, ONS Health Index 2021, TfL PTAL 2015) sit alongside the live pipeline for equity, validation, and access analysis.
 
 | System | Data Source | Signal |
 |---|---|---|
@@ -28,10 +28,11 @@ python scripts/fetch_laei.py                        # fetch GLA LAEI 2022 modell
 python scripts/fetch_imd.py                         # fetch IMD 2025 deprivation data
 python scripts/refresh_housing_affordability.py     # fetch ONS Housing Affordability Ratio (Table 5c, annual)
 python scripts/refresh_ons_health_index.py          # fetch ONS Health Index for England (used as external validation)
-python -m scripts.compute_score_quality             # bootstrap CIs + per-organ reliability flags from gold time-series
+python scripts/fetch_ptal.py                        # fetch TfL PTAL 2015 borough averages (SDG 11.2 access measure)
+python -m scripts.compute_score_quality             # bootstrap CIs + per-organ score-quality flags from gold time-series
 ```
 
-All `fetch_*` and `refresh_*` scripts above are one-shot — re-run when the upstream source publishes a new vintage. Green cover, IMD, housing affordability, and the Health Index are all yearly refreshes. `compute_score_quality.py` is a periodic job (run after the gold layer is repopulated).
+All `fetch_*` and `refresh_*` scripts above are one-shot — re-run when the upstream source publishes a new vintage. Green cover, IMD, housing affordability, and the Health Index are all yearly refreshes. PTAL is updated only on major TfL network changes (current edition: 2015). `compute_score_quality.py` is a periodic job (run after the gold layer is repopulated).
 
 ## Run
 
@@ -71,11 +72,11 @@ The backfill prevents a one-off NULL→value step on the Organ History chart for
 | Component | Status |
 |-----------|--------|
 | Data pipeline (7 sources → Bronze → Silver → Gold) | **Working** |
-| FastAPI (10 endpoints: health, scores, boroughs, trends, deprivation, agent, bulletin, internal) | **Working** |
-| Agent tools (5 curated + `run_sql` + `search_scores` + `get_deprivation`) | **Working** |
+| FastAPI (15 endpoints: health, scores, boroughs, trends, deprivation, housing affordability, health index, transit access, score quality, agent, bulletin, internal) | **Working** |
+| Agent tools (5 curated + `run_sql` + `search_scores` + `get_deprivation` + `get_score_quality` + `get_housing_affordability` + `get_health_index` + `get_transit_access`) | **Working** |
 | ChromaDB embedding (gold → vector store) | **Working** |
 | pytest test suite (`pytest tests/`) | **Working** |
-| Doctor Agent (LangGraph ReAct + SSE streaming + 8 tools) | **Working** |
+| Doctor Agent (LangGraph ReAct + SSE streaming + 11 tools) | **Working** |
 | Bulletin Agent (LangChain prompt chain + Signal of the Day) | **Working** |
 | IMD deprivation context (7 domains per borough) | **Working** |
 | Scheduler (APScheduler) | **Working** |
@@ -94,7 +95,8 @@ The backfill prevents a one-off NULL→value step on the Organ History chart for
 - `GET /boroughs/deprivation` — IMD 2025 deprivation data + 7 sub-domain ranks for all boroughs
 - `GET /boroughs/housing-affordability` — ONS Table 5c median ratio + 5-year average for all boroughs
 - `GET /boroughs/health-index` — ONS Health Index 2021 for 32 boroughs (City of London excluded by ONS)
-- `GET /boroughs/score-quality` — per-organ reliability flag (green/amber/red) and 95% bootstrap CI per borough
+- `GET /boroughs/transit-access` — TfL PTAL 2015 borough averages (band 1a–6b, AvPTAI, normalised 0–100)
+- `GET /boroughs/score-quality` — per-organ score quality flag (green/amber/red) and 95% bootstrap CI per borough
 - `GET /boroughs/trends` — 7-day composite trend direction for all boroughs
 - `POST /internal/reset-db` — release DuckDB read connection (internal)
 

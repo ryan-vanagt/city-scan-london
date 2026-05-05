@@ -14,8 +14,9 @@ flowchart TD
     GS[GLA Green Cover 2024] -->|"daily (static yearly data)"| B_GS[data/static/green_space.json]
     LAEI[GLA LAEI 2022<br>modelled air quality] -->|"daily (static yearly data)"| B_LAEI[data/static/laei_air_quality.json]
     WP[ONS Nomis NM_2014_1<br>ward populations] -.->|static join at silver| S
-    HOUSE[ONS Housing Affordability Ratio<br>Table 5c, annual] -->|"manual refresh"| B_HOUSE[data/static/housing_affordability.json]
-    HI[ONS Health Index for England<br>Table 2, annual] -->|"manual refresh"| B_HI[data/static/ons_health_index.json]
+    HOUSE[ONS Housing Affordability Ratio 2025<br>Table 5c, annual] -->|"manual refresh"| B_HOUSE[data/static/housing_affordability.json]
+    HI[ONS Health Index for England 2021<br>Table 2, annual] -->|"manual refresh"| B_HI[data/static/ons_health_index.json]
+    PTAL[TfL PTAL 2015<br>borough averages] -->|"manual refresh on TfL re-publication"| B_PTAL[data/static/transit_access.json]
     SQ[Bootstrap of gold time-series<br>1000 resamples per borough/organ] -->|"periodic (re-run after gold refresh)"| B_SQ[data/static/score_quality.json]
 
     B_OQ --> S[Silver layer\nDuckDB: silver_metrics]
@@ -41,7 +42,7 @@ flowchart TD
     B_GD -->|sentiment per title| SH
     B_BBC -->|sentiment per title| SH
 
-    G --> TOOLS[Agent Tools\n5 curated + run_sql\n+ search_scores + get_deprivation]
+    G --> TOOLS[Agent Tools\n4 curated DB + run_sql\n+ search_scores\n+ deprivation/score_quality/\nhousing_affordability/\nhealth_index/transit_access]
     SD --> TOOLS
     SH --> TOOLS
     CH --> TOOLS
@@ -76,7 +77,7 @@ Every Silver and Gold record carries:
 
 | Field            | Description                                                                       |
 | ---------------- | --------------------------------------------------------------------------------- |
-| `source`         | Origin API (`openaq`, `tfl`, `reddit`, `guardian`, `bbc`, `met_police`, `nhs_ae`, `green_space`, `laei`). External reference / overlay datasets (`housing_affordability`, `ons_health_index`, `score_quality`) live in `data/static/` and are served directly via the API rather than passing through the bronze→silver→gold pipeline. |
+| `source`         | Origin API (`openaq`, `tfl`, `reddit`, `guardian`, `bbc`, `met_police`, `nhs_ae`, `green_space`, `laei`). External reference / overlay datasets (`housing_affordability`, `ons_health_index`, `score_quality`, `transit_access`, `imd`) live in `data/static/` and are served directly via the API rather than passing through the bronze→silver→gold pipeline. |
 | `ingested_at`    | UTC timestamp of when the raw data was fetched                                    |
 | `pipeline_stage` | `bronze`, `silver`, or `gold`                                                     |
 
@@ -102,6 +103,6 @@ Every Silver and Gold record carries:
 | Silver Detail | `pipeline/silver.py` | Per-item context (crime categories, tube line statuses, AQ station readings, NHS trust data, ward-level green space coverage, per-headline sentiment) — does NOT feed into gold scores |
 | Gold        | `pipeline/gold.py`   | Per-borough weighted average across five organ signals (48h time-bound on silver data); embedded into ChromaDB. Composite uses RAW `green_space_score`, not the access-weighted variant, to keep the headline score stable for historical comparison and equity-residual work. Both green columns are persisted. |
 | Embed       | `pipeline/embed.py`  | Gold rows converted to text descriptions and upserted into ChromaDB for RAG  |
-| Agent Tools | `agents/tools/`      | 5 curated DuckDB queries + 1 guarded `run_sql` (13-layer security) + 1 RAG `search_scores` + 1 deprivation lookup |
+| Agent Tools | `agents/tools/`      | 4 curated DuckDB queries + 1 guarded `run_sql` (13-layer security) + 1 RAG `search_scores` + 5 static-JSON overlays (deprivation, score_quality, housing_affordability, health_index, transit_access) |
 
 

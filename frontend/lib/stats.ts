@@ -80,11 +80,14 @@ export interface OrganCorrelation {
  * keys point at sub-domain ranks under `domains.{key}.rank` in the API
  * payload from /boroughs/deprivation.
  *
- * "income" specifically has zero overlap with CityScan's input pipeline
- * (we feed crime, A&E, air, but not income/employment/education) — so it
- * provides a leakage-free deprivation baseline for divergence and equity
- * analysis. Use it when the panel asks about confounded vs unconfounded
- * relationships.
+ * Four sub-domains — income, employment, education, barriers — share no
+ * inputs with any CityScan organ. They are INPUT-leakage-free, so any
+ * correlation we measure against them is not a tautology of shared
+ * measurement. Causal-pathway confounding still applies (e.g. income
+ * affects health via mechanisms the score doesn't directly observe), but
+ * that is interpretive, not arithmetic. The other three domains (health,
+ * crime, living) overlap with CityScan organs at the input level and are
+ * disclosed accordingly.
  */
 export type ImdDomainKey =
   | "overall"

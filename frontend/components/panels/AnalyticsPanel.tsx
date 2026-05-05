@@ -159,8 +159,9 @@ export default function AnalyticsPanel({
             lineHeight: 1.55,
           }}
         >
-          Lungs = air · Arteries = transit · Brain = sentiment · Immune =
-          crime + A&E · Skin = green space
+          Lungs = air · Arteries = transit · Brain = public sentiment
+          (London-wide news/social proxy) · Immune = crime + A&E · Skin =
+          green space
         </div>
       </div>
     </div>

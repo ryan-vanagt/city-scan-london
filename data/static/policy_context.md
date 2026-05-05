@@ -2,7 +2,7 @@
 
 Reference document for grounding the City Doctor's responses in verified London
 policy. All policies verified via GOV.UK, london.gov.uk, and tfl.gov.uk as of
-April 2026. This file is loaded into the Doctor Agent's context to prevent policy
+May 2026. This file is loaded into the Doctor Agent's context to prevent policy
 hallucination and provide evidence-based framing.
 
 An organisation deploying CityScan would maintain this document with their own

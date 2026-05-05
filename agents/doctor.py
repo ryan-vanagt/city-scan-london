@@ -1,15 +1,26 @@
 """
 Doctor Agent — LangGraph ReAct agent.
 
-Answers natural language queries about London's health using ChromaDB RAG
-and structured DuckDB tool calls. Streams responses token-by-token via SSE.
+Answers natural language queries about London's health by orchestrating
+the 11 agent tools (4 curated DuckDB readers + guarded run_sql + RAG +
+5 static-JSON overlays for deprivation, score quality, housing
+affordability, the ONS Health Index, and TfL PTAL). Streams responses
+token-by-token via SSE.
+
+Hardening:
+  - SYSTEM_PROMPT loads policy_context.md so policy claims are grounded
+    in a verified reference rather than the model's training data.
+  - _check_prompt_injection runs an NFKC + whitespace-normalised pattern
+    scan over the user question before tool dispatch.
+  - ALL_TOOLS public functions cap borough input length to 100 chars.
 
 Output schema per query:
   answer  — streamed natural language response
   sources — list of grounded data points used (DuckDB rows + Guardian URLs)
 
-Every interaction is logged to the agent_logs DuckDB table.
-Gold-layer scores and silver-layer contextual detail reach the LLM — no raw post body text, no PII.
+Every interaction is logged to the agent_logs DuckDB table. Gold-layer
+scores and silver-layer contextual detail reach the LLM — no raw post
+body text, no PII.
 """
 
 import json
@@ -90,7 +101,10 @@ Data freshness:
 stale; never say "real-time" without this caveat. air_quality_modelled_score \
 (LAEI 2022) is a yearly static signal — NEVER claim it has improved, declined, \
 or changed over time; any apparent movement is methodology/data-vintage noise.
-- Arteries, Brain: near real-time, updated each pipeline run.
+- Arteries: near real-time, updated each pipeline run.
+- Brain: London-wide news/social sentiment, updated each pipeline run; the \
+same value is applied to every borough — it is NOT a per-borough reading. \
+Use it as a city-wide mood indicator only.
 - Immune: ~2 month institutional lag (Met Police + NHS A&E). Always check \
 the timestamp returned by the tool and report the actual data period.
 - Skin: GLA Green Cover 2024, **yearly static snapshot** — the underlying \
