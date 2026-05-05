@@ -104,7 +104,8 @@ def run_sql_tool(query: str) -> dict:
         immune_score, green_space_score, green_space_access_score,
         composite_score, ingested_at, pipeline_stage
         (air_score = live OpenAQ readings, PM2.5 and/or NO2 depending on
-         station, ~24/33 borough coverage, updates each cycle.
+         station, partial borough coverage that varies with sensor uptime
+         (typically around three quarters of boroughs), updates each cycle.
          air_quality_modelled_score = LAEI 2022 GLA
          modelled population-weighted annual mean, 33/33 coverage, yearly
          static — use for equity analysis and cross-borough comparison.

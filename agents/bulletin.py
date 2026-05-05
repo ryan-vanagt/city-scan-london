@@ -21,13 +21,14 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-from langchain_anthropic import ChatAnthropic
-from langchain_core.messages import HumanMessage, SystemMessage
-
 from agents.logging_db import log_bulletin
 from agents.tools.borough_query import compare_boroughs
 from agents.tools.health_score import get_london_score
 from agents.tools.trend_analysis import get_trend
+
+# langchain imports are deferred to call-time so the bulletin helpers
+# (_build_reliability_watch, _build_external_validity, etc.) can be unit
+# tested in environments without the LLM dependency installed.
 
 logger = logging.getLogger(__name__)
 
@@ -75,11 +76,14 @@ cross-domain pattern in today's data. What changed, what's surprising, what \
 diverges from the structural deprivation baseline. One paragraph, max 4 \
 sentences. Cite specific numbers. Do NOT speculate on causation — surface \
 the pattern. Look for what CHANGED today, not what's always been worst.
-12. If a "Reliability Watch" line is provided in the data, render it as a \
-short note immediately after the Organ Systems table — boroughs whose \
-underlying signals are sparse today (e.g. zero live air sensors) should be \
-flagged so the reader knows to triangulate any borough-level claim about \
-them.
+12. If a "Reliability Watch" section is provided in the data, render it \
+as a short paragraph (one or two sentences) immediately after the Organ \
+Systems table. The section may flag two distinct cases: (a) boroughs \
+where one or more bootstrappable input organs have a red flag — sparse \
+underlying data, sometimes zero live sensors — and (b) boroughs where \
+two or more input organs are amber, signalling wide CIs across the \
+composite. Surface both when present, so the reader knows to triangulate \
+any borough-level claim about those signals.
 13. If an "External Agreement" line is provided (CityScan vs ONS Health \
 Index 2021), render it as a one-sentence note at the end of the Diagnosis \
 section. Frame divergence as informative ("CityScan and ONS diverge most \
@@ -145,13 +149,19 @@ def _fetch_headlines() -> list[dict]:
     import requests
 
     api_key = os.environ.get("GUARDIAN_API_KEY", "")
+    if not api_key:
+        # Without a key the Guardian endpoint will reject the request; skip
+        # the network round trip rather than rely on the catch-all below,
+        # so the log line accurately reflects the cause.
+        logger.info("Bulletin: GUARDIAN_API_KEY unset — skipping headline fetch")
+        return []
     params = {
         "q": "london",
         "tag": "uk/london",
         "show-fields": "headline",
         "page-size": 5,
         "order-by": "newest",
-        "api-key": api_key or "test",
+        "api-key": api_key,
     }
 
     try:
@@ -162,9 +172,16 @@ def _fetch_headlines() -> list[dict]:
         )
         resp.raise_for_status()
         articles = resp.json().get("response", {}).get("results", [])
+        # Cap individual headlines defensively; Guardian's API does not
+        # return runaway-length text, but a malformed upstream payload
+        # should not be free-form passed into the LLM prompt.
+        max_chars = 300
         return [
             {
-                "headline": a.get("fields", {}).get("headline", a.get("webTitle", "")),
+                "headline": (
+                    a.get("fields", {}).get("headline", a.get("webTitle", ""))
+                    or ""
+                )[:max_chars],
                 "url": a.get("webUrl", ""),
             }
             for a in articles
@@ -483,6 +500,9 @@ def generate_bulletin(trigger: str = "manual") -> dict:
         reliability_watch=reliability_watch,
         external_validity=external_validity,
     )
+
+    from langchain_anthropic import ChatAnthropic
+    from langchain_core.messages import HumanMessage, SystemMessage
 
     llm = ChatAnthropic(model=MODEL_NAME, max_tokens=4096)
     response = llm.invoke([

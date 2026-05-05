@@ -107,7 +107,7 @@ const ORGANS: OrganDef[] = [
   {
     key: "air_score",
     label: "Air (live)",
-    footnote: "OpenAQ sensor readings; sparse (24/33)",
+    footnote: "OpenAQ sensor readings; partial coverage (varies with sensor uptime)",
   },
   {
     key: "sentiment_score",

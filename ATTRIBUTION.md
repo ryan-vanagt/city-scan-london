@@ -42,6 +42,14 @@ The following sources publish data under the [Open Government License v3.0](http
   https://data.london.gov.uk/dataset/green-cover-2024-e56n0/
   Borough and ward-level green space coverage percentages.
 
+- **Greater London Authority (GLA)** — London Atmospheric Emissions Inventory (LAEI) 2022, modelled population-weighted PM2.5 / NO2 annual mean
+  https://data.london.gov.uk/dataset/london-atmospheric-emissions-inventory-laei-2022/
+  Used as `air_quality_modelled_score` for full 33/33 borough coverage alongside live OpenAQ readings. 2022 is the latest published edition.
+
+- **Transport for London (TfL)** — Public Transport Accessibility Levels (PTAL) 2015 borough averages
+  https://data.london.gov.uk/dataset/public-transport-accessibility-levels
+  Borough-level Average Public Transport Accessibility Index (AvPTAI) and band 1a–6b. Used as the SDG 11.2 access measure. PTAL is republished only on major TfL network changes; 2015 is the most recent borough-average edition (predates the 2022 Elizabeth Line opening, which is disclosed where relevant).
+
 - **MHCLG** — English Indices of Deprivation 2025 (IMD)
   https://www.gov.uk/government/statistics/english-indices-of-deprivation-2025
   Borough-level deprivation ranks and domain sub-scores. Used for equity-aware analysis (overall IMD plus 7 sub-domains: income, employment, education, health, crime, barriers, living).
@@ -50,9 +58,9 @@ The following sources publish data under the [Open Government License v3.0](http
   https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/healthandwellbeing/datasets/healthindexscoresengland
   Composite index covering 2015–2021 (England 2015 = 100 baseline) at Lower-Tier Local Authority level. Built from inputs that don't appear in the CityScan pipeline (life expectancy, mortality, mental-health prevalence, behaviours), so used as an external convergent-validity reference for CityScan composite scores. ONS excludes City of London from this dataset by convention; 32 boroughs covered.
 
-- **ONS** — House Price to Workplace-Based Earnings Ratio (Table 5c, median)
+- **ONS** — House Price to Workplace-Based Earnings Ratio 2025 (Table 5c, median)
   https://www.ons.gov.uk/peoplepopulationandcommunity/housing/datasets/ratioofhousepricetoworkplacebasedearningslowerquartileandmedian
-  Annual median house price ÷ median workplace-based gross annual earnings, by Local Authority District. Used as a London-specific affordability overlay on the analytics scatter chart (alternate X-axis to IMD rank).
+  Annual median house price ÷ median workplace-based gross annual earnings, by Local Authority District (year ending September of the latest published vintage; CityScan refreshes once per year on ONS re-publication). Used as a London-specific affordability overlay on the analytics scatter chart (alternate X-axis to IMD rank). Note: workplace-based, not residence-based — captures price relative to where people work, which is more conservative for inner-London boroughs with high commuter inflows.
 
 - **ONS Nomis** — Mid-year population estimates at borough level (dataset NM_31_1) and ward level (dataset NM_2014_1, geography TYPE182 "Wards as of May 2025")
   https://www.nomisweb.co.uk

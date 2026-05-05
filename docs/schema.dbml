@@ -20,7 +20,7 @@ Table gold_scores {
   borough_code              varchar [not null, note: 'ONS 9-char code']
   borough_name              varchar [not null]
   timestamp                 timestamptz [not null, note: 'UTC']
-  air_score                 double [note: '0–100, from OpenAQ PM2.5 + NO2 (live, 24/33 borough coverage), CHECK 0–100']
+  air_score                 double [note: '0–100, from OpenAQ PM2.5 + NO2 (live, partial borough coverage that varies with sensor uptime), CHECK 0–100']
   air_quality_modelled_score double [note: '0–100, from GLA LAEI 2022 modelled PM2.5/NO2 population-weighted annual mean (static, 33/33 borough coverage), CHECK 0–100']
   transit_score             double [note: '0–100, from TfL tube line status, CHECK 0–100']
   sentiment_score           double [note: '0–100, from Guardian + BBC sentiment (Reddit inactive), CHECK 0–100']

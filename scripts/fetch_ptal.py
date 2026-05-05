@@ -102,7 +102,7 @@ def build_json(rows: list[dict]) -> dict:
                 "log-transformed AvPTAI2015 min-max normalised across the 33 "
                 "boroughs; log compresses the City of London outlier."
             ),
-            "geography": "London borough (33 = 32 borough councils + City of London)",
+            "geography": "Greater London local authorities (32 London boroughs + City of London = 33 LADs)",
             "sdg_relevance": (
                 "SDG 11.2 — access to safe, affordable, accessible, sustainable "
                 "transport for all. PTAL is the GLA / TfL / Cabinet Office "
@@ -126,7 +126,17 @@ def main() -> int:
     text = _download()
     rows = _parse_csv(text)
     if len(rows) != 33:
-        logger.warning("Expected 33 boroughs, parsed %d", len(rows))
+        # 33 LADs (32 boroughs + City of London) is the canonical count.
+        # Anything else means the upstream CSV shape changed; refusing
+        # to overwrite a known-good output is safer than silently
+        # truncating the agent's data source.
+        logger.error(
+            "Expected 33 boroughs, parsed %d. Refusing to overwrite "
+            "%s with an incomplete dataset.",
+            len(rows),
+            OUTPUT_PATH,
+        )
+        return 1
     rows = _normalise(rows)
     payload = build_json(rows)
     OUTPUT_PATH.write_text(json.dumps(payload, indent=2), encoding="utf-8")

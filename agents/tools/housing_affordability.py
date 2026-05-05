@@ -90,7 +90,11 @@ def get_housing_affordability(borough: str | None = None) -> dict:
 
     The ratio is median house price ÷ median workplace-based annual earnings
     (year ending September of the latest year). Higher ratio = less affordable.
-    Annual cadence — refreshed once per year when ONS publishes a new vintage.
+    Workplace-based, not residence-based — earnings are measured at where
+    people work, not where they live. For inner-London boroughs with high
+    commuter inflows this is more conservative (the denominator includes
+    workers who do not necessarily live there). Annual cadence — refreshed
+    once per year when ONS publishes a new vintage.
 
     With borough specified: returns that borough's current ratio + 5-year
     average.

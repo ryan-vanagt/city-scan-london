@@ -42,13 +42,19 @@ export function pearson(
 }
 
 /**
- * Map |r| to a verbal magnitude word using conventional stats thresholds.
- * Used to keep on-screen captions in lockstep with computed correlation
- * strength — every adjective in our captions derives from this function so
- * prose can never contradict the data.
+ * Map |r| to a verbal magnitude word using conventional behavioural-science
+ * effect-size thresholds (Cohen-style: ~0.1 small, ~0.3 medium, ~0.5 large).
+ * "barely" / "weakly" / "moderately" / "strongly" / "very strongly" are
+ * descriptive labels for the on-screen caption — they describe the
+ * magnitude of association, not statistical significance, and they make
+ * no claim about causation. Used to keep prose in lockstep with the
+ * computed value so a caption can never contradict its data.
  *
- * Thresholds match the standard: |r|<0.1 negligible, 0.1–0.3 weak, 0.3–0.5
- * moderate, 0.5–0.7 strong, ≥0.7 very strong.
+ * Thresholds: |r|<0.1 → "barely"; 0.1–0.3 → "weakly"; 0.3–0.5 →
+ * "moderately"; 0.5–0.7 → "strongly"; ≥0.7 → "very strongly". These are
+ * conventional cut-offs for descriptive labelling; the underlying r is
+ * also displayed in the bar label so the reader can override the verbal
+ * descriptor with the numeric value.
  */
 export function strengthWord(r: number): "barely" | "weakly" | "moderately" | "strongly" | "very strongly" {
   const a = Math.abs(r);
@@ -198,9 +204,19 @@ const DIVERGENCE_ORGANS: { key: OrganKey; label: string }[] = [
  * organ pulling the borough away from its IMD-predicted health in the
  * direction of the divergence.
  *
- * `domain` defaults to "overall" (uses `imd_rank`). Pass "income" for a
- * leakage-free baseline (no overlap with CityScan inputs), or any sub-domain
- * key to reframe the divergence against that specific lens.
+ * `domain` defaults to "overall" (uses `imd_rank`). Pass any of the four
+ * input-leakage-free sub-domains — income, employment, education,
+ * barriers — for a deprivation baseline that does not share inputs with
+ * any CityScan organ; or any other sub-domain to reframe the divergence
+ * against that lens (with the input-overlap caveat surfaced in the
+ * caption).
+ *
+ * Sentiment is intentionally excluded from the per-organ driver
+ * regression: it is a London-wide signal applied uniformly to every
+ * borough (zero between-borough variance), which makes its per-organ
+ * residual degenerate and would let it spuriously dominate the driver
+ * attribution. See DIVERGENCE_ORGANS for the four organs that ARE
+ * included.
  *
  * Returns up to topN entries sorted by |residual| descending. Returns []
  * if fewer than 6 boroughs have both a rank and a composite score (LOO

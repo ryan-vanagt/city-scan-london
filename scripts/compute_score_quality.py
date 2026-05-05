@@ -101,8 +101,30 @@ MIN_OBS = 10
 REPO_ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_PATH = REPO_ROOT / "data" / "static" / "score_quality.json"
 
+# CITYSCAN_API_URL is the only knob we accept for the API base; if anyone
+# ever points the script at a third-party host (intentionally or via a typo)
+# we want the request to fail-closed rather than silently exfiltrate the
+# borough trend payload to an arbitrary URL. The allowlist matches the
+# default + the loopback URLs developers actually use.
+_API_HOST_ALLOWLIST = (
+    "cityscanldn.app",
+    "localhost",
+    "127.0.0.1",
+)
+
 
 def _api_get(url: str) -> dict:
+    from urllib.parse import urlparse
+
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        raise ValueError(f"Refusing non-http(s) URL: {url}")
+    host = (parsed.hostname or "").lower()
+    if host not in _API_HOST_ALLOWLIST:
+        raise ValueError(
+            f"Refusing API URL with non-allowlisted host: {host!r}. "
+            f"Set CITYSCAN_API_URL to one of: {', '.join(_API_HOST_ALLOWLIST)}"
+        )
     with urlopen(url, timeout=30, context=_SSL_CTX) as resp:
         return json.loads(resp.read().decode("utf-8"))
 
@@ -130,6 +152,41 @@ def _flag_from_width(width: float) -> str:
     if width < AMBER_THRESHOLD:
         return "amber"
     return "red"
+
+
+def _derive_composite_flag(
+    air_flag: str, transit_flag: str, immune_flag: str
+) -> tuple[str, str]:
+    """Derive composite_score flag from the three bootstrappable input
+    organs.
+
+    The composite is averaged from five organs, so bootstrapping it
+    yields a narrow CI even when an underlying organ is sparse. We
+    override that flag with one based on the input organs' flags so the
+    surfaced quality reflects actual input completeness rather than
+    temporal smoothness.
+
+    Rules:
+        - red    if 2 or more inputs are red
+        - amber  if exactly 1 input is red, OR 2 or more are amber
+        - green  otherwise
+
+    Returns (flag, basis_string).
+    """
+    flags = (air_flag, transit_flag, immune_flag)
+    red = flags.count("red")
+    amber = flags.count("amber")
+    if red >= 2:
+        flag = "red"
+    elif red == 1 or amber >= 2:
+        flag = "amber"
+    else:
+        flag = "green"
+    basis = (
+        f"derived from input organs: {red} red, {amber} amber, "
+        f"{3 - red - amber} green of 3 bootstrappable inputs"
+    )
+    return flag, basis
 
 
 def _process_borough(api_url: str, borough: dict) -> dict:
@@ -228,24 +285,13 @@ def _process_borough(api_url: str, borough: dict) -> dict:
     # input organs (air_score, transit_score, immune_score) — that captures
     # actual input completeness rather than just temporal smoothness.
     if "composite_score" in organs_out:
-        core_flags = [
+        composite_flag, basis = _derive_composite_flag(
             organs_out["air_score"]["flag"],
             organs_out["transit_score"]["flag"],
             organs_out["immune_score"]["flag"],
-        ]
-        red = core_flags.count("red")
-        amber = core_flags.count("amber")
-        if red >= 2:
-            composite_flag = "red"
-        elif red == 1 or amber >= 2:
-            composite_flag = "amber"
-        else:
-            composite_flag = "green"
-        organs_out["composite_score"]["flag"] = composite_flag
-        organs_out["composite_score"]["flag_basis"] = (
-            f"derived from input organs: {red} red, {amber} amber, "
-            f"{3 - red - amber} green of 3 bootstrappable inputs"
         )
+        organs_out["composite_score"]["flag"] = composite_flag
+        organs_out["composite_score"]["flag_basis"] = basis
         # When overridden to amber/red, suppress the composite bootstrap CI —
         # the composite mean's narrow CI contradicts the input-quality flag
         # and reads as "stable but unreliable" in the tooltip.
