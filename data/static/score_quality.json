@@ -1,6 +1,6 @@
 {
   "_metadata": {
-    "method": "Per-organ score reliability from bootstrap-of-mean CI on the borough's last 30 days of gold time-series. Static-cadence signals (sentiment, green-space variants, modelled air) are flagged green with a disclosure note about their cadence or scope \u2014 the score is precise, the bootstrap is just uninformative on a constant time-series.",
+    "method": "Per-organ score quality from bootstrap-of-mean CI on the borough's last 30 days of gold time-series for bootstrappable organs (air, transit, immune). Borough-specific static signals (green-space variants, modelled air) are flagged green with a cadence note. London-wide signals (sentiment) are flagged amber because they are not borough-specific. Composite_score flag is derived from the input organ flags (red if 2+ red, amber if 1 red OR 2+ amber, else green); its bootstrap CI is nulled when overridden to avoid contradicting the input-quality flag.",
     "bootstrap_resamples": 1000,
     "trend_window_days": 30,
     "thresholds": {
@@ -11,432 +11,6 @@
     "n_boroughs": 33
   },
   "boroughs": {
-    "E09000006": {
-      "borough_code": "E09000006",
-      "borough_name": "Bromley",
-      "organs": {
-        "air_score": {
-          "flag": "red",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 0,
-          "note": "No recent reading \u2014 local sensor coverage gap."
-        },
-        "air_quality_modelled_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 362,
-          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
-        },
-        "transit_score": {
-          "flag": "red",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 0,
-          "note": "No recent reading \u2014 local sensor coverage gap."
-        },
-        "sentiment_score": {
-          "flag": "amber",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
-        },
-        "immune_score": {
-          "flag": "green",
-          "ci_low": 81.72,
-          "ci_high": 81.73,
-          "width": 0.0,
-          "sd": 0.02,
-          "n": 477
-        },
-        "green_space_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
-        },
-        "green_space_access_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
-        },
-        "composite_score": {
-          "flag": "red",
-          "ci_low": 74.38,
-          "ci_high": 74.53,
-          "width": 0.16,
-          "sd": 0.86,
-          "n": 477,
-          "flag_basis": "derived from input organs: 2 red, 0 amber, 1 green of 3 bootstrappable inputs"
-        }
-      }
-    },
-    "E09000027": {
-      "borough_code": "E09000027",
-      "borough_name": "Richmond upon Thames",
-      "organs": {
-        "air_score": {
-          "flag": "green",
-          "ci_low": 46.41,
-          "ci_high": 49.59,
-          "width": 3.18,
-          "sd": 17.68,
-          "n": 477
-        },
-        "air_quality_modelled_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 362,
-          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
-        },
-        "transit_score": {
-          "flag": "green",
-          "ci_low": 81.11,
-          "ci_high": 85.74,
-          "width": 4.63,
-          "sd": 26.1,
-          "n": 477
-        },
-        "sentiment_score": {
-          "flag": "amber",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
-        },
-        "immune_score": {
-          "flag": "green",
-          "ci_low": 82.84,
-          "ci_high": 82.84,
-          "width": 0.0,
-          "sd": 0.0,
-          "n": 477
-        },
-        "green_space_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
-        },
-        "green_space_access_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
-        },
-        "composite_score": {
-          "flag": "green",
-          "ci_low": 68.11,
-          "ci_high": 69.16,
-          "width": 1.05,
-          "sd": 5.98,
-          "n": 477,
-          "flag_basis": "derived from input organs: 0 red, 0 amber, 3 green of 3 bootstrappable inputs"
-        }
-      }
-    },
-    "E09000026": {
-      "borough_code": "E09000026",
-      "borough_name": "Redbridge",
-      "organs": {
-        "air_score": {
-          "flag": "red",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 0,
-          "note": "No recent reading \u2014 local sensor coverage gap."
-        },
-        "air_quality_modelled_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 362,
-          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
-        },
-        "transit_score": {
-          "flag": "green",
-          "ci_low": 86.98,
-          "ci_high": 90.86,
-          "width": 3.88,
-          "sd": 21.75,
-          "n": 477
-        },
-        "sentiment_score": {
-          "flag": "amber",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
-        },
-        "immune_score": {
-          "flag": "green",
-          "ci_low": 73.3,
-          "ci_high": 73.34,
-          "width": 0.04,
-          "sd": 0.21,
-          "n": 477
-        },
-        "green_space_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
-        },
-        "green_space_access_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
-        },
-        "composite_score": {
-          "flag": "amber",
-          "ci_low": 66.85,
-          "ci_high": 67.87,
-          "width": 1.01,
-          "sd": 5.7,
-          "n": 477,
-          "flag_basis": "derived from input organs: 1 red, 0 amber, 2 green of 3 bootstrappable inputs"
-        }
-      }
-    },
-    "E09000002": {
-      "borough_code": "E09000002",
-      "borough_name": "Barking and Dagenham",
-      "organs": {
-        "air_score": {
-          "flag": "red",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 0,
-          "note": "No recent reading \u2014 local sensor coverage gap."
-        },
-        "air_quality_modelled_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 362,
-          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
-        },
-        "transit_score": {
-          "flag": "green",
-          "ci_low": 80.52,
-          "ci_high": 85.07,
-          "width": 4.55,
-          "sd": 26.2,
-          "n": 477
-        },
-        "sentiment_score": {
-          "flag": "amber",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
-        },
-        "immune_score": {
-          "flag": "green",
-          "ci_low": 76.83,
-          "ci_high": 76.91,
-          "width": 0.09,
-          "sd": 0.49,
-          "n": 477
-        },
-        "green_space_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
-        },
-        "green_space_access_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
-        },
-        "composite_score": {
-          "flag": "amber",
-          "ci_low": 60.58,
-          "ci_high": 61.75,
-          "width": 1.17,
-          "sd": 6.69,
-          "n": 477,
-          "flag_basis": "derived from input organs: 1 red, 0 amber, 2 green of 3 bootstrappable inputs"
-        }
-      }
-    },
-    "E09000016": {
-      "borough_code": "E09000016",
-      "borough_name": "Havering",
-      "organs": {
-        "air_score": {
-          "flag": "green",
-          "ci_low": 30.66,
-          "ci_high": 34.6,
-          "width": 3.94,
-          "sd": 21.46,
-          "n": 477
-        },
-        "air_quality_modelled_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 362,
-          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
-        },
-        "transit_score": {
-          "flag": "green",
-          "ci_low": 81.11,
-          "ci_high": 85.74,
-          "width": 4.63,
-          "sd": 26.1,
-          "n": 477
-        },
-        "sentiment_score": {
-          "flag": "amber",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
-        },
-        "immune_score": {
-          "flag": "green",
-          "ci_low": 81.42,
-          "ci_high": 81.46,
-          "width": 0.04,
-          "sd": 0.25,
-          "n": 477
-        },
-        "green_space_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
-        },
-        "green_space_access_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
-        },
-        "composite_score": {
-          "flag": "green",
-          "ci_low": 63.84,
-          "ci_high": 65.18,
-          "width": 1.34,
-          "sd": 7.42,
-          "n": 477,
-          "flag_basis": "derived from input organs: 0 red, 0 amber, 3 green of 3 bootstrappable inputs"
-        }
-      }
-    },
-    "E09000011": {
-      "borough_code": "E09000011",
-      "borough_name": "Greenwich",
-      "organs": {
-        "air_score": {
-          "flag": "green",
-          "ci_low": 36.94,
-          "ci_high": 38.58,
-          "width": 1.64,
-          "sd": 8.98,
-          "n": 477
-        },
-        "air_quality_modelled_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 362,
-          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
-        },
-        "transit_score": {
-          "flag": "green",
-          "ci_low": 86.46,
-          "ci_high": 90.55,
-          "width": 4.09,
-          "sd": 22.16,
-          "n": 477
-        },
-        "sentiment_score": {
-          "flag": "amber",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
-        },
-        "immune_score": {
-          "flag": "green",
-          "ci_low": 73.43,
-          "ci_high": 73.48,
-          "width": 0.05,
-          "sd": 0.27,
-          "n": 477
-        },
-        "green_space_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
-        },
-        "green_space_access_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
-        },
-        "composite_score": {
-          "flag": "green",
-          "ci_low": 60.14,
-          "ci_high": 61.01,
-          "width": 0.87,
-          "sd": 4.92,
-          "n": 477,
-          "flag_basis": "derived from input organs: 0 red, 0 amber, 3 green of 3 bootstrappable inputs"
-        }
-      }
-    },
     "E09000003": {
       "borough_code": "E09000003",
       "borough_name": "Barnet",
@@ -454,39 +28,39 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 362,
+          "n": 377,
           "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
-          "ci_low": 84.99,
-          "ci_high": 89.06,
-          "width": 4.07,
-          "sd": 22.91,
-          "n": 477
+          "ci_low": 85.3,
+          "ci_high": 89.33,
+          "width": 4.02,
+          "sd": 22.76,
+          "n": 492
         },
         "sentiment_score": {
           "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
-          "ci_low": 82.87,
-          "ci_high": 82.91,
+          "ci_low": 82.88,
+          "ci_high": 82.92,
           "width": 0.04,
-          "sd": 0.23,
-          "n": 477
+          "sd": 0.24,
+          "n": 492
         },
         "green_space_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
@@ -494,70 +68,70 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "amber",
-          "ci_low": 71.0,
-          "ci_high": 72.06,
-          "width": 1.06,
-          "sd": 5.81,
-          "n": 477,
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "sd": 5.77,
+          "n": 492,
           "flag_basis": "derived from input organs: 1 red, 0 amber, 2 green of 3 bootstrappable inputs"
         }
       }
     },
-    "E09000017": {
-      "borough_code": "E09000017",
-      "borough_name": "Hillingdon",
+    "E09000006": {
+      "borough_code": "E09000006",
+      "borough_name": "Bromley",
       "organs": {
         "air_score": {
-          "flag": "green",
-          "ci_low": 40.66,
-          "ci_high": 45.02,
-          "width": 4.36,
-          "sd": 24.55,
-          "n": 477
+          "flag": "red",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 0,
+          "note": "No recent reading \u2014 local sensor coverage gap."
         },
         "air_quality_modelled_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 362,
+          "n": 377,
           "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
-          "flag": "green",
-          "ci_low": 66.29,
-          "ci_high": 70.69,
-          "width": 4.4,
-          "sd": 26.09,
-          "n": 477
+          "flag": "red",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 0,
+          "note": "No recent reading \u2014 local sensor coverage gap."
         },
         "sentiment_score": {
           "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
-          "ci_low": 78.93,
-          "ci_high": 78.94,
-          "width": 0.01,
-          "sd": 0.07,
-          "n": 477
+          "ci_low": 81.72,
+          "ci_high": 81.72,
+          "width": 0.0,
+          "sd": 0.03,
+          "n": 492
         },
         "green_space_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
@@ -565,16 +139,158 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
+        },
+        "composite_score": {
+          "flag": "red",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "sd": 0.85,
+          "n": 492,
+          "flag_basis": "derived from input organs: 2 red, 0 amber, 1 green of 3 bootstrappable inputs"
+        }
+      }
+    },
+    "E09000015": {
+      "borough_code": "E09000015",
+      "borough_name": "Harrow",
+      "organs": {
+        "air_score": {
+          "flag": "red",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 0,
+          "note": "No recent reading \u2014 local sensor coverage gap."
+        },
+        "air_quality_modelled_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 377,
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
+        },
+        "transit_score": {
+          "flag": "green",
+          "ci_low": 66.22,
+          "ci_high": 70.61,
+          "width": 4.39,
+          "sd": 25.92,
+          "n": 492
+        },
+        "sentiment_score": {
+          "flag": "amber",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
+        },
+        "immune_score": {
+          "flag": "green",
+          "ci_low": 72.17,
+          "ci_high": 72.21,
+          "width": 0.05,
+          "sd": 0.27,
+          "n": 492
+        },
+        "green_space_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
+        },
+        "green_space_access_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
+        },
+        "composite_score": {
+          "flag": "amber",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "sd": 6.81,
+          "n": 492,
+          "flag_basis": "derived from input organs: 1 red, 0 amber, 2 green of 3 bootstrappable inputs"
+        }
+      }
+    },
+    "E09000027": {
+      "borough_code": "E09000027",
+      "borough_name": "Richmond upon Thames",
+      "organs": {
+        "air_score": {
+          "flag": "green",
+          "ci_low": 46.25,
+          "ci_high": 49.35,
+          "width": 3.1,
+          "sd": 17.45,
+          "n": 492
+        },
+        "air_quality_modelled_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 377,
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
+        },
+        "transit_score": {
+          "flag": "green",
+          "ci_low": 81.85,
+          "ci_high": 86.22,
+          "width": 4.37,
+          "sd": 25.85,
+          "n": 492
+        },
+        "sentiment_score": {
+          "flag": "amber",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
+        },
+        "immune_score": {
+          "flag": "green",
+          "ci_low": 82.84,
+          "ci_high": 82.84,
+          "width": 0.0,
+          "sd": 0.0,
+          "n": 492
+        },
+        "green_space_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
+        },
+        "green_space_access_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
           "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
-          "ci_low": 60.92,
-          "ci_high": 62.22,
-          "width": 1.3,
-          "sd": 7.39,
-          "n": 477,
+          "ci_low": 68.18,
+          "ci_high": 69.2,
+          "width": 1.02,
+          "sd": 5.9,
+          "n": 492,
           "flag_basis": "derived from input organs: 0 red, 0 amber, 3 green of 3 bootstrappable inputs"
         }
       }
@@ -596,39 +312,39 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 362,
+          "n": 377,
           "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
-          "ci_low": 73.38,
-          "ci_high": 78.11,
-          "width": 4.74,
-          "sd": 27.57,
-          "n": 477
+          "ci_low": 73.92,
+          "ci_high": 78.54,
+          "width": 4.61,
+          "sd": 27.43,
+          "n": 492
         },
         "sentiment_score": {
           "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
-          "ci_low": 74.48,
-          "ci_high": 74.51,
+          "ci_low": 74.49,
+          "ci_high": 74.52,
           "width": 0.03,
           "sd": 0.17,
-          "n": 477
+          "n": 492
         },
         "green_space_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
@@ -636,23 +352,94 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "amber",
-          "ci_low": 63.44,
-          "ci_high": 64.68,
-          "width": 1.24,
-          "sd": 7.17,
-          "n": 477,
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "sd": 7.13,
+          "n": 492,
           "flag_basis": "derived from input organs: 1 red, 0 amber, 2 green of 3 bootstrappable inputs"
         }
       }
     },
-    "E09000015": {
-      "borough_code": "E09000015",
-      "borough_name": "Harrow",
+    "E09000017": {
+      "borough_code": "E09000017",
+      "borough_name": "Hillingdon",
+      "organs": {
+        "air_score": {
+          "flag": "green",
+          "ci_low": 41.36,
+          "ci_high": 45.71,
+          "width": 4.35,
+          "sd": 24.51,
+          "n": 492
+        },
+        "air_quality_modelled_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 377,
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
+        },
+        "transit_score": {
+          "flag": "green",
+          "ci_low": 66.81,
+          "ci_high": 71.2,
+          "width": 4.39,
+          "sd": 26.06,
+          "n": 492
+        },
+        "sentiment_score": {
+          "flag": "amber",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
+        },
+        "immune_score": {
+          "flag": "green",
+          "ci_low": 78.92,
+          "ci_high": 78.93,
+          "width": 0.01,
+          "sd": 0.07,
+          "n": 492
+        },
+        "green_space_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
+        },
+        "green_space_access_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
+        },
+        "composite_score": {
+          "flag": "green",
+          "ci_low": 61.15,
+          "ci_high": 62.48,
+          "width": 1.33,
+          "sd": 7.44,
+          "n": 492,
+          "flag_basis": "derived from input organs: 0 red, 0 amber, 3 green of 3 bootstrappable inputs"
+        }
+      }
+    },
+    "E09000026": {
+      "borough_code": "E09000026",
+      "borough_name": "Redbridge",
       "organs": {
         "air_score": {
           "flag": "red",
@@ -667,39 +454,39 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 362,
+          "n": 377,
           "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
-          "ci_low": 65.6,
-          "ci_high": 69.81,
-          "width": 4.21,
-          "sd": 25.87,
-          "n": 477
+          "ci_low": 87.28,
+          "ci_high": 91.14,
+          "width": 3.86,
+          "sd": 21.46,
+          "n": 492
         },
         "sentiment_score": {
           "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
-          "ci_low": 72.15,
-          "ci_high": 72.2,
-          "width": 0.05,
-          "sd": 0.26,
-          "n": 477
+          "ci_low": 73.29,
+          "ci_high": 73.33,
+          "width": 0.04,
+          "sd": 0.22,
+          "n": 492
         },
         "green_space_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
@@ -707,70 +494,70 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "amber",
-          "ci_low": 62.8,
-          "ci_high": 63.92,
-          "width": 1.12,
-          "sd": 6.81,
-          "n": 477,
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "sd": 5.62,
+          "n": 492,
           "flag_basis": "derived from input organs: 1 red, 0 amber, 2 green of 3 bootstrappable inputs"
         }
       }
     },
-    "E09000031": {
-      "borough_code": "E09000031",
-      "borough_name": "Waltham Forest",
+    "E09000002": {
+      "borough_code": "E09000002",
+      "borough_name": "Barking and Dagenham",
       "organs": {
         "air_score": {
-          "flag": "amber",
-          "ci_low": 56.97,
-          "ci_high": 63.18,
-          "width": 6.2,
-          "sd": 34.15,
-          "n": 477
+          "flag": "red",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 0,
+          "note": "No recent reading \u2014 local sensor coverage gap."
         },
         "air_quality_modelled_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 362,
+          "n": 377,
           "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
-          "ci_low": 85.66,
-          "ci_high": 89.6,
-          "width": 3.94,
-          "sd": 22.2,
-          "n": 477
+          "ci_low": 81.12,
+          "ci_high": 85.55,
+          "width": 4.43,
+          "sd": 25.97,
+          "n": 492
         },
         "sentiment_score": {
           "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
-          "ci_low": 74.93,
-          "ci_high": 74.99,
-          "width": 0.05,
-          "sd": 0.31,
-          "n": 477
+          "ci_low": 76.8,
+          "ci_high": 76.89,
+          "width": 0.09,
+          "sd": 0.5,
+          "n": 492
         },
         "green_space_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
@@ -778,70 +565,70 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
-          "flag": "green",
-          "ci_low": 62.31,
-          "ci_high": 63.83,
-          "width": 1.52,
-          "sd": 8.55,
-          "n": 477,
-          "flag_basis": "derived from input organs: 0 red, 1 amber, 2 green of 3 bootstrappable inputs"
+          "flag": "amber",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "sd": 6.63,
+          "n": 492,
+          "flag_basis": "derived from input organs: 1 red, 0 amber, 2 green of 3 bootstrappable inputs"
         }
       }
     },
-    "E09000025": {
-      "borough_code": "E09000025",
-      "borough_name": "Newham",
+    "E09000016": {
+      "borough_code": "E09000016",
+      "borough_name": "Havering",
       "organs": {
         "air_score": {
           "flag": "green",
-          "ci_low": 39.72,
-          "ci_high": 42.01,
-          "width": 2.29,
-          "sd": 12.83,
-          "n": 477
+          "ci_low": 30.38,
+          "ci_high": 34.27,
+          "width": 3.88,
+          "sd": 21.27,
+          "n": 492
         },
         "air_quality_modelled_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 362,
+          "n": 377,
           "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
-          "ci_low": 74.78,
-          "ci_high": 79.25,
-          "width": 4.47,
-          "sd": 26.23,
-          "n": 477
+          "ci_low": 81.85,
+          "ci_high": 86.22,
+          "width": 4.37,
+          "sd": 25.85,
+          "n": 492
         },
         "sentiment_score": {
           "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
-          "ci_low": 74.27,
-          "ci_high": 74.33,
-          "width": 0.06,
-          "sd": 0.32,
-          "n": 477
+          "ci_low": 81.41,
+          "ci_high": 81.45,
+          "width": 0.05,
+          "sd": 0.26,
+          "n": 492
         },
         "green_space_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
@@ -849,16 +636,16 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
-          "ci_low": 53.42,
-          "ci_high": 54.44,
-          "width": 1.02,
-          "sd": 6.06,
-          "n": 477,
+          "ci_low": 63.9,
+          "ci_high": 65.16,
+          "width": 1.25,
+          "sd": 7.31,
+          "n": 492,
           "flag_basis": "derived from input organs: 0 red, 0 amber, 3 green of 3 bootstrappable inputs"
         }
       }
@@ -869,50 +656,50 @@
       "organs": {
         "air_score": {
           "flag": "green",
-          "ci_low": 37.6,
-          "ci_high": 40.17,
-          "width": 2.58,
-          "sd": 14.68,
-          "n": 477
+          "ci_low": 37.25,
+          "ci_high": 39.87,
+          "width": 2.62,
+          "sd": 14.57,
+          "n": 492
         },
         "air_quality_modelled_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 362,
+          "n": 377,
           "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
-          "ci_low": 76.08,
-          "ci_high": 80.57,
+          "ci_low": 76.67,
+          "ci_high": 81.16,
           "width": 4.49,
-          "sd": 26.89,
-          "n": 477
+          "sd": 26.7,
+          "n": 492
         },
         "sentiment_score": {
           "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
-          "ci_low": 79.74,
-          "ci_high": 79.79,
+          "ci_low": 79.75,
+          "ci_high": 79.8,
           "width": 0.05,
-          "sd": 0.27,
-          "n": 477
+          "sd": 0.28,
+          "n": 492
         },
         "green_space_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
@@ -920,141 +707,70 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
-          "ci_low": 61.62,
-          "ci_high": 62.55,
-          "width": 0.93,
-          "sd": 5.74,
-          "n": 477,
+          "ci_low": 61.66,
+          "ci_high": 62.61,
+          "width": 0.95,
+          "sd": 5.67,
+          "n": 492,
           "flag_basis": "derived from input organs: 0 red, 0 amber, 3 green of 3 bootstrappable inputs"
         }
       }
     },
-    "E09000004": {
-      "borough_code": "E09000004",
-      "borough_name": "Bexley",
+    "E09000031": {
+      "borough_code": "E09000031",
+      "borough_name": "Waltham Forest",
       "organs": {
         "air_score": {
-          "flag": "green",
-          "ci_low": 41.24,
-          "ci_high": 43.02,
-          "width": 1.78,
-          "sd": 9.73,
-          "n": 477
+          "flag": "amber",
+          "ci_low": 55.99,
+          "ci_high": 61.98,
+          "width": 5.98,
+          "sd": 34.27,
+          "n": 492
         },
         "air_quality_modelled_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 362,
+          "n": 377,
           "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
-          "flag": "red",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 0,
-          "note": "No recent reading \u2014 local sensor coverage gap."
+          "flag": "green",
+          "ci_low": 85.96,
+          "ci_high": 89.96,
+          "width": 4.0,
+          "sd": 21.92,
+          "n": 492
         },
         "sentiment_score": {
           "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
-          "ci_low": 73.91,
-          "ci_high": 73.93,
-          "width": 0.02,
-          "sd": 0.13,
-          "n": 477
-        },
-        "green_space_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
-        },
-        "green_space_access_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
-        },
-        "composite_score": {
-          "flag": "amber",
-          "ci_low": 55.1,
-          "ci_high": 55.55,
-          "width": 0.45,
-          "sd": 2.55,
-          "n": 477,
-          "flag_basis": "derived from input organs: 1 red, 0 amber, 2 green of 3 bootstrappable inputs"
-        }
-      }
-    },
-    "E09000008": {
-      "borough_code": "E09000008",
-      "borough_name": "Croydon",
-      "organs": {
-        "air_score": {
-          "flag": "green",
-          "ci_low": 38.86,
-          "ci_high": 41.07,
-          "width": 2.22,
-          "sd": 11.49,
-          "n": 477
-        },
-        "air_quality_modelled_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 362,
-          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
-        },
-        "transit_score": {
-          "flag": "red",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 0,
-          "note": "No recent reading \u2014 local sensor coverage gap."
-        },
-        "sentiment_score": {
-          "flag": "amber",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
-        },
-        "immune_score": {
-          "flag": "green",
-          "ci_low": 79.98,
-          "ci_high": 80.04,
+          "ci_low": 74.95,
+          "ci_high": 75.0,
           "width": 0.06,
-          "sd": 0.36,
-          "n": 477
+          "sd": 0.32,
+          "n": 492
         },
         "green_space_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
@@ -1062,141 +778,70 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
-          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
-        },
-        "composite_score": {
-          "flag": "amber",
-          "ci_low": 56.79,
-          "ci_high": 57.38,
-          "width": 0.59,
-          "sd": 3.04,
-          "n": 477,
-          "flag_basis": "derived from input organs: 1 red, 0 amber, 2 green of 3 bootstrappable inputs"
-        }
-      }
-    },
-    "E09000030": {
-      "borough_code": "E09000030",
-      "borough_name": "Tower Hamlets",
-      "organs": {
-        "air_score": {
-          "flag": "green",
-          "ci_low": 36.14,
-          "ci_high": 38.37,
-          "width": 2.23,
-          "sd": 12.46,
-          "n": 477
-        },
-        "air_quality_modelled_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 362,
-          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
-        },
-        "transit_score": {
-          "flag": "amber",
-          "ci_low": 71.3,
-          "ci_high": 76.54,
-          "width": 5.24,
-          "sd": 29.87,
-          "n": 477
-        },
-        "sentiment_score": {
-          "flag": "amber",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
-        },
-        "immune_score": {
-          "flag": "green",
-          "ci_low": 71.56,
-          "ci_high": 71.61,
-          "width": 0.05,
-          "sd": 0.28,
-          "n": 477
-        },
-        "green_space_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
-        },
-        "green_space_access_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
-          "ci_low": 50.01,
-          "ci_high": 51.14,
-          "width": 1.13,
-          "sd": 6.59,
-          "n": 477,
+          "ci_low": 62.19,
+          "ci_high": 63.63,
+          "width": 1.44,
+          "sd": 8.48,
+          "n": 492,
           "flag_basis": "derived from input organs: 0 red, 1 amber, 2 green of 3 bootstrappable inputs"
         }
       }
     },
-    "E09000023": {
-      "borough_code": "E09000023",
-      "borough_name": "Lewisham",
+    "E09000011": {
+      "borough_code": "E09000011",
+      "borough_name": "Greenwich",
       "organs": {
         "air_score": {
           "flag": "green",
-          "ci_low": 48.79,
-          "ci_high": 51.35,
-          "width": 2.56,
-          "sd": 14.38,
-          "n": 477
+          "ci_low": 37.07,
+          "ci_high": 38.69,
+          "width": 1.62,
+          "sd": 8.87,
+          "n": 492
         },
         "air_quality_modelled_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 362,
+          "n": 377,
           "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
-          "flag": "red",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 0,
-          "note": "No recent reading \u2014 local sensor coverage gap."
+          "flag": "green",
+          "ci_low": 86.93,
+          "ci_high": 90.79,
+          "width": 3.86,
+          "sd": 21.9,
+          "n": 492
         },
         "sentiment_score": {
           "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
-          "ci_low": 67.3,
-          "ci_high": 67.33,
-          "width": 0.02,
-          "sd": 0.14,
-          "n": 477
+          "ci_low": 73.41,
+          "ci_high": 73.46,
+          "width": 0.05,
+          "sd": 0.28,
+          "n": 492
         },
         "green_space_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
@@ -1204,17 +849,88 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
+          "flag": "green",
+          "ci_low": 60.24,
+          "ci_high": 61.09,
+          "width": 0.85,
+          "sd": 4.87,
+          "n": 492,
+          "flag_basis": "derived from input organs: 0 red, 0 amber, 3 green of 3 bootstrappable inputs"
+        }
+      }
+    },
+    "E09000014": {
+      "borough_code": "E09000014",
+      "borough_name": "Haringey",
+      "organs": {
+        "air_score": {
+          "flag": "green",
+          "ci_low": 35.0,
+          "ci_high": 39.1,
+          "width": 4.11,
+          "sd": 24.53,
+          "n": 492
+        },
+        "air_quality_modelled_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 377,
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
+        },
+        "transit_score": {
+          "flag": "green",
+          "ci_low": 70.49,
+          "ci_high": 75.2,
+          "width": 4.72,
+          "sd": 26.42,
+          "n": 492
+        },
+        "sentiment_score": {
           "flag": "amber",
-          "ci_low": 51.67,
-          "ci_high": 52.34,
-          "width": 0.67,
-          "sd": 3.74,
-          "n": 477,
-          "flag_basis": "derived from input organs: 1 red, 0 amber, 2 green of 3 bootstrappable inputs"
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
+        },
+        "immune_score": {
+          "flag": "green",
+          "ci_low": 72.45,
+          "ci_high": 72.48,
+          "width": 0.03,
+          "sd": 0.19,
+          "n": 492
+        },
+        "green_space_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
+        },
+        "green_space_access_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
+        },
+        "composite_score": {
+          "flag": "green",
+          "ci_low": 53.79,
+          "ci_high": 55.07,
+          "width": 1.27,
+          "sd": 7.59,
+          "n": 492,
+          "flag_basis": "derived from input organs: 0 red, 0 amber, 3 green of 3 bootstrappable inputs"
         }
       }
     },
@@ -1224,34 +940,34 @@
       "organs": {
         "air_score": {
           "flag": "green",
-          "ci_low": 42.99,
-          "ci_high": 47.77,
-          "width": 4.78,
-          "sd": 27.71,
-          "n": 477
+          "ci_low": 42.21,
+          "ci_high": 47.13,
+          "width": 4.92,
+          "sd": 27.63,
+          "n": 492
         },
         "air_quality_modelled_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 362,
+          "n": 377,
           "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
-          "ci_low": 71.78,
-          "ci_high": 76.39,
-          "width": 4.61,
-          "sd": 27.39,
-          "n": 477
+          "ci_low": 72.3,
+          "ci_high": 76.77,
+          "width": 4.47,
+          "sd": 27.23,
+          "n": 492
         },
         "sentiment_score": {
           "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
@@ -1259,15 +975,15 @@
           "ci_low": 75.45,
           "ci_high": 75.46,
           "width": 0.01,
-          "sd": 0.05,
-          "n": 477
+          "sd": 0.06,
+          "n": 492
         },
         "green_space_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
@@ -1275,16 +991,371 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
-          "ci_low": 58.13,
-          "ci_high": 59.49,
-          "width": 1.36,
-          "sd": 8.07,
-          "n": 477,
+          "ci_low": 58.11,
+          "ci_high": 59.44,
+          "width": 1.32,
+          "sd": 7.96,
+          "n": 492,
+          "flag_basis": "derived from input organs: 0 red, 0 amber, 3 green of 3 bootstrappable inputs"
+        }
+      }
+    },
+    "E09000019": {
+      "borough_code": "E09000019",
+      "borough_name": "Islington",
+      "organs": {
+        "air_score": {
+          "flag": "red",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 0,
+          "note": "No recent reading \u2014 local sensor coverage gap."
+        },
+        "air_quality_modelled_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 377,
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
+        },
+        "transit_score": {
+          "flag": "green",
+          "ci_low": 59.0,
+          "ci_high": 63.7,
+          "width": 4.7,
+          "sd": 27.2,
+          "n": 492
+        },
+        "sentiment_score": {
+          "flag": "amber",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
+        },
+        "immune_score": {
+          "flag": "green",
+          "ci_low": 65.64,
+          "ci_high": 65.69,
+          "width": 0.05,
+          "sd": 0.29,
+          "n": 492
+        },
+        "green_space_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
+        },
+        "green_space_access_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
+        },
+        "composite_score": {
+          "flag": "amber",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "sd": 7.1,
+          "n": 492,
+          "flag_basis": "derived from input organs: 1 red, 0 amber, 2 green of 3 bootstrappable inputs"
+        }
+      }
+    },
+    "E09000024": {
+      "borough_code": "E09000024",
+      "borough_name": "Merton",
+      "organs": {
+        "air_score": {
+          "flag": "green",
+          "ci_low": 31.26,
+          "ci_high": 33.48,
+          "width": 2.22,
+          "sd": 12.29,
+          "n": 492
+        },
+        "air_quality_modelled_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 377,
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
+        },
+        "transit_score": {
+          "flag": "green",
+          "ci_low": 75.43,
+          "ci_high": 80.06,
+          "width": 4.63,
+          "sd": 26.87,
+          "n": 492
+        },
+        "sentiment_score": {
+          "flag": "amber",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
+        },
+        "immune_score": {
+          "flag": "green",
+          "ci_low": 71.27,
+          "ci_high": 71.31,
+          "width": 0.04,
+          "sd": 0.21,
+          "n": 492
+        },
+        "green_space_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
+        },
+        "green_space_access_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
+        },
+        "composite_score": {
+          "flag": "green",
+          "ci_low": 55.88,
+          "ci_high": 56.8,
+          "width": 0.92,
+          "sd": 5.27,
+          "n": 492,
+          "flag_basis": "derived from input organs: 0 red, 0 amber, 3 green of 3 bootstrappable inputs"
+        }
+      }
+    },
+    "E09000032": {
+      "borough_code": "E09000032",
+      "borough_name": "Wandsworth",
+      "organs": {
+        "air_score": {
+          "flag": "green",
+          "ci_low": 33.54,
+          "ci_high": 35.49,
+          "width": 1.95,
+          "sd": 10.74,
+          "n": 492
+        },
+        "air_quality_modelled_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 377,
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
+        },
+        "transit_score": {
+          "flag": "green",
+          "ci_low": 75.43,
+          "ci_high": 80.06,
+          "width": 4.63,
+          "sd": 26.87,
+          "n": 492
+        },
+        "sentiment_score": {
+          "flag": "amber",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
+        },
+        "immune_score": {
+          "flag": "green",
+          "ci_low": 73.53,
+          "ci_high": 73.54,
+          "width": 0.01,
+          "sd": 0.05,
+          "n": 492
+        },
+        "green_space_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
+        },
+        "green_space_access_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
+        },
+        "composite_score": {
+          "flag": "green",
+          "ci_low": 54.7,
+          "ci_high": 55.64,
+          "width": 0.94,
+          "sd": 5.41,
+          "n": 492,
+          "flag_basis": "derived from input organs: 0 red, 0 amber, 3 green of 3 bootstrappable inputs"
+        }
+      }
+    },
+    "E09000005": {
+      "borough_code": "E09000005",
+      "borough_name": "Brent",
+      "organs": {
+        "air_score": {
+          "flag": "green",
+          "ci_low": 33.37,
+          "ci_high": 35.4,
+          "width": 2.03,
+          "sd": 11.55,
+          "n": 492
+        },
+        "air_quality_modelled_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 377,
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
+        },
+        "transit_score": {
+          "flag": "green",
+          "ci_low": 66.22,
+          "ci_high": 70.61,
+          "width": 4.39,
+          "sd": 25.92,
+          "n": 492
+        },
+        "sentiment_score": {
+          "flag": "amber",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
+        },
+        "immune_score": {
+          "flag": "green",
+          "ci_low": 73.67,
+          "ci_high": 73.7,
+          "width": 0.03,
+          "sd": 0.17,
+          "n": 492
+        },
+        "green_space_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
+        },
+        "green_space_access_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
+        },
+        "composite_score": {
+          "flag": "green",
+          "ci_low": 52.26,
+          "ci_high": 53.28,
+          "width": 1.03,
+          "sd": 6.13,
+          "n": 492,
+          "flag_basis": "derived from input organs: 0 red, 0 amber, 3 green of 3 bootstrappable inputs"
+        }
+      }
+    },
+    "E09000028": {
+      "borough_code": "E09000028",
+      "borough_name": "Southwark",
+      "organs": {
+        "air_score": {
+          "flag": "green",
+          "ci_low": 36.35,
+          "ci_high": 39.91,
+          "width": 3.56,
+          "sd": 20.41,
+          "n": 492
+        },
+        "air_quality_modelled_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 377,
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
+        },
+        "transit_score": {
+          "flag": "green",
+          "ci_low": 78.94,
+          "ci_high": 83.31,
+          "width": 4.37,
+          "sd": 25.08,
+          "n": 492
+        },
+        "sentiment_score": {
+          "flag": "amber",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
+        },
+        "immune_score": {
+          "flag": "green",
+          "ci_low": 67.53,
+          "ci_high": 67.54,
+          "width": 0.01,
+          "sd": 0.03,
+          "n": 492
+        },
+        "green_space_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
+        },
+        "green_space_access_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
+        },
+        "composite_score": {
+          "flag": "green",
+          "ci_low": 54.41,
+          "ci_high": 55.6,
+          "width": 1.19,
+          "sd": 6.78,
+          "n": 492,
           "flag_basis": "derived from input organs: 0 red, 0 amber, 3 green of 3 bootstrappable inputs"
         }
       }
@@ -1306,39 +1377,39 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 362,
+          "n": 377,
           "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
-          "flag": "amber",
-          "ci_low": 67.9,
-          "ci_high": 72.94,
-          "width": 5.03,
-          "sd": 30.1,
-          "n": 477
+          "flag": "green",
+          "ci_low": 68.62,
+          "ci_high": 73.56,
+          "width": 4.94,
+          "sd": 29.95,
+          "n": 492
         },
         "sentiment_score": {
           "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
-          "ci_low": 64.57,
-          "ci_high": 64.63,
+          "ci_low": 64.55,
+          "ci_high": 64.61,
           "width": 0.06,
-          "sd": 0.33,
-          "n": 477
+          "sd": 0.34,
+          "n": 492
         },
         "green_space_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
@@ -1346,70 +1417,70 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "amber",
-          "ci_low": 52.1,
-          "ci_high": 53.39,
-          "width": 1.29,
-          "sd": 7.78,
-          "n": 477,
-          "flag_basis": "derived from input organs: 1 red, 1 amber, 1 green of 3 bootstrappable inputs"
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "sd": 7.73,
+          "n": 492,
+          "flag_basis": "derived from input organs: 1 red, 0 amber, 2 green of 3 bootstrappable inputs"
         }
       }
     },
-    "E09000032": {
-      "borough_code": "E09000032",
-      "borough_name": "Wandsworth",
+    "E09000022": {
+      "borough_code": "E09000022",
+      "borough_name": "Lambeth",
       "organs": {
         "air_score": {
           "flag": "green",
-          "ci_low": 33.71,
-          "ci_high": 35.65,
-          "width": 1.94,
-          "sd": 10.88,
-          "n": 477
+          "ci_low": 36.26,
+          "ci_high": 38.96,
+          "width": 2.7,
+          "sd": 15.2,
+          "n": 492
         },
         "air_quality_modelled_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 362,
+          "n": 377,
           "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
-          "ci_low": 74.88,
-          "ci_high": 79.64,
-          "width": 4.76,
-          "sd": 27.01,
-          "n": 477
+          "ci_low": 61.44,
+          "ci_high": 66.28,
+          "width": 4.84,
+          "sd": 29.33,
+          "n": 492
         },
         "sentiment_score": {
           "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
-          "ci_low": 73.53,
-          "ci_high": 73.54,
-          "width": 0.01,
-          "sd": 0.05,
-          "n": 477
+          "ci_low": 65.75,
+          "ci_high": 65.8,
+          "width": 0.05,
+          "sd": 0.27,
+          "n": 492
         },
         "green_space_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
@@ -1417,167 +1488,41 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
-          "ci_low": 54.64,
-          "ci_high": 55.6,
-          "width": 0.96,
-          "sd": 5.45,
-          "n": 477,
+          "ci_low": 48.6,
+          "ci_high": 49.8,
+          "width": 1.2,
+          "sd": 7.19,
+          "n": 492,
           "flag_basis": "derived from input organs: 0 red, 0 amber, 3 green of 3 bootstrappable inputs"
         }
       }
     },
-    "E09000005": {
-      "borough_code": "E09000005",
-      "borough_name": "Brent",
+    "E09000004": {
+      "borough_code": "E09000004",
+      "borough_name": "Bexley",
       "organs": {
         "air_score": {
           "flag": "green",
-          "ci_low": 33.51,
-          "ci_high": 35.6,
-          "width": 2.09,
-          "sd": 11.69,
-          "n": 477
+          "ci_low": 41.29,
+          "ci_high": 43.0,
+          "width": 1.71,
+          "sd": 9.59,
+          "n": 492
         },
         "air_quality_modelled_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 362,
+          "n": 377,
           "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
-          "flag": "green",
-          "ci_low": 65.6,
-          "ci_high": 69.81,
-          "width": 4.21,
-          "sd": 25.87,
-          "n": 477
-        },
-        "sentiment_score": {
-          "flag": "amber",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
-        },
-        "immune_score": {
-          "flag": "green",
-          "ci_low": 73.66,
-          "ci_high": 73.69,
-          "width": 0.03,
-          "sd": 0.17,
-          "n": 477
-        },
-        "green_space_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
-        },
-        "green_space_access_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
-        },
-        "composite_score": {
-          "flag": "green",
-          "ci_low": 52.13,
-          "ci_high": 53.19,
-          "width": 1.06,
-          "sd": 6.17,
-          "n": 477,
-          "flag_basis": "derived from input organs: 0 red, 0 amber, 3 green of 3 bootstrappable inputs"
-        }
-      }
-    },
-    "E09000020": {
-      "borough_code": "E09000020",
-      "borough_name": "Kensington and Chelsea",
-      "organs": {
-        "air_score": {
-          "flag": "green",
-          "ci_low": 41.31,
-          "ci_high": 43.43,
-          "width": 2.12,
-          "sd": 11.76,
-          "n": 477
-        },
-        "air_quality_modelled_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 362,
-          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
-        },
-        "transit_score": {
-          "flag": "amber",
-          "ci_low": 68.28,
-          "ci_high": 73.35,
-          "width": 5.07,
-          "sd": 30.25,
-          "n": 477
-        },
-        "sentiment_score": {
-          "flag": "amber",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
-        },
-        "immune_score": {
-          "flag": "green",
-          "ci_low": 64.27,
-          "ci_high": 64.28,
-          "width": 0.0,
-          "sd": 0.02,
-          "n": 477
-        },
-        "green_space_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
-        },
-        "green_space_access_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
-        },
-        "composite_score": {
-          "flag": "green",
-          "ci_low": 50.78,
-          "ci_high": 51.89,
-          "width": 1.1,
-          "sd": 6.43,
-          "n": 477,
-          "flag_basis": "derived from input organs: 0 red, 1 amber, 2 green of 3 bootstrappable inputs"
-        }
-      }
-    },
-    "E09000019": {
-      "borough_code": "E09000019",
-      "borough_name": "Islington",
-      "organs": {
-        "air_score": {
           "flag": "red",
           "ci_low": null,
           "ci_high": null,
@@ -1585,44 +1530,28 @@
           "n": 0,
           "note": "No recent reading \u2014 local sensor coverage gap."
         },
-        "air_quality_modelled_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 362,
-          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
-        },
-        "transit_score": {
-          "flag": "green",
-          "ci_low": 58.01,
-          "ci_high": 62.75,
-          "width": 4.74,
-          "sd": 27.02,
-          "n": 477
-        },
         "sentiment_score": {
           "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
-          "ci_low": 65.65,
-          "ci_high": 65.7,
-          "width": 0.05,
-          "sd": 0.28,
-          "n": 477
+          "ci_low": 73.92,
+          "ci_high": 73.94,
+          "width": 0.02,
+          "sd": 0.13,
+          "n": 492
         },
         "green_space_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
@@ -1630,16 +1559,16 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "amber",
-          "ci_low": 49.78,
-          "ci_high": 51.02,
-          "width": 1.24,
-          "sd": 7.07,
-          "n": 477,
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "sd": 2.51,
+          "n": 492,
           "flag_basis": "derived from input organs: 1 red, 0 amber, 2 green of 3 bootstrappable inputs"
         }
       }
@@ -1650,18 +1579,18 @@
       "organs": {
         "air_score": {
           "flag": "amber",
-          "ci_low": 47.41,
-          "ci_high": 52.93,
-          "width": 5.52,
-          "sd": 31.25,
-          "n": 477
+          "ci_low": 46.3,
+          "ci_high": 51.87,
+          "width": 5.57,
+          "sd": 31.44,
+          "n": 492
         },
         "air_quality_modelled_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 362,
+          "n": 377,
           "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
@@ -1677,7 +1606,7 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
@@ -1686,14 +1615,14 @@
           "ci_high": 73.01,
           "width": 0.01,
           "sd": 0.05,
-          "n": 477
+          "n": 492
         },
         "green_space_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
@@ -1701,88 +1630,17 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "amber",
-          "ci_low": 57.63,
-          "ci_high": 59.06,
-          "width": 1.42,
-          "sd": 8.05,
-          "n": 477,
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "sd": 8.09,
+          "n": 492,
           "flag_basis": "derived from input organs: 1 red, 1 amber, 1 green of 3 bootstrappable inputs"
-        }
-      }
-    },
-    "E09000024": {
-      "borough_code": "E09000024",
-      "borough_name": "Merton",
-      "organs": {
-        "air_score": {
-          "flag": "green",
-          "ci_low": 31.7,
-          "ci_high": 33.9,
-          "width": 2.2,
-          "sd": 12.24,
-          "n": 477
-        },
-        "air_quality_modelled_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 362,
-          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
-        },
-        "transit_score": {
-          "flag": "green",
-          "ci_low": 74.88,
-          "ci_high": 79.64,
-          "width": 4.76,
-          "sd": 27.01,
-          "n": 477
-        },
-        "sentiment_score": {
-          "flag": "amber",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
-        },
-        "immune_score": {
-          "flag": "green",
-          "ci_low": 71.26,
-          "ci_high": 71.3,
-          "width": 0.04,
-          "sd": 0.2,
-          "n": 477
-        },
-        "green_space_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
-        },
-        "green_space_access_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
-        },
-        "composite_score": {
-          "flag": "green",
-          "ci_low": 55.89,
-          "ci_high": 56.81,
-          "width": 0.92,
-          "sd": 5.32,
-          "n": 477,
-          "flag_basis": "derived from input organs: 0 red, 0 amber, 3 green of 3 bootstrappable inputs"
         }
       }
     },
@@ -1792,50 +1650,50 @@
       "organs": {
         "air_score": {
           "flag": "green",
-          "ci_low": 33.1,
-          "ci_high": 35.74,
-          "width": 2.64,
-          "sd": 14.37,
-          "n": 477
+          "ci_low": 33.08,
+          "ci_high": 35.54,
+          "width": 2.46,
+          "sd": 14.21,
+          "n": 492
         },
         "air_quality_modelled_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 362,
+          "n": 377,
           "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
-          "ci_low": 56.88,
-          "ci_high": 61.32,
-          "width": 4.44,
-          "sd": 26.28,
-          "n": 477
+          "ci_low": 57.76,
+          "ci_high": 62.4,
+          "width": 4.63,
+          "sd": 26.48,
+          "n": 492
         },
         "sentiment_score": {
           "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
-          "ci_low": 67.61,
-          "ci_high": 67.64,
+          "ci_low": 67.62,
+          "ci_high": 67.65,
           "width": 0.04,
           "sd": 0.21,
-          "n": 477
+          "n": 492
         },
         "green_space_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
@@ -1843,38 +1701,109 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
-          "ci_low": 50.23,
-          "ci_high": 51.39,
-          "width": 1.16,
-          "sd": 6.66,
-          "n": 477,
+          "ci_low": 50.42,
+          "ci_high": 51.55,
+          "width": 1.14,
+          "sd": 6.64,
+          "n": 492,
           "flag_basis": "derived from input organs: 0 red, 0 amber, 3 green of 3 bootstrappable inputs"
         }
       }
     },
-    "E09000029": {
-      "borough_code": "E09000029",
-      "borough_name": "Sutton",
+    "E09000030": {
+      "borough_code": "E09000030",
+      "borough_name": "Tower Hamlets",
       "organs": {
         "air_score": {
           "flag": "green",
-          "ci_low": 39.34,
-          "ci_high": 44.2,
-          "width": 4.85,
-          "sd": 27.32,
-          "n": 477
+          "ci_low": 36.08,
+          "ci_high": 38.22,
+          "width": 2.14,
+          "sd": 12.31,
+          "n": 492
         },
         "air_quality_modelled_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 362,
+          "n": 377,
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
+        },
+        "transit_score": {
+          "flag": "green",
+          "ci_low": 72.13,
+          "ci_high": 77.09,
+          "width": 4.96,
+          "sd": 29.65,
+          "n": 492
+        },
+        "sentiment_score": {
+          "flag": "amber",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
+        },
+        "immune_score": {
+          "flag": "green",
+          "ci_low": 71.55,
+          "ci_high": 71.6,
+          "width": 0.05,
+          "sd": 0.28,
+          "n": 492
+        },
+        "green_space_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
+        },
+        "green_space_access_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
+        },
+        "composite_score": {
+          "flag": "green",
+          "ci_low": 50.14,
+          "ci_high": 51.23,
+          "width": 1.09,
+          "sd": 6.52,
+          "n": 492,
+          "flag_basis": "derived from input organs: 0 red, 0 amber, 3 green of 3 bootstrappable inputs"
+        }
+      }
+    },
+    "E09000008": {
+      "borough_code": "E09000008",
+      "borough_name": "Croydon",
+      "organs": {
+        "air_score": {
+          "flag": "green",
+          "ci_low": 38.73,
+          "ci_high": 40.76,
+          "width": 2.03,
+          "sd": 11.4,
+          "n": 492
+        },
+        "air_quality_modelled_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 377,
           "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
@@ -1890,23 +1819,23 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
-          "ci_low": 76.11,
-          "ci_high": 76.13,
-          "width": 0.03,
-          "sd": 0.15,
-          "n": 477
+          "ci_low": 79.96,
+          "ci_high": 80.03,
+          "width": 0.06,
+          "sd": 0.37,
+          "n": 492
         },
         "green_space_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
@@ -1914,70 +1843,70 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "amber",
-          "ci_low": 53.69,
-          "ci_high": 54.93,
-          "width": 1.24,
-          "sd": 7.1,
-          "n": 477,
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "sd": 3.02,
+          "n": 492,
           "flag_basis": "derived from input organs: 1 red, 0 amber, 2 green of 3 bootstrappable inputs"
         }
       }
     },
-    "E09000014": {
-      "borough_code": "E09000014",
-      "borough_name": "Haringey",
+    "E09000025": {
+      "borough_code": "E09000025",
+      "borough_name": "Newham",
       "organs": {
         "air_score": {
           "flag": "green",
-          "ci_low": 35.34,
-          "ci_high": 39.51,
-          "width": 4.17,
-          "sd": 24.79,
-          "n": 477
+          "ci_low": 39.49,
+          "ci_high": 41.89,
+          "width": 2.4,
+          "sd": 12.72,
+          "n": 492
         },
         "air_quality_modelled_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 362,
+          "n": 377,
           "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
-          "ci_low": 69.9,
-          "ci_high": 74.57,
-          "width": 4.68,
-          "sd": 26.48,
-          "n": 477
+          "ci_low": 75.35,
+          "ci_high": 80.0,
+          "width": 4.65,
+          "sd": 26.03,
+          "n": 492
         },
         "sentiment_score": {
           "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
-          "ci_low": 72.46,
-          "ci_high": 72.49,
-          "width": 0.03,
-          "sd": 0.18,
-          "n": 477
+          "ci_low": 74.25,
+          "ci_high": 74.31,
+          "width": 0.06,
+          "sd": 0.33,
+          "n": 492
         },
         "green_space_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
@@ -1985,17 +1914,159 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
-          "ci_low": 53.72,
-          "ci_high": 55.06,
-          "width": 1.34,
-          "sd": 7.66,
-          "n": 477,
+          "ci_low": 53.46,
+          "ci_high": 54.47,
+          "width": 1.01,
+          "sd": 5.98,
+          "n": 492,
           "flag_basis": "derived from input organs: 0 red, 0 amber, 3 green of 3 bootstrappable inputs"
+        }
+      }
+    },
+    "E09000023": {
+      "borough_code": "E09000023",
+      "borough_name": "Lewisham",
+      "organs": {
+        "air_score": {
+          "flag": "green",
+          "ci_low": 48.76,
+          "ci_high": 51.21,
+          "width": 2.45,
+          "sd": 14.22,
+          "n": 492
+        },
+        "air_quality_modelled_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 377,
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
+        },
+        "transit_score": {
+          "flag": "red",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 0,
+          "note": "No recent reading \u2014 local sensor coverage gap."
+        },
+        "sentiment_score": {
+          "flag": "amber",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
+        },
+        "immune_score": {
+          "flag": "green",
+          "ci_low": 67.31,
+          "ci_high": 67.34,
+          "width": 0.02,
+          "sd": 0.14,
+          "n": 492
+        },
+        "green_space_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
+        },
+        "green_space_access_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
+        },
+        "composite_score": {
+          "flag": "amber",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "sd": 3.7,
+          "n": 492,
+          "flag_basis": "derived from input organs: 1 red, 0 amber, 2 green of 3 bootstrappable inputs"
+        }
+      }
+    },
+    "E09000020": {
+      "borough_code": "E09000020",
+      "borough_name": "Kensington and Chelsea",
+      "organs": {
+        "air_score": {
+          "flag": "green",
+          "ci_low": 41.1,
+          "ci_high": 43.17,
+          "width": 2.07,
+          "sd": 11.64,
+          "n": 492
+        },
+        "air_quality_modelled_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 377,
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
+        },
+        "transit_score": {
+          "flag": "amber",
+          "ci_low": 68.86,
+          "ci_high": 73.9,
+          "width": 5.04,
+          "sd": 30.09,
+          "n": 492
+        },
+        "sentiment_score": {
+          "flag": "amber",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
+        },
+        "immune_score": {
+          "flag": "green",
+          "ci_low": 64.28,
+          "ci_high": 64.28,
+          "width": 0.0,
+          "sd": 0.02,
+          "n": 492
+        },
+        "green_space_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
+        },
+        "green_space_access_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
+        },
+        "composite_score": {
+          "flag": "green",
+          "ci_low": 50.87,
+          "ci_high": 51.95,
+          "width": 1.08,
+          "sd": 6.37,
+          "n": 492,
+          "flag_basis": "derived from input organs: 0 red, 1 amber, 2 green of 3 bootstrappable inputs"
         }
       }
     },
@@ -2005,18 +2076,18 @@
       "organs": {
         "air_score": {
           "flag": "amber",
-          "ci_low": 53.73,
-          "ci_high": 60.18,
-          "width": 6.45,
-          "sd": 34.13,
-          "n": 477
+          "ci_low": 53.07,
+          "ci_high": 59.09,
+          "width": 6.02,
+          "sd": 34.23,
+          "n": 492
         },
         "air_quality_modelled_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 362,
+          "n": 377,
           "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
@@ -2032,23 +2103,23 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
-          "ci_low": 75.62,
-          "ci_high": 75.67,
+          "ci_low": 75.6,
+          "ci_high": 75.65,
           "width": 0.05,
-          "sd": 0.3,
-          "n": 477
+          "sd": 0.31,
+          "n": 492
         },
         "green_space_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
@@ -2056,17 +2127,88 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "amber",
-          "ci_low": 53.18,
-          "ci_high": 54.82,
-          "width": 1.64,
-          "sd": 8.79,
-          "n": 477,
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "sd": 8.81,
+          "n": 492,
           "flag_basis": "derived from input organs: 1 red, 1 amber, 1 green of 3 bootstrappable inputs"
+        }
+      }
+    },
+    "E09000029": {
+      "borough_code": "E09000029",
+      "borough_name": "Sutton",
+      "organs": {
+        "air_score": {
+          "flag": "green",
+          "ci_low": 38.47,
+          "ci_high": 43.19,
+          "width": 4.73,
+          "sd": 27.44,
+          "n": 492
+        },
+        "air_quality_modelled_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 377,
+          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
+        },
+        "transit_score": {
+          "flag": "red",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 0,
+          "note": "No recent reading \u2014 local sensor coverage gap."
+        },
+        "sentiment_score": {
+          "flag": "amber",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
+        },
+        "immune_score": {
+          "flag": "green",
+          "ci_low": 76.1,
+          "ci_high": 76.12,
+          "width": 0.03,
+          "sd": 0.16,
+          "n": 492
+        },
+        "green_space_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
+        },
+        "green_space_access_score": {
+          "flag": "green",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "n": 492,
+          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
+        },
+        "composite_score": {
+          "flag": "amber",
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "sd": 7.12,
+          "n": 492,
+          "flag_basis": "derived from input organs: 1 red, 0 amber, 2 green of 3 bootstrappable inputs"
         }
       }
     },
@@ -2076,121 +2218,50 @@
       "organs": {
         "air_score": {
           "flag": "green",
-          "ci_low": 30.19,
-          "ci_high": 32.25,
-          "width": 2.06,
-          "sd": 11.58,
-          "n": 477
+          "ci_low": 30.17,
+          "ci_high": 32.22,
+          "width": 2.05,
+          "sd": 11.41,
+          "n": 492
         },
         "air_quality_modelled_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 362,
+          "n": 377,
           "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "green",
-          "ci_low": 56.25,
-          "ci_high": 60.67,
-          "width": 4.42,
-          "sd": 26.05,
-          "n": 477
-        },
-        "sentiment_score": {
-          "flag": "amber",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
-        },
-        "immune_score": {
-          "flag": "green",
-          "ci_low": 56.26,
-          "ci_high": 56.33,
-          "width": 0.07,
-          "sd": 0.39,
-          "n": 477
-        },
-        "green_space_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
-        },
-        "green_space_access_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
-        },
-        "composite_score": {
-          "flag": "green",
-          "ci_low": 44.81,
-          "ci_high": 45.87,
-          "width": 1.06,
-          "sd": 6.16,
-          "n": 477,
-          "flag_basis": "derived from input organs: 0 red, 0 amber, 3 green of 3 bootstrappable inputs"
-        }
-      }
-    },
-    "E09000028": {
-      "borough_code": "E09000028",
-      "borough_name": "Southwark",
-      "organs": {
-        "air_score": {
-          "flag": "green",
-          "ci_low": 36.81,
-          "ci_high": 40.59,
-          "width": 3.78,
-          "sd": 20.43,
-          "n": 477
-        },
-        "air_quality_modelled_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 362,
-          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
-        },
-        "transit_score": {
-          "flag": "green",
-          "ci_low": 78.45,
-          "ci_high": 82.94,
+          "ci_low": 57.17,
+          "ci_high": 61.67,
           "width": 4.49,
-          "sd": 25.22,
-          "n": 477
+          "sd": 26.28,
+          "n": 492
         },
         "sentiment_score": {
           "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
           "flag": "green",
-          "ci_low": 67.54,
-          "ci_high": 67.54,
-          "width": 0.01,
-          "sd": 0.03,
-          "n": 477
+          "ci_low": 56.28,
+          "ci_high": 56.35,
+          "width": 0.07,
+          "sd": 0.41,
+          "n": 492
         },
         "green_space_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
@@ -2198,87 +2269,16 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "green",
-          "ci_low": 54.45,
-          "ci_high": 55.7,
-          "width": 1.25,
-          "sd": 6.86,
-          "n": 477,
-          "flag_basis": "derived from input organs: 0 red, 0 amber, 3 green of 3 bootstrappable inputs"
-        }
-      }
-    },
-    "E09000022": {
-      "borough_code": "E09000022",
-      "borough_name": "Lambeth",
-      "organs": {
-        "air_score": {
-          "flag": "green",
-          "ci_low": 36.64,
-          "ci_high": 39.37,
-          "width": 2.73,
-          "sd": 15.23,
-          "n": 477
-        },
-        "air_quality_modelled_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 362,
-          "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
-        },
-        "transit_score": {
-          "flag": "green",
-          "ci_low": 60.4,
-          "ci_high": 65.24,
-          "width": 4.84,
-          "sd": 29.2,
-          "n": 477
-        },
-        "sentiment_score": {
-          "flag": "amber",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
-        },
-        "immune_score": {
-          "flag": "green",
-          "ci_low": 65.76,
-          "ci_high": 65.81,
-          "width": 0.05,
-          "sd": 0.27,
-          "n": 477
-        },
-        "green_space_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
-        },
-        "green_space_access_score": {
-          "flag": "green",
-          "ci_low": null,
-          "ci_high": null,
-          "width": null,
-          "n": 477,
-          "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
-        },
-        "composite_score": {
-          "flag": "green",
-          "ci_low": 48.48,
-          "ci_high": 49.7,
-          "width": 1.22,
-          "sd": 7.27,
-          "n": 477,
+          "ci_low": 45.0,
+          "ci_high": 46.04,
+          "width": 1.05,
+          "sd": 6.16,
+          "n": 492,
           "flag_basis": "derived from input organs: 0 red, 0 amber, 3 green of 3 bootstrappable inputs"
         }
       }
@@ -2300,23 +2300,23 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 362,
+          "n": 377,
           "note": "LAEI 2022 atmospheric model \u2014 precise for the year modelled; annual update."
         },
         "transit_score": {
           "flag": "amber",
-          "ci_low": 55.32,
-          "ci_high": 60.48,
-          "width": 5.16,
-          "sd": 29.31,
-          "n": 477
+          "ci_low": 56.42,
+          "ci_high": 61.44,
+          "width": 5.02,
+          "sd": 29.47,
+          "n": 492
         },
         "sentiment_score": {
           "flag": "amber",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "London-wide news signal \u2014 same value applied to every borough. Reliable for London, not borough-specific."
         },
         "immune_score": {
@@ -2325,14 +2325,14 @@
           "ci_high": 42.55,
           "width": 0.0,
           "sd": 0.0,
-          "n": 477
+          "n": 492
         },
         "green_space_score": {
           "flag": "green",
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 green-cover measurement \u2014 precise; updated yearly because physical coverage doesn't change daily."
         },
         "green_space_access_score": {
@@ -2340,16 +2340,16 @@
           "ci_low": null,
           "ci_high": null,
           "width": null,
-          "n": 477,
+          "n": 492,
           "note": "GLA 2024 (population-weighted) \u2014 precise; yearly update cycle."
         },
         "composite_score": {
           "flag": "amber",
-          "ci_low": 34.89,
-          "ci_high": 36.2,
-          "width": 1.31,
-          "sd": 7.63,
-          "n": 477,
+          "ci_low": null,
+          "ci_high": null,
+          "width": null,
+          "sd": 7.66,
+          "n": 492,
           "flag_basis": "derived from input organs: 1 red, 1 amber, 1 green of 3 bootstrappable inputs"
         }
       }

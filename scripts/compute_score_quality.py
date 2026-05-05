@@ -4,15 +4,22 @@ Compute per-borough × per-organ data-quality flags + bootstrapped composite CIs
 Output: data/static/score_quality.json — a static lookup the API serves and
 the frontend renders as small green/amber/red dots next to each score.
 
-Per-organ flag derivation:
-  - air_score, transit_score, immune_score, composite_score: bootstrap the
-    mean of the borough's recent gold time-series (default 30 days). Quality
-    flag derived from the 95% CI width.
-  - sentiment_score: structurally London-wide → flagged amber with disclosure.
-  - green_space_score / green_space_access_score: static annual GLA snapshot →
-    flagged amber with disclosure.
-  - air_quality_modelled_score: static LAEI baseline → flagged amber.
-  - Boroughs with a NULL latest reading get flagged red.
+Per-organ flag derivation (four paths):
+  - air_score, transit_score, immune_score: bootstrap the mean of the
+    borough's recent gold time-series (default 30 days). Flag derived from
+    the 95% CI width (green <5 pts, amber <15, red ≥15 or null reading).
+  - green_space_score / green_space_access_score / air_quality_modelled_score:
+    borough-specific signals on slow (annual) cadence. Flagged GREEN with a
+    cadence note — the score is precise for its vintage; bootstrap is
+    uninformative on a constant time-series.
+  - sentiment_score: London-wide news signal applied uniformly to every
+    borough. Flagged AMBER with a scope note — score is reliable in
+    absolute terms but is not a per-borough reading.
+  - composite_score: bootstrap is run for the CI numbers, but the FLAG is
+    overridden based on the count of red/amber input organs (red if 2+ red,
+    amber if 1 red OR 2+ amber, else green). When overridden to amber/red,
+    the bootstrap CI is nulled out so the tooltip doesn't render a
+    contradictory "stable" message alongside a low-quality flag.
 
 Reads from the live API (default https://cityscanldn.app/api). Override
 with CITYSCAN_API_URL. The script is idempotent — re-run when the gold
@@ -239,6 +246,13 @@ def _process_borough(api_url: str, borough: dict) -> dict:
             f"derived from input organs: {red} red, {amber} amber, "
             f"{3 - red - amber} green of 3 bootstrappable inputs"
         )
+        # When overridden to amber/red, suppress the composite bootstrap CI —
+        # the composite mean's narrow CI contradicts the input-quality flag
+        # and reads as "stable but unreliable" in the tooltip.
+        if composite_flag != "green":
+            organs_out["composite_score"]["ci_low"] = None
+            organs_out["composite_score"]["ci_high"] = None
+            organs_out["composite_score"]["width"] = None
 
     return {
         "borough_code": code,
@@ -262,12 +276,16 @@ def main() -> int:
     payload = {
         "_metadata": {
             "method": (
-                "Per-organ score reliability from bootstrap-of-mean CI on the "
-                f"borough's last {TREND_DAYS} days of gold time-series. "
-                "Static-cadence signals (sentiment, green-space variants, "
-                "modelled air) are flagged green with a disclosure note about "
-                "their cadence or scope — the score is precise, the bootstrap "
-                "is just uninformative on a constant time-series."
+                "Per-organ score quality from bootstrap-of-mean CI on the "
+                f"borough's last {TREND_DAYS} days of gold time-series for "
+                "bootstrappable organs (air, transit, immune). Borough-"
+                "specific static signals (green-space variants, modelled "
+                "air) are flagged green with a cadence note. London-wide "
+                "signals (sentiment) are flagged amber because they are not "
+                "borough-specific. Composite_score flag is derived from the "
+                "input organ flags (red if 2+ red, amber if 1 red OR 2+ "
+                "amber, else green); its bootstrap CI is nulled when "
+                "overridden to avoid contradicting the input-quality flag."
             ),
             "bootstrap_resamples": BOOTSTRAP_N,
             "trend_window_days": TREND_DAYS,

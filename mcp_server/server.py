@@ -1,9 +1,10 @@
 """
 CityScan MCP Server.
 
-Exposes all six Doctor agent tools as a Model Context Protocol (MCP) server,
-allowing any MCP-compatible client (Claude Desktop, other agents) to query
-CityScan data directly without going through the FastAPI REST layer.
+Exposes all eleven Doctor agent tools as a Model Context Protocol (MCP)
+server, allowing any MCP-compatible client (Claude Desktop, other agents)
+to query CityScan data directly without going through the FastAPI REST
+layer.
 
 Tools exposed:
   - get_borough_health(borough)
@@ -12,6 +13,11 @@ Tools exposed:
   - compare_boroughs(metric, top_n, ascending)
   - run_sql(query)
   - search_scores(query, n_results, borough_code)
+  - get_deprivation(borough)             — IMD 2025 rank + 7 sub-domains
+  - get_score_quality(borough)           — per-organ data-quality flags + CIs
+  - get_housing_affordability(borough)   — ONS Housing Affordability Ratio 2025
+  - get_health_index(borough)            — ONS Health Index 2021 (validation)
+  - get_transit_access(borough)          — TfL PTAL 2015 (SDG 11.2)
 """
 
 # Security: no authentication. Relies on MCP_HOST binding (default 127.0.0.1).
@@ -41,9 +47,14 @@ from mcp.server.fastmcp import FastMCP  # noqa: E402
 
 from agents.tools.borough_query import compare_boroughs as _compare_boroughs  # noqa: E402
 from agents.tools.borough_query import get_borough_health as _get_borough_health  # noqa: E402
+from agents.tools.deprivation import get_deprivation as _get_deprivation  # noqa: E402
+from agents.tools.health_index import get_health_index as _get_health_index  # noqa: E402
 from agents.tools.health_score import get_london_score as _get_london_score  # noqa: E402
+from agents.tools.housing_affordability import get_housing_affordability as _get_housing_affordability  # noqa: E402
 from agents.tools.rag_query import search_scores as _search_scores  # noqa: E402
+from agents.tools.score_quality import get_score_quality as _get_score_quality  # noqa: E402
 from agents.tools.sql_query import run_sql as _run_sql  # noqa: E402
+from agents.tools.transit_access import get_transit_access as _get_transit_access  # noqa: E402
 from agents.tools.trend_analysis import get_trend as _get_trend  # noqa: E402
 
 DB_PATH = str(PROJECT_ROOT / "data" / "cityscan.duckdb")
@@ -202,6 +213,76 @@ def tool_search_scores(
         return json.dumps(_search_scores(query, n_results, borough_code), default=str)
     except Exception as exc:
         logger.error("MCP search_scores failed: %s", exc)
+        return json.dumps({"error": "Internal error"})
+
+
+@mcp.tool(
+    name="get_deprivation",
+    description="Get IMD 2025 deprivation rank (1-296 nationally) and 7 domain sub-scores for a London borough.",
+)
+def tool_get_deprivation(borough: str) -> str:
+    """IMD 2025 rank + sub-domains. Accepts name or ONS code."""
+    try:
+        borough = str(borough)[:100]
+        return json.dumps(_get_deprivation(borough), default=str)
+    except Exception as exc:
+        logger.error("MCP get_deprivation failed: %s", exc)
+        return json.dumps({"error": "Internal error"})
+
+
+@mcp.tool(
+    name="get_score_quality",
+    description="Get per-organ data-quality flags (green/amber/red) and 95% bootstrap CIs for a borough's recent scores.",
+)
+def tool_get_score_quality(borough: str) -> str:
+    """Per-organ reliability flags + bootstrap CIs. Call before quoting an organ score."""
+    try:
+        borough = str(borough)[:100]
+        return json.dumps(_get_score_quality(borough), default=str)
+    except Exception as exc:
+        logger.error("MCP get_score_quality failed: %s", exc)
+        return json.dumps({"error": "Internal error"})
+
+
+@mcp.tool(
+    name="get_housing_affordability",
+    description="Get the ONS Housing Affordability Ratio (median price ÷ median earnings) for a borough or all 33.",
+)
+def tool_get_housing_affordability(borough: str = "") -> str:
+    """Housing affordability ratio. Empty string returns all 33 boroughs sorted desc."""
+    try:
+        borough = str(borough)[:100] if borough else ""
+        return json.dumps(_get_housing_affordability(borough or None), default=str)
+    except Exception as exc:
+        logger.error("MCP get_housing_affordability failed: %s", exc)
+        return json.dumps({"error": "Internal error"})
+
+
+@mcp.tool(
+    name="get_health_index",
+    description="Get the ONS Health Index 2021 score for a London borough (UK official subnational health composite).",
+)
+def tool_get_health_index(borough: str) -> str:
+    """ONS Health Index 2021. Independent benchmark for CityScan validation. City of London excluded by ONS convention."""
+    try:
+        borough = str(borough)[:100]
+        return json.dumps(_get_health_index(borough), default=str)
+    except Exception as exc:
+        logger.error("MCP get_health_index failed: %s", exc)
+        return json.dumps({"error": "Internal error"})
+
+
+@mcp.tool(
+    name="get_transit_access",
+    description="Get the TfL PTAL 2015 transit-access band (1a-6b) for a London borough — the SDG 11.2 access measure.",
+)
+def tool_get_transit_access(borough: str) -> str:
+    """PTAL 2015 borough average. Distinct from live transit_score (line reliability)."""
+    try:
+        borough = str(borough)[:100]
+        return json.dumps(_get_transit_access(borough), default=str)
+    except Exception as exc:
+        logger.error("MCP get_transit_access failed: %s", exc)
         return json.dumps({"error": "Internal error"})
 
 

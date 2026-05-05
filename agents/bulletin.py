@@ -184,7 +184,8 @@ def _build_reliability_watch(score_quality: dict | None, worst: list[dict]) -> s
     """
     if not score_quality or not worst:
         return None
-    watch_boroughs: list[tuple[str, list[str]]] = []
+    red_watch: list[tuple[str, list[str]]] = []
+    amber_concentration: list[str] = []
     worst_codes = [b.get("borough_code") for b in worst if b.get("borough_code")]
     for code in worst_codes:
         b = score_quality.get(code)
@@ -192,23 +193,39 @@ def _build_reliability_watch(score_quality: dict | None, worst: list[dict]) -> s
             continue
         organs = b.get("organs", {})
         red_organs: list[str] = []
+        amber_count = 0
         for organ_key in ("air_score", "transit_score", "immune_score"):
             flag = organs.get(organ_key, {}).get("flag")
             if flag == "red":
-                # Strip the "_score" suffix for a more readable label
                 red_organs.append(organ_key.removesuffix("_score").replace("_", " "))
+            elif flag == "amber":
+                amber_count += 1
+        name = b.get("borough_name", code)
         if red_organs:
-            watch_boroughs.append((b.get("borough_name", code), red_organs))
-    if not watch_boroughs:
+            red_watch.append((name, red_organs))
+        elif amber_count >= 2:
+            # No red, but ≥2 of 3 bootstrappable inputs are amber → wide CIs
+            # collectively, even if no single signal is sparse.
+            amber_concentration.append(name)
+    if not red_watch and not amber_concentration:
         return None
-    parts = [
-        f"{name} ({', '.join(red)})" for name, red in watch_boroughs
-    ]
-    return (
-        "Sparse underlying data today in: "
-        + "; ".join(parts)
-        + ". Borough-level claims about these signals should be treated as indicative only."
-    )
+    parts: list[str] = []
+    if red_watch:
+        red_text = "; ".join(f"{n} ({', '.join(o)})" for n, o in red_watch)
+        parts.append(
+            "Sparse underlying data today in: " + red_text
+            + ". Borough-level claims about these signals should be treated as indicative only."
+        )
+    if amber_concentration:
+        parts.append(
+            "Wide CIs across multiple organs in: "
+            + ", ".join(amber_concentration)
+            + ". Composite changes here may reflect input noise more than signal."
+        )
+    return " ".join(parts)
+
+
+_EXTERNAL_VALIDITY_MIN_PAIRS = 20
 
 
 def _build_external_validity(
@@ -218,26 +235,28 @@ def _build_external_validity(
     best: list[dict],
 ) -> str | None:
     """Compose a one-sentence comparison between CityScan and the ONS Health
-    Index, surfacing the largest agreement/divergence among today's notable
-    boroughs (top-3 best + top-3 worst). Returns None when Health Index data
-    is unavailable.
+    Index across all paired boroughs (typically 32 of 33; City of London is
+    excluded from the ONS dataset by convention). Surfaces the single
+    largest divergence in centred residual space. Returns None when fewer
+    than _EXTERNAL_VALIDITY_MIN_PAIRS pairs are available.
     """
     if not health_index:
         return None
-    notable_codes = [b.get("borough_code") for b in (best[:3] + worst[:3]) if b.get("borough_code")]
-    pairs: list[tuple[str, float | None, float | None]] = []  # (name, cityscan, hi_score)
-    cs_lookup = {b.get("borough_code"): b.get("score") for b in (best + worst)}
-    for code in notable_codes:
+    # Pull a full ranking so the sample is the whole borough set, not just
+    # the top/bottom-5. The notable lists are biased to extremes; computing
+    # within-set means on 6 boroughs gives a degenerate residual baseline.
+    all_ranked = compare_boroughs("composite_score", top_n=33, ascending=False).get("boroughs", [])
+    pairs: list[tuple[str, float, float]] = []
+    for b in all_ranked:
+        code = b.get("borough_code")
+        cs_score = b.get("score")
+        if not code or cs_score is None:
+            continue
         hi_entry = health_index.get(code)
-        if not hi_entry:
+        if not hi_entry or hi_entry.get("not_in_dataset"):
             continue
-        if hi_entry.get("not_in_dataset"):
-            continue
-        # hi_entry from /boroughs/health-index has shape: { score, year, ... }
-        # but for static-loaded shape, look for score_<year> via ranking
         hi_score = hi_entry.get("score")
         if hi_score is None:
-            # Fallback: scan keys (in case static shape rather than API shape)
             for key, value in hi_entry.items():
                 if isinstance(key, str) and key.startswith("score_") and key not in (
                     "score_2020",
@@ -245,25 +264,23 @@ def _build_external_validity(
                 ):
                     hi_score = value
                     break
-        cs_score = cs_lookup.get(code)
-        if hi_score is not None and cs_score is not None:
-            pairs.append((hi_entry.get("name") or hi_entry.get("borough_name") or code, cs_score, hi_score))
-    if len(pairs) < 2:
+        if hi_score is None:
+            continue
+        name = hi_entry.get("name") or hi_entry.get("borough_name") or b.get("borough_name") or code
+        pairs.append((name, cs_score, hi_score))
+    if len(pairs) < _EXTERNAL_VALIDITY_MIN_PAIRS:
         return None
-    # Largest divergence in normalised distance: (cs - cs_mean_in_pairs) - (hi - hi_mean_in_pairs)
     cs_mean = sum(p[1] for p in pairs) / len(pairs)
     hi_mean = sum(p[2] for p in pairs) / len(pairs)
-    divergences = [
-        (p[0], (p[1] - cs_mean) - (p[2] - hi_mean))
-        for p in pairs
-    ]
+    divergences = [(p[0], (p[1] - cs_mean) - (p[2] - hi_mean)) for p in pairs]
     divergences.sort(key=lambda x: -abs(x[1]))
     top_div = divergences[0]
     direction = "CityScan reads relatively healthier" if top_div[1] > 0 else "CityScan reads relatively worse"
     return (
-        f"External agreement (vs ONS Health Index 2021): {top_div[0]} shows the "
-        f"largest divergence among today's notable boroughs — {direction} "
-        "than the official health measure suggests. Different lenses; the gap is itself a finding."
+        f"External agreement (vs ONS Health Index 2021): across {len(pairs)} "
+        f"paired boroughs, {top_div[0]} shows the largest divergence — "
+        f"{direction} than the official health measure suggests. Different "
+        "lenses; the gap is itself a finding."
     )
 
 

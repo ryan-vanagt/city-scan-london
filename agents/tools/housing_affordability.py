@@ -103,11 +103,13 @@ def get_housing_affordability(borough: str | None = None) -> dict:
     Returns:
         Dict with per-borough ratio data, or error dict if borough not found.
     """
+    if borough is not None:
+        borough = str(borough)[:100]
     data = _load_data()
     metadata = data.get("_metadata", {})
     year = metadata.get("year")
 
-    if borough is None or (isinstance(borough, str) and not borough.strip()):
+    if borough is None or not borough.strip():
         boroughs = data.get("boroughs", {})
         items = []
         for code, b in boroughs.items():
@@ -125,7 +127,6 @@ def get_housing_affordability(borough: str | None = None) -> dict:
             "boroughs": items,
         }
 
-    borough = str(borough)[:100]
     resolved = _resolve_borough(borough)
     if resolved is None:
         return {"error": f"Borough not found: '{borough}'"}

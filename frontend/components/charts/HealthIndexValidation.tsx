@@ -312,7 +312,8 @@ export default function HealthIndexValidation({
       </ResponsiveContainer>
 
       {/* Caption — fully data-derived. Leads with the planner-relevant
-          trust signal (CityScan tracks the gold-standard); stats follow. */}
+          trust signal (CityScan agrees with ONS); stats and overlap caveat
+          follow. */}
       <div
         className="mt-2 text-[11px] font-mono px-3 py-2 rounded"
         style={{
@@ -322,13 +323,16 @@ export default function HealthIndexValidation({
           lineHeight: 1.55,
         }}
       >
-        CityScan {rWord} tracks the ONS gold-standard health measure (r² ={" "}
-        {rSquared.toFixed(3)}, n = {stats.n}). Largest divergence:{" "}
+        CityScan {rWord} agrees with the ONS Health Index{year ? ` ${year}` : ""}{" "}
+        across {stats.n} LTLAs (r² = {rSquared.toFixed(3)}, Pearson r = {r >= 0 ? "+" : "−"}
+        {Math.abs(r).toFixed(2)}). Cross-sectional convergent-validity
+        correlation; not a forecast. Largest divergence:{" "}
         {stats.topResid.borough_name} ({stats.topResidValue >= 0 ? "+" : "−"}
-        {Math.abs(stats.topResidValue).toFixed(1)} pts vs CityScan's
-        predicted value). The Health Index uses independent inputs (life
-        expectancy, mortality, behaviours) — none from CityScan's pipeline,
-        so the comparison is unconfounded.
+        {Math.abs(stats.topResidValue).toFixed(1)} pts vs CityScan's predicted
+        value). The Health Index draws on outcomes CityScan does not feed
+        (life expectancy, mortality, mental-health prevalence). Some
+        environmental inputs overlap (air pollution, green space), so this
+        is convergent validity — not a fully independent benchmark.
       </div>
     </div>
   );

@@ -364,7 +364,7 @@ Ideas validated during development but deferred to keep scope manageable:
 - **Anomaly detection** — flag borough scores deviating >2 standard deviations from their rolling mean. Surface as visual indicators on the map and in the bulletin.
 - **Ambient population for crime** — replace residential per-capita with workday/daytime population (Census 2021 or TfL tap-in/tap-out data) for fairer crime normalisation in commuter boroughs.
 - **PTAL integration** — TfL Public Transport Accessibility Levels for real SDG 11.2 coverage (who can ACCESS transport, not just service status).
-- **Housing data** — Land Registry prices or GLA housing stats as a 6th organ ("Skeleton"), aligned with SDG 11.1 (affordable housing).
+- **Housing data** — Land Registry prices or GLA housing stats as a 6th organ ("Skeleton"), capturing the affordability dimension of SDG 11 (canonical 11.1.1 indicator measures slum / inadequate housing, which UK ONS proxies separately via decent-homes standard, fuel poverty, overcrowding).
 - **Noise pollution** — DEFRA noise maps as an additional environmental signal for the Lungs organ.
 - **Multi-modal transit scoring** — TfL's status API supports bus, Overground, Elizabeth line, and DLR in the same endpoint. Adding these modes gives transit scores to the 7 boroughs currently missing tube coverage.
 - **Borough-level sentiment via NER** — Named Entity Recognition to extract borough names from headlines and assign per-borough sentiment scores instead of city-wide.

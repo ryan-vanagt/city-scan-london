@@ -149,13 +149,18 @@ export default function BoroughTooltip({
                 {isTransit
                   && metricFilter === "transit_score"
                   && transitAccess
-                  && transitAccess.score !== null && (
+                  && transitAccess.ptal_band && (
                   <div className="flex items-center justify-between gap-4 text-[8px] text-slate-500">
                     <span style={{ letterSpacing: "0.05em" }}>
-                      PTAL access {transitAccess.ptal_band ? `(${transitAccess.ptal_band})` : ""}
+                      PTAL access (2015)
                     </span>
                     <span className="font-mono">
-                      {formatScore(transitAccess.score)}
+                      {transitAccess.ptal_band}
+                      {transitAccess.score !== null && (
+                        <span style={{ color: "#475569" }}>
+                          {" "}· idx {formatScore(transitAccess.score)}
+                        </span>
+                      )}
                     </span>
                   </div>
                 )}

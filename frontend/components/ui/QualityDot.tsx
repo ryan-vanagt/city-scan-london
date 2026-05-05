@@ -76,7 +76,7 @@ export default function QualityDot({ quality, size = 8 }: QualityDotProps) {
     <>
       <span
         ref={dotRef}
-        aria-label={`Score reliability: ${FLAG_LABELS[quality.flag]}`}
+        aria-label={`Score quality: ${FLAG_LABELS[quality.flag]}`}
         className="inline-block"
         style={{
           width: size,
@@ -113,14 +113,19 @@ export default function QualityDot({ quality, size = 8 }: QualityDotProps) {
                 letterSpacing: "0.05em",
               }}
             >
-              Score reliability: {FLAG_LABELS[quality.flag]}
+              Score quality: {FLAG_LABELS[quality.flag]}
             </div>
             {quality.ci_low !== null && quality.ci_high !== null && quality.width !== null ? (
               <div style={{ color: "#94a3b8" }}>
-                Score is stable within ±{(quality.width / 2).toFixed(1)} pts
+                30-day mean precise to ±{(quality.width / 2).toFixed(1)} pts
                 <span style={{ color: "#64748b" }}>
                   {" "}(95% CI {quality.ci_low.toFixed(1)}–{quality.ci_high.toFixed(1)})
                 </span>
+                {quality.sd !== undefined && quality.sd !== null && (
+                  <div style={{ color: "#64748b", marginTop: 1 }}>
+                    Day-to-day SD: ±{quality.sd.toFixed(1)} pts
+                  </div>
+                )}
               </div>
             ) : null}
             {quality.note && (

@@ -168,10 +168,13 @@ function leastSquares(xs: number[], ys: number[]): SimpleRegression | null {
   return { slope, intercept, predict: (x) => slope * x + intercept };
 }
 
+// Sentiment_score is intentionally excluded: it has zero between-borough
+// variance (London-wide signal applied uniformly), so its residual would
+// be derived from a degenerate per-organ regression and could spuriously
+// dominate the driver-attribution magnitude comparison.
 const DIVERGENCE_ORGANS: { key: OrganKey; label: string }[] = [
   { key: "air_score", label: "Lungs" },
   { key: "transit_score", label: "Arteries" },
-  { key: "sentiment_score", label: "Brain" },
   { key: "immune_score", label: "Immune" },
   { key: "green_space_score", label: "Skin" },
 ];
@@ -278,7 +281,7 @@ export function boroughDivergence(
     }
     const drivingLabel = drivingKey
       ? DIVERGENCE_ORGANS.find((o) => o.key === drivingKey)!.label
-      : "—";
+      : "mixed signal";
 
     all.push({
       borough_code: p.code,

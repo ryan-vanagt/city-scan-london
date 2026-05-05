@@ -45,23 +45,27 @@ interface DomainOption {
   key: ImdDomainKey;
   label: string;     // dropdown text
   short: string;     // chart-title snippet
+  leakageFree: boolean; // true when domain shares no inputs with any CityScan organ
 }
 
 /**
- * Curated domain options. "Income" is highlighted as the leakage-free
- * baseline (no input overlap with CityScan); "Barriers" is the housing &
- * service-access lens (London-specific stressor); the others are honest
- * comparisons we don't want to hide.
+ * Curated domain options. Four IMD sub-domains share no inputs with any
+ * CityScan organ (Income, Employment, Education, Barriers) — a star marks
+ * them as the leakage-free comparators. The other three (Health, Crime,
+ * Living) overlap with the corresponding CityScan organ at the input
+ * level, so any correlation there is partly a tautology — kept for honest
+ * reporting and disclosed via a footnote when selected. Overall IMD is a
+ * weighted blend of all seven, so it inherits partial leakage too.
  */
 const DOMAIN_OPTIONS: DomainOption[] = [
-  { key: "overall",    label: "Overall IMD",                short: "IMD deprivation rank" },
-  { key: "income",     label: "Income",                     short: "IMD income rank" },
-  { key: "barriers",   label: "Housing & service barriers", short: "IMD barriers rank" },
-  { key: "living",     label: "Living environment",         short: "IMD living rank" },
-  { key: "health",     label: "Health & disability",        short: "IMD health rank" },
-  { key: "crime",      label: "Crime",                      short: "IMD crime rank" },
-  { key: "employment", label: "Employment",                 short: "IMD employment rank" },
-  { key: "education",  label: "Education",                  short: "IMD education rank" },
+  { key: "overall",    label: "Overall IMD",                       short: "IMD deprivation rank",   leakageFree: false },
+  { key: "income",     label: "Income ★",                          short: "IMD income rank",        leakageFree: true },
+  { key: "employment", label: "Employment ★",                      short: "IMD employment rank",    leakageFree: true },
+  { key: "education",  label: "Education ★",                       short: "IMD education rank",     leakageFree: true },
+  { key: "barriers",   label: "Housing & service barriers ★",      short: "IMD barriers rank",      leakageFree: true },
+  { key: "health",     label: "Health & disability",               short: "IMD health rank",        leakageFree: false },
+  { key: "crime",      label: "Crime",                             short: "IMD crime rank",         leakageFree: false },
+  { key: "living",     label: "Living environment",                short: "IMD living rank",        leakageFree: false },
 ];
 
 interface OrganDef {
@@ -314,10 +318,24 @@ export default function EquityPatterns({
             lineHeight: 1.55,
           }}
         >
-          Most correlated with deprivation: {captionParts.strongest.label} (
+          Most rank-correlated with deprivation: {captionParts.strongest.label} (
           {strengthWord(captionParts.strongest.r)}). Least:{" "}
           {captionParts.weakest.label} (
-          {strengthWord(captionParts.weakest.r)}). Bar values show r.
+          {strengthWord(captionParts.weakest.r)}). Bars show Pearson r between
+          the continuous score and the ordinal IMD rank — magnitude only,
+          sign in the label.
+          {!domainOption.leakageFree && (
+            <>
+              {" "}
+              <span style={{ color: "#f59e0b" }}>
+                Note: the {domainOption.short.replace("IMD ", "").replace(" rank", "")}
+                {" "}domain shares inputs with one or more CityScan organs, so
+                some of this correlation reflects shared measurement, not
+                independent equity signal. ★ marks the four leakage-free
+                comparators (Income, Employment, Education, Barriers).
+              </span>
+            </>
+          )}
         </div>
       )}
 

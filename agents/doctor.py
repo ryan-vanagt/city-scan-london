@@ -14,8 +14,10 @@ Gold-layer scores and silver-layer contextual detail reach the LLM — no raw po
 
 import json
 import logging
+import re
 import threading
 import time
+import unicodedata
 import uuid
 from typing import AsyncGenerator
 
@@ -48,7 +50,7 @@ You are the City Doctor — a specialist who diagnoses London's health \
 using cross-domain evidence from live public data. \
 London is modelled as a human body with five organ systems:
 
-- Lungs (air quality) — Two variants: air_score (live OpenAQ PM2.5+NO2, hourly, 24/33 borough coverage) and air_quality_modelled_score (LAEI 2022 GLA modelled population-weighted annual mean, 33/33 borough coverage, yearly static). Use live for "right now" questions; use modelled for equity analysis, cross-borough comparison, or any borough not covered by live stations.
+- Lungs (air quality) — Two variants: air_score (live OpenAQ readings, PM2.5 and/or NO2 depending on station, hourly, ~24/33 borough coverage; per-borough pollutant availability varies — borough scores may rely on a single pollutant when only one is reported by the local station) and air_quality_modelled_score (LAEI 2022 GLA modelled population-weighted annual mean, 33/33 borough coverage, yearly static). Use live for "right now" questions; use modelled for equity analysis, cross-borough comparison, or any borough not covered by live stations.
 - Arteries (transit) — TfL tube line status mapped to boroughs
 - Brain (sentiment) — BBC and Guardian headline sentiment (Reddit currently inactive)
 - Immune system (crime + A&E) — Met Police street crime and NHS A&E pressure. Crime per-capita rates are log-transformed (natural log of 1 + rate) before min-max normalisation, so one extreme borough (typically Westminster, tourism + night-economy) does not flatten the rest of the distribution. If asked about outliers, explain this as the methodology — we do NOT winsorise/clip.
@@ -167,9 +169,14 @@ transit_score from get_borough_health (TfL line reliability — "are \
 trains running") and PTAL from get_transit_access (structural network \
 access — "who can reach transit"). Use PTAL for SDG 11.2-style equity / \
 access questions and for comparing inner vs outer London access. PTAL \
-2015 is the latest edition; it predates the Elizabeth Line (2022), so \
-when the user asks about Newham, Tower Hamlets, parts of Ealing or \
-Hillingdon, disclose that 2015 PTAL understates current access there.
+2015 is the most recent publicly published borough-average edition; it \
+predates the Elizabeth Line (opened 2022), so disclose that 2015 PTAL \
+understates current access for boroughs the Elizabeth Line reaches: \
+City of London (Liverpool Street, Farringdon), City of Westminster \
+(Paddington, Bond Street), Camden (Tottenham Court Road), Tower Hamlets \
+(Whitechapel, Canary Wharf), Newham (Stratford, Custom House), \
+Greenwich (Woolwich), Redbridge (Ilford corridor), Havering (Romford), \
+and parts of Ealing and Hillingdon.
 """ + (f"""
 POLICY CONTEXT (verified London policies — for grounding, not unprompted prescription):
 {_POLICY_CONTEXT}
@@ -187,9 +194,17 @@ _INJECTION_PATTERNS = [
 def _check_prompt_injection(question: str) -> bool:
     """Check if question contains potential prompt injection patterns.
 
+    Normalises the input (Unicode NFKC + whitespace collapse) before
+    pattern-matching so common bypasses — full-width / compatibility
+    look-alikes (e.g. "ｉｇｎｏｒｅ" → "ignore") and zero-width / extra
+    whitespace insertion ("i g n o r e") — fold to the canonical form
+    we actually scan for.
+
     Returns True if injection detected, False otherwise.
     """
-    lower = question.lower()
+    normalised = unicodedata.normalize("NFKC", question)
+    normalised = re.sub(r"\s+", " ", normalised)
+    lower = normalised.lower()
     for pattern in _INJECTION_PATTERNS:
         if pattern in lower:
             logger.warning("Potential prompt injection detected: '%s' in query", pattern)

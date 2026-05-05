@@ -103,8 +103,9 @@ def run_sql_tool(query: str) -> dict:
         air_quality_modelled_score, transit_score, sentiment_score,
         immune_score, green_space_score, green_space_access_score,
         composite_score, ingested_at, pipeline_stage
-        (air_score = live OpenAQ hourly readings, 24/33 borough coverage,
-         updates each cycle. air_quality_modelled_score = LAEI 2022 GLA
+        (air_score = live OpenAQ readings, PM2.5 and/or NO2 depending on
+         station, ~24/33 borough coverage, updates each cycle.
+         air_quality_modelled_score = LAEI 2022 GLA
          modelled population-weighted annual mean, 33/33 coverage, yearly
          static — use for equity analysis and cross-borough comparison.
          green_space_score = raw GLA green cover %, min-max normalised 0-100.
@@ -227,12 +228,16 @@ def get_transit_access_tool(borough: str) -> dict:
     transit?"), and `get_borough_health` for RELIABILITY questions ("are
     the trains running?").
 
-    Vintage: 2015, the most recent published edition. PTAL is structural;
-    network geography is slow-moving. The 2015 edition predates the
-    Elizabeth Line (opened 2022), so it understates current access for
-    boroughs the Elizabeth Line reaches (Newham, Tower Hamlets, parts of
-    Ealing and Hillingdon, parts of Hounslow). Disclose this when the
-    user asks about those boroughs.
+    Vintage: 2015, the most recent publicly published borough-average
+    edition. PTAL is structural; network geography is slow-moving. The
+    2015 edition predates the Elizabeth Line (opened 2022), so it
+    understates current access for boroughs the Elizabeth Line reaches:
+    City of London (Liverpool Street, Farringdon), City of Westminster
+    (Paddington, Bond Street), Camden (Tottenham Court Road), Tower
+    Hamlets (Whitechapel, Canary Wharf), Newham (Stratford, Custom
+    House), Greenwich (Woolwich), Redbridge (Ilford corridor), Havering
+    (Romford), and parts of Ealing and Hillingdon. Disclose this when
+    the user asks about those boroughs.
 
     Args:
         borough: Borough name (e.g. 'Hackney') or ONS code (e.g. 'E09000012').
