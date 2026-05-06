@@ -304,6 +304,7 @@ export default function Home() {
               deprivation={deprivation}
               trends={trends}
               transitAccess={transitAccess}
+              scoreQuality={scoreQuality}
               metricFilter={metricFilter}
               selectedBorough={null}
               xrayMode={xrayActive}

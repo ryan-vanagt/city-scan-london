@@ -117,15 +117,19 @@ export default function QualityDot({ quality, size = 8 }: QualityDotProps) {
             </div>
             {quality.ci_low !== null && quality.ci_high !== null && quality.width !== null ? (
               <div style={{ color: "#94a3b8" }}>
-                30-day mean precise to ±{(quality.width / 2).toFixed(1)} pts
-                <span style={{ color: "#64748b" }}>
-                  {" "}(95% CI {quality.ci_low.toFixed(1)}–{quality.ci_high.toFixed(1)})
-                </span>
+                30-day mean: {((quality.ci_low + quality.ci_high) / 2).toFixed(1)}
+                {" "}(±{(quality.width / 2).toFixed(1)} pts)
+                <div style={{ color: "#64748b", marginTop: 1 }}>
+                  95% CI {quality.ci_low.toFixed(1)}–{quality.ci_high.toFixed(1)}
+                </div>
                 {quality.sd !== undefined && quality.sd !== null && (
                   <div style={{ color: "#64748b", marginTop: 1 }}>
                     Day-to-day SD: ±{quality.sd.toFixed(1)} pts
                   </div>
                 )}
+                <div style={{ color: "#64748b", marginTop: 3, fontStyle: "italic" }}>
+                  Score shown = latest reading; CI is on 30-day mean.
+                </div>
               </div>
             ) : null}
             {quality.note && (

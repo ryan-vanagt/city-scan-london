@@ -8,8 +8,9 @@
  * IMD deprivation rank.
  */
 
-import type { BoroughScore, MetricFilter, TransitAccess } from "@/lib/types";
+import type { BoroughScore, BoroughScoreQuality, MetricFilter, TransitAccess } from "@/lib/types";
 import { scoreToColour } from "@/lib/colours";
+import QualityDot from "@/components/ui/QualityDot";
 
 interface BoroughTooltipProps {
   borough: BoroughScore;
@@ -17,6 +18,7 @@ interface BoroughTooltipProps {
   metricFilter: MetricFilter;
   imdRank: number | null;
   transitAccess?: TransitAccess;
+  scoreQuality?: BoroughScoreQuality;
 }
 
 interface MetricDisplay {
@@ -59,6 +61,7 @@ export default function BoroughTooltip({
   metricFilter,
   imdRank,
   transitAccess,
+  scoreQuality,
 }: BoroughTooltipProps) {
   const compositeColour = scoreToColour(borough.composite_score);
 
@@ -180,8 +183,9 @@ export default function BoroughTooltip({
           >
             Overall
           </span>
-          <span className="font-mono text-[11px] font-bold" style={{ color: compositeColour }}>
+          <span className="flex items-center gap-1.5 font-mono text-[11px] font-bold" style={{ color: compositeColour }}>
             {formatScore(borough.composite_score)}
+            <QualityDot quality={scoreQuality?.organs?.composite_score} size={6} />
           </span>
         </div>
 

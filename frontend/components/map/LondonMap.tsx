@@ -8,7 +8,7 @@
  */
 
 import { useState, useCallback, useRef, useMemo } from "react";
-import type { BoroughScore, MetricFilter, TrendInfo, TransitAccess } from "@/lib/types";
+import type { BoroughScore, BoroughScoreQuality, MetricFilter, TrendInfo, TransitAccess } from "@/lib/types";
 import { BOROUGH_PATHS, BOROUGH_PATH_MAP, VIEW_BOX_WIDTH, VIEW_BOX_HEIGHT } from "@/lib/geo";
 import BoroughPath from "./BoroughPath";
 import BoroughTooltip from "./BoroughTooltip";
@@ -18,6 +18,7 @@ interface LondonMapProps {
   deprivation?: Record<string, any>;
   trends?: Record<string, TrendInfo>;
   transitAccess?: Record<string, TransitAccess>;
+  scoreQuality?: Record<string, BoroughScoreQuality>;
   metricFilter: MetricFilter;
   selectedBorough: string | null;
   xrayMode?: boolean;
@@ -30,6 +31,7 @@ export default function LondonMap({
   deprivation,
   trends,
   transitAccess,
+  scoreQuality,
   metricFilter,
   selectedBorough,
   xrayMode,
@@ -175,6 +177,7 @@ export default function LondonMap({
           metricFilter={metricFilter}
           imdRank={deprivation?.[hoveredBorough.borough_code]?.imd_rank ?? null}
           transitAccess={transitAccess?.[hoveredBorough.borough_code]}
+          scoreQuality={scoreQuality?.[hoveredBorough.borough_code]}
         />
       )}
     </div>
