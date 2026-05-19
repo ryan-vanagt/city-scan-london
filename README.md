@@ -1,5 +1,7 @@
 # CityScan London
 
+> Placed 2nd at the Analytics for Society Awards 2026 — UCL School of Management × Imperial Gandhi Centre × Institute of Analytics.
+
 A live urban health monitoring platform that models London as a human body.
 
 Multiple public data sources map to five biological systems, producing a health score per London borough (updated hourly for the live signals; some sources carry institutional lag) — queryable via a natural language agent for cross-domain data integration, and summarised in a daily LLM-generated bulletin. External-context layers (IMD 2025, ONS Housing Affordability 2025, ONS Health Index 2021, TfL PTAL 2015) sit alongside the live pipeline for equity, validation, and access analysis.
