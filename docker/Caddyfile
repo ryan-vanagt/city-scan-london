@@ -1,22 +1,3 @@
-# Old Cloudflare-managed domain (suspended). Kept commented for rollback —
-# remove once cityscanldn.app is confirmed fully working.
-# cityscan.ryanvanagt.com {
-# 	encode zstd gzip
-#
-# 	handle_path /api/* {
-# 		reverse_proxy api:8000
-# 	}
-#
-# 	handle {
-# 		reverse_proxy frontend:3000
-# 	}
-#
-# 	log {
-# 		output stdout
-# 		format console
-# 	}
-# }
-
 cityscanldn.app, www.cityscanldn.app {
 	encode zstd gzip
 
