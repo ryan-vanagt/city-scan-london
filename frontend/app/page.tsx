@@ -288,7 +288,10 @@ export default function Home() {
           <div
             className="w-full max-w-3xl"
             style={{
-              transform: mapZoomed ? "scale(4)" : "scale(1)",
+              // 3.5x, not 4x: at 4x the zoomed layer (~6100x4600 device px on a
+              // Retina laptop at 100%) overflowed GPU memory and boroughs flashed
+              // black during the dezoom; 3.5x is ~25% fewer pixels.
+              transform: mapZoomed ? "scale(3.5)" : "scale(1)",
               transition: "transform 2s cubic-bezier(0.16, 1, 0.3, 1)",
               willChange: mapZoomed ? "transform" : "auto",
             }}
