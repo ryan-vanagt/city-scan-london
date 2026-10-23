@@ -73,6 +73,9 @@ function GitHubIcon() {
   );
 }
 
+const SEP = "  •  ";
+const ATTRIBUTION = `Ryan Van Agt${SEP}Sources: OpenAQ, GLA LAEI 2022, TfL, Guardian/BBC, Met Police, NHS A&E, GLA Green Cover 2024, IMD 2025, ONS Housing Affordability 2025, ONS Health Index 2021, TfL PTAL 2015${SEP}Powered by Claude Haiku 4.5, LangGraph, DuckDB, ChromaDB`;
+
 export default function Footer() {
   return (
     <footer
@@ -90,16 +93,23 @@ export default function Footer() {
         fontFamily: "var(--font-inter, Inter, sans-serif)",
         fontSize: 12,
         color: "#64748b",
-        flexWrap: "wrap",
       }}
     >
-      {/* Attribution text */}
-      <span>
-        Ryan Van Agt&nbsp;&nbsp;•&nbsp;&nbsp;Sources: OpenAQ, GLA LAEI 2022, TfL, Guardian/BBC, Met Police, NHS A&amp;E, GLA Green Cover 2024, IMD 2025, ONS Housing Affordability 2025, ONS Health Index 2021, TfL PTAL 2015&nbsp;&nbsp;•&nbsp;&nbsp;Powered by Claude Haiku 4.5, LangGraph, DuckDB, ChromaDB
+      {/* Attribution text — the full line is ~1519px at 12px, so the font scales
+          with the window to keep it on one row (12px from ~1610px wide); below the
+          9px floor it wraps to a second line instead of being cut */}
+      <span
+        style={{
+          flex: 1,
+          minWidth: 0,
+          fontSize: "clamp(9px, calc((100vw - 96px) / 128), 12px)",
+        }}
+      >
+        {ATTRIBUTION}
       </span>
 
       {/* Social links */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
         <SocialLink
           href="https://www.linkedin.com/in/ryan-vanagt/"
           ariaLabel="Ryan Van Agt on LinkedIn"

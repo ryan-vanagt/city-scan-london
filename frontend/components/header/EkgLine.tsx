@@ -45,11 +45,14 @@ export default function EkgLine({ variant, colour }: EkgLineProps) {
   const pathD = EKG_PATHS[variant];
 
   return (
+    // Narrower windows crop the wave (slice keeps scale 1) instead of squashing it,
+    // so the header stays on one line; full 120px from the 2xl breakpoint up.
     <svg
       width={120}
       height={30}
       viewBox="0 0 120 30"
-      className="overflow-hidden"
+      preserveAspectRatio="xMinYMid slice"
+      className="overflow-hidden w-10 lg:w-16 xl:w-20 2xl:w-[120px]"
       aria-hidden="true"
     >
       <g className="ekg-scroll">

@@ -111,7 +111,7 @@ export default function VitalSigns({
       </div>
 
       {/* Metrics row with "ALL" reset */}
-      <div className="flex items-center gap-2 md:gap-4 flex-1 justify-center">
+      <div className="flex items-center gap-2 lg:gap-4 flex-1 justify-center">
         {/* ALL button — always visible, resets filter */}
         <button
           onClick={() => onMetricClick(null)}
@@ -136,7 +136,7 @@ export default function VitalSigns({
               key={key}
               onClick={() => onMetricClick(isActive ? null : key)}
               aria-pressed={isActive}
-              className="flex items-center gap-1.5 px-2 py-1 rounded-md transition-all duration-300 ease-out hover:bg-[rgba(14,165,233,0.15)] cursor-pointer"
+              className="flex items-center gap-1.5 px-1.5 lg:px-2 py-1 rounded-md transition-all duration-300 ease-out hover:bg-[rgba(14,165,233,0.15)] cursor-pointer"
               style={isActive ? { background: "rgba(14, 165, 233, 0.15)" } : undefined}
               aria-label={`Filter map by ${label}`}
             >

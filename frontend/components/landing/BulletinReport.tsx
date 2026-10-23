@@ -90,9 +90,11 @@ export default function BulletinReport({
         </div>
       </div>
 
-      {/* Bulletin content */}
+      {/* Bulletin content — height capped by the window so the "View live signals"
+          button below the card stays on screen on short (laptop) windows; tall
+          windows still get 60vh */}
       <div
-        className="px-6 pb-5 text-xs leading-relaxed text-slate-300 max-h-[60vh] overflow-y-auto"
+        className="px-6 pb-5 text-xs leading-relaxed text-slate-300 max-h-[max(8rem,min(60vh,calc(100vh-26rem)))] overflow-y-auto"
         style={{ fontFamily: "var(--font-ibm-plex), sans-serif" }}
       >
         <ReactMarkdown
